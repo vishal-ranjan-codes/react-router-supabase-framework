@@ -1,0 +1,18 @@
+# User Preferences
+- Prefers comprehensive, detailed planning documentation before starting development. Explicitly stated: "I want perfect, and detailed planning documented before we start the development". Confidence: 0.95
+- Prefers deep research on latest best practices before implementing. Asked for research on React Router, Supabase, Cloudflare before improving plans. Confidence: 0.9
+- Breaks large projects into numbered phases for structured implementation. Created PHASE-1 through PHASE-6 structure. Confidence: 0.85
+- Maintains reusable framework/starter projects that serve as templates for new projects. Has a Next.js Supabase framework used as a starting point, now creating a React Router Supabase framework. Confidence: 0.95
+- Prefers to reuse and import existing design systems and components across projects rather than rebuilding. Stated: "you can also import the design system and components from that project as I want to keep them the same". Confidence: 0.95
+- Prefers middleware-first auth patterns over per-loader client creation patterns. Accepted and built plans around React Router 8's native middleware for Supabase session management. Confidence: 0.85
+- Prefers self-hosted fonts over external CDN dependencies. Locked self-hosted Inter font in public/fonts/. Confidence: 0.8
+- Provides clear, detailed context about project structure and goals in initial messages. Gave both the new project path and reference project path upfront. Confidence: 0.85
+- Specifies what should be reused vs what needs adaptation. Clarified design system should stay the same but improvements are welcome. Confidence: 0.85
+- Prefers agent to autonomously implement entire phases end-to-end after understanding the plan, without pausing for intermediate approval. Expects the agent to read plans, understand the codebase, and execute all tasks in sequence. Confidence: 0.9
+- When architectural changes are needed, prefers the plan file to be updated first for review before implementation begins. Wants to review revised plans before approving implementation. Confidence: 0.85
+- Prefers a single shared sign-in/sign-up page for all user roles (user, admin) rather than role-specific auth pages. Role determines dashboard access after login. Confidence: 0.9
+- Actively tracks framework and library deprecation timelines and migrates to recommended replacements proactively before deprecated APIs are removed. Example: knew Supabase anon/service_role keys were deprecated and specified migration to publishable/secret keys. Confidence: 0.9
+- Dislikes hover shadow effects on UI elements like cards. Explicitly stated the sign-in form's hover shadow effect "that I don't like". Prefers clean, static styling without hover-triggered visual changes. Confidence: 0.9
+- Wants logo/branding visible on authentication pages (sign-in, sign-up). Confidence: 0.85
+- Dislikes tabs for switching between auth methods (e.g., Password vs OTP). Prefers an "OR" divider pattern: primary form shown by default, a horizontal rule with "OR" centered below it, then an outlined button for the secondary method. The outlined button toggles back to show the primary form. Confidence: 0.9
+- Prefers outlined button variant for secondary/alternative actions in forms (e.g., "Sign in with OTP" below the primary password form). Confidence: 0.85

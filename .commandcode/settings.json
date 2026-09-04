@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Shell(copy:*)",
+      "powershell",
+      "Shell(dir:*)"
+    ],
+    "deny": [],
+    "defaultMode": "default"
+  }
+}
