@@ -7,13 +7,14 @@
     "dev": "cross-env NODE_ENV=development react-router dev",
     "start": "wrangler dev",
     "typecheck": "react-router typegen && tsc",
-    "deploy": "wrangler deploy",
-    "test": "vitest",
+    "deploy": "react-router build && wrangler deploy",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage",
+    "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "lint": "eslint ."
+    "lint": "react-router typegen && tsc --noEmit"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1111.0",
@@ -82,11 +83,5 @@
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.11",
     "wrangler": "^4.123.0"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "workerd"
-    ]
   }
 }

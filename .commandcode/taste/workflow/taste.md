@@ -20,6 +20,8 @@
 - Test setup files go in a top-level `tests/` directory (e.g., `tests/setup.ts`). Confidence: 0.85
 - Wants plan files stored in the project root's `plans/` directory (e.g., `project-root/plans/`), NOT in tool-managed directories like `.commandcode/plans/`. Expects files to be in the project's own directory structure. Confidence: 0.95
 - Expects explicit file location instructions to be followed precisely. Expressed frustration when told twice to put files in the root folder but they were placed elsewhere. Confidence: 0.95
+- Excludes planning/scratch folders (`plans/`) from version control via .gitignore — internal planning docs are project-local, not for the repo. Confidence: 0.9
+- Prefers GitHub for hosting project repos, creating them via `gh repo create` with `--public` flag for framework/starter projects. Confidence: 0.85
 
 ## Framework Architecture
 - For framework/starter projects, clearly separates implementation phases (what the framework builds) from reference documentation (guides for downstream users). Deployment and testing phases are reference docs, not framework build steps. Confidence: 0.9

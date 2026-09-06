@@ -6,6 +6,9 @@
     "nodejs_compat"
   ],
   "main": "./workers/app.ts",
+  "alias": {
+    "virtual:react-router/server-build": "./build/server/index.js"
+  },
   "assets": {
     "directory": "./build/client"
   },

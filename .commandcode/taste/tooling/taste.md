@@ -26,7 +26,7 @@
 - React 19 requires `NODE_ENV=development` in Vitest config for testing (production build doesn't export `act` from `react-dom/test-utils`). Confidence: 0.9
 
 ## Deployment
-- Targets Cloudflare Workers/Pages for deployment. Confidence: 0.9
+- Targets Cloudflare Workers/Pages for deployment. Excludes `.wrangler/` state directories from version control. Confidence: 0.9
 - Uses Vite as the build tool. Confidence: 0.9
 
 ## Design System Pattern
