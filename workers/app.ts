@@ -1,8 +1,7 @@
 import { createRequestHandler } from "react-router";
 
 const requestHandler = createRequestHandler(
-  () => import("virtual:react-router/server-build"),
-  import.meta.env.MODE
+  () => import("virtual:react-router/server-build")
 );
 
 interface CloudflareEnv {
