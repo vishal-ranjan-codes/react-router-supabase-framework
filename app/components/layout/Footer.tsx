@@ -80,7 +80,7 @@ export default function Footer() {
 
                 <div className="theme-border-color border-t mt-8 pt-8">
                     <p className="theme-fc-light text-sm text-center">
-                        © 2026 React Router + Supabase Framework. Built with ❤️ for developers.
+                        © <span suppressHydrationWarning>{new Date().getFullYear()}</span> React Router + Supabase Framework. Built with ❤️ for developers.
                     </p>
                 </div>
             </div>
