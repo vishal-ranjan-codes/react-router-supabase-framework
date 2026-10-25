@@ -1,27 +1,92 @@
-name: Tests
+name: CI
+
+# The branch is `master`; the original workflow only watched `main`, so it never ran.
+# Both are listed so a rename to `main` later keeps CI alive.
 on:
   push:
-    branches: [main]
+    branches: [master, main]
   pull_request:
-    branches: [main]
+    branches: [master, main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  test:
+  quality:
+    name: lint + typecheck + unit + build (${{ matrix.pm }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - pm: npm
+            install: npm ci
+            script: npm run
+          - pm: pnpm
+            install: pnpm install --frozen-lockfile
+            script: pnpm
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
+
+      # Only meaningful for the pnpm leg: the repo deliberately has no `packageManager`
+      # field, so neither package manager is forced on the other.
+      - name: Install pnpm
+        if: matrix.pm == 'pnpm'
+        uses: pnpm/action-setup@v4
+        with:
+          version: 12
+
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
-          cache: pnpm
-      - run: pnpm install
-      - run: pnpm typecheck
-      - run: pnpm test --coverage
-      - run: pnpm test:e2e
+          node-version-file: .nvmrc
+          cache: ${{ matrix.pm }}
+
+      - name: Install dependencies
+        run: ${{ matrix.install }}
+
+      - name: Lint
+        run: ${{ matrix.script }} lint
+
+      - name: Format check
+        run: ${{ matrix.script }} format:check
+
+      # Generates worker-configuration.d.ts + route types, then type-checks every project.
+      - name: Typecheck
+        run: ${{ matrix.script }} typecheck
+
+      - name: Unit tests
+        run: ${{ matrix.script }} test
+
+      - name: Build
+        run: ${{ matrix.script }} build
+
+  e2e:
+    name: e2e (chromium)
+    runs-on: ubuntu-latest
+    needs: quality
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # The job only asks Playwright for chromium, and playwright.config.ts only declares
+      # the chromium project under CI, so the two stay in step.
+      - name: Install browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run e2e tests
+        run: npm run test:e2e
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-report
           path: playwright-report/
-          retention-days: 30
+          retention-days: 7
