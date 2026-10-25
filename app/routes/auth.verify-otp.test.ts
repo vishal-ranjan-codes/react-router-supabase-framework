@@ -1,5 +1,4 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { action } from "./auth.verify-otp";
 import { authConfig } from "~/lib/auth/config";
 import {
   actionArgs,
@@ -7,6 +6,7 @@ import {
   createSupabaseDouble,
   readResult,
 } from "../../tests/helpers/route";
+import { action } from "./auth.verify-otp";
 
 type Args = Parameters<typeof action>[0];
 
@@ -22,7 +22,11 @@ describe("verify-otp action", () => {
     authConfig.methods.emailOtp = false;
 
     const result = await action(
-      actionArgs(url, { email: "a@b.c", token: "123456" }, supabase) as unknown as Args
+      actionArgs(
+        url,
+        { email: "a@b.c", token: "123456" },
+        supabase,
+      ) as unknown as Args,
     );
 
     expect(await readResult(result)).toMatchObject({
@@ -34,7 +38,7 @@ describe("verify-otp action", () => {
 
   it("requires Supabase credentials to be configured", async () => {
     const result = await action(
-      actionArgs(url, { email: "a@b.c" }, null) as unknown as Args
+      actionArgs(url, { email: "a@b.c" }, null) as unknown as Args,
     );
 
     expect((await readResult(result)).status).toBe(503);
@@ -44,7 +48,7 @@ describe("verify-otp action", () => {
     const supabase = createSupabaseDouble();
 
     const noEmail = await action(
-      actionArgs(url, { token: "123456" }, supabase) as unknown as Args
+      actionArgs(url, { token: "123456" }, supabase) as unknown as Args,
     );
     expect(await readResult(noEmail)).toMatchObject({
       status: 400,
@@ -52,7 +56,7 @@ describe("verify-otp action", () => {
     });
 
     const noToken = await action(
-      actionArgs(url, { email: "a@b.c" }, supabase) as unknown as Args
+      actionArgs(url, { email: "a@b.c" }, supabase) as unknown as Args,
     );
     expect(await readResult(noToken)).toMatchObject({
       status: 400,
@@ -65,8 +69,12 @@ describe("verify-otp action", () => {
 
     const redirect = await captureRedirect(
       action(
-        actionArgs(url, { email: "a@b.c", token: "123456" }, supabase) as unknown as Args
-      )
+        actionArgs(
+          url,
+          { email: "a@b.c", token: "123456" },
+          supabase,
+        ) as unknown as Args,
+      ),
     );
 
     expect(supabase.auth.verifyOtp).toHaveBeenCalledWith({
@@ -81,7 +89,11 @@ describe("verify-otp action", () => {
     const supabase = createSupabaseDouble();
 
     const result = await action(
-      actionArgs(url, { otpAction: "resend", email: "a@b.c" }, supabase) as unknown as Args
+      actionArgs(
+        url,
+        { otpAction: "resend", email: "a@b.c" },
+        supabase,
+      ) as unknown as Args,
     );
 
     expect(await readResult(result)).toMatchObject({
@@ -97,7 +109,11 @@ describe("verify-otp action", () => {
     });
 
     const result = await action(
-      actionArgs(url, { otpAction: "resend", email: "a@b.c" }, supabase) as unknown as Args
+      actionArgs(
+        url,
+        { otpAction: "resend", email: "a@b.c" },
+        supabase,
+      ) as unknown as Args,
     );
 
     expect(await readResult(result)).toMatchObject({

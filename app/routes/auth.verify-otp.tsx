@@ -1,18 +1,18 @@
 import {
+  data,
   Link,
+  redirect,
   useActionData,
   useNavigation,
   useSearchParams,
-  data,
-  redirect,
 } from "react-router";
-import { supabaseMiddleware } from "~/middleware/supabase";
-import { supabaseContext } from "~/lib/supabase/context";
-import { isMethodEnabled } from "~/lib/auth/config";
-import { verifyEmailOtp, sendEmailOtp } from "~/lib/auth/providers";
 import { AuthLayout } from "~/components/auth/AuthLayout";
 import { EmailOtpForm } from "~/components/auth/EmailOtpForm";
+import { isMethodEnabled } from "~/lib/auth/config";
+import { sendEmailOtp, verifyEmailOtp } from "~/lib/auth/providers";
 import type { OtpIntent } from "~/lib/auth/types";
+import { supabaseContext } from "~/lib/supabase/context";
+import { supabaseMiddleware } from "~/middleware/supabase";
 import type { Route } from "./+types/auth.verify-otp";
 
 export const middleware: Route.MiddlewareFunction[] = [supabaseMiddleware];
@@ -33,14 +33,14 @@ export async function action({ request, context }: Route.ActionArgs) {
         error:
           "Authentication is not configured. Please set up Supabase credentials.",
       },
-      { status: 503 }
+      { status: 503 },
     );
   }
 
   if (!isMethodEnabled("email-otp")) {
     return data(
       { error: "Email code sign-in is not available" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -51,7 +51,7 @@ export async function action({ request, context }: Route.ActionArgs) {
   if (!email) {
     return data(
       { error: "Enter your email address", otpStep: "verify" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -60,7 +60,7 @@ export async function action({ request, context }: Route.ActionArgs) {
     if (!token) {
       return data(
         { error: "Enter the 6-digit code", otpStep: "verify" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 

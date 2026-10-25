@@ -1,9 +1,9 @@
 /**
  * Button Component
- * 
+ *
  * Integrated with custom design system - uses theme utilities instead of
  * default shadcn colors for consistent theming across light/dark modes.
- * 
+ *
  * Variants:
  * - default: Primary brand button with gradient (dark mode)
  * - destructive: Error/delete actions
@@ -16,11 +16,11 @@
  * - link: Text-only button with underline
  */
 
-import * as React from "react"
-import { Slot } from "@radix-ui/react-slot"
-import { cva, type VariantProps } from "class-variance-authority"
+import { Slot } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
+import * as React from "react";
 
-import { cn } from "~/lib/utils"
+import { cn } from "~/lib/utils";
 
 const buttonVariants = cva(
   // Base styles - shared across all variants
@@ -74,13 +74,13 @@ const buttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
-)
+  },
+);
 
 type ButtonProps = React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
-    asChild?: boolean
-  }
+    asChild?: boolean;
+  };
 
 function Button({
   className,
@@ -89,7 +89,7 @@ function Button({
   asChild = false,
   ...props
 }: ButtonProps) {
-  const Comp = asChild ? Slot : "button"
+  const Comp = asChild ? Slot : "button";
 
   return (
     <Comp
@@ -97,7 +97,7 @@ function Button({
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     />
-  )
+  );
 }
 
-export { Button, buttonVariants, type ButtonProps }
+export { Button, type ButtonProps, buttonVariants };

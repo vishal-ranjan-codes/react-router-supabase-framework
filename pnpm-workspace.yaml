@@ -1,3 +1,15 @@
+minimumReleaseAgeExclude:
+  - "@biomejs/biome@2.6.3"
+  - "@biomejs/cli-android-arm64@2.6.3"
+  - "@biomejs/cli-android-x64@2.6.3"
+  - "@biomejs/cli-darwin-arm64@2.6.3"
+  - "@biomejs/cli-darwin-x64@2.6.3"
+  - "@biomejs/cli-linux-arm64-musl@2.6.3"
+  - "@biomejs/cli-linux-arm64@2.6.3"
+  - "@biomejs/cli-linux-x64-musl@2.6.3"
+  - "@biomejs/cli-linux-x64@2.6.3"
+  - "@biomejs/cli-win32-arm64@2.6.3"
+  - "@biomejs/cli-win32-x64@2.6.3"
 # Settings for pnpm only - npm ignores this file, so both package managers stay usable.
 #
 # pnpm 10+ refuses to run a dependency's install scripts unless the package is listed here.

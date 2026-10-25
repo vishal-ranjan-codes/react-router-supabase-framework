@@ -1,25 +1,34 @@
-import { Toaster as Sonner, ToasterProps } from "sonner"
-import { getTheme } from "~/lib/theme"
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
+import { Toaster as Sonner, ToasterProps } from "sonner";
+import { getTheme } from "~/lib/theme";
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const [theme, setTheme] = useState<"light" | "dark">("dark")
+  const [theme, setTheme] = useState<"light" | "dark">("dark");
 
   useEffect(() => {
-    const current = getTheme()
+    const current = getTheme();
     if (current === "dark" || current === "system") {
-      setTheme(window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+      setTheme(
+        window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light",
+      );
     } else {
-      setTheme(current)
+      setTheme(current);
     }
 
     const observer = new MutationObserver(() => {
-      setTheme(document.documentElement.classList.contains("dark") ? "dark" : "light")
-    })
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] })
+      setTheme(
+        document.documentElement.classList.contains("dark") ? "dark" : "light",
+      );
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
 
-    return () => observer.disconnect()
-  }, [])
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <Sonner
@@ -47,7 +56,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }
       {...props}
     />
-  )
-}
+  );
+};
 
-export { Toaster }
+export { Toaster };

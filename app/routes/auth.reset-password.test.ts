@@ -1,11 +1,11 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { action } from "./auth.reset-password";
 import { authConfig } from "~/lib/auth/config";
 import {
   actionArgs,
   createSupabaseDouble,
   readResult,
 } from "../../tests/helpers/route";
+import { action } from "./auth.reset-password";
 
 type Args = Parameters<typeof action>[0];
 
@@ -19,7 +19,9 @@ afterEach(() => {
 
 describe("reset-password action", () => {
   it("requires Supabase credentials to be configured", async () => {
-    const result = await action(actionArgs(url, valid, null) as unknown as Args);
+    const result = await action(
+      actionArgs(url, valid, null) as unknown as Args,
+    );
     expect((await readResult(result)).status).toBe(503);
   });
 
@@ -27,7 +29,9 @@ describe("reset-password action", () => {
     const supabase = createSupabaseDouble();
     authConfig.passwordReset = false;
 
-    const result = await action(actionArgs(url, valid, supabase) as unknown as Args);
+    const result = await action(
+      actionArgs(url, valid, supabase) as unknown as Args,
+    );
 
     expect(await readResult(result)).toMatchObject({
       status: 400,
@@ -41,7 +45,11 @@ describe("reset-password action", () => {
     authConfig.passwordMinLength = 12;
 
     const result = await action(
-      actionArgs(url, { password: "short", confirmPassword: "short" }, supabase) as unknown as Args
+      actionArgs(
+        url,
+        { password: "short", confirmPassword: "short" },
+        supabase,
+      ) as unknown as Args,
     );
 
     expect(await readResult(result)).toMatchObject({
@@ -54,7 +62,11 @@ describe("reset-password action", () => {
     const supabase = createSupabaseDouble();
 
     const result = await action(
-      actionArgs(url, { password: "longenough", confirmPassword: "different" }, supabase) as unknown as Args
+      actionArgs(
+        url,
+        { password: "longenough", confirmPassword: "different" },
+        supabase,
+      ) as unknown as Args,
     );
 
     expect(await readResult(result)).toMatchObject({
@@ -66,9 +78,13 @@ describe("reset-password action", () => {
   it("applies the new password to the recovery session", async () => {
     const supabase = createSupabaseDouble();
 
-    const result = await action(actionArgs(url, valid, supabase) as unknown as Args);
+    const result = await action(
+      actionArgs(url, valid, supabase) as unknown as Args,
+    );
 
-    expect(supabase.auth.updateUser).toHaveBeenCalledWith({ password: "longenough" });
+    expect(supabase.auth.updateUser).toHaveBeenCalledWith({
+      password: "longenough",
+    });
     expect(await readResult(result)).toMatchObject({ body: { success: true } });
   });
 
@@ -78,7 +94,9 @@ describe("reset-password action", () => {
       error: { message: "New password failed to update" },
     });
 
-    const result = await action(actionArgs(url, valid, supabase) as unknown as Args);
+    const result = await action(
+      actionArgs(url, valid, supabase) as unknown as Args,
+    );
 
     expect(await readResult(result)).toMatchObject({
       body: { error: "New password failed to update" },

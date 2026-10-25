@@ -7,7 +7,11 @@ interface MethodSelectorProps {
   onChange: (method: AuthMethod) => void;
 }
 
-export function MethodSelector({ methods, activeMethod, onChange }: MethodSelectorProps) {
+export function MethodSelector({
+  methods,
+  activeMethod,
+  onChange,
+}: MethodSelectorProps) {
   if (methods.length <= 1) return null;
 
   return (

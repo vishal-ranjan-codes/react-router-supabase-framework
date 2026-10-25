@@ -21,7 +21,7 @@ export function createUploadFileName(mimeType: string): string | null {
 }
 
 // RFC 5987 attr-char; every other byte of the UTF-8 encoding is percent-escaped.
-const ATTR_CHAR = /^[A-Za-z0-9!\#$&+.^_`|~-]$/;
+const ATTR_CHAR = /^[A-Za-z0-9!#$&+.^_`|~-]$/;
 
 export function attachmentDisposition(fileName: string): string {
   let extended = "";

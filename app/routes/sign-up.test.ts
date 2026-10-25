@@ -1,5 +1,4 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { action } from "./sign-up";
 import { authConfig } from "~/lib/auth/config";
 import {
   actionArgs,
@@ -7,6 +6,7 @@ import {
   createSupabaseDouble,
   readResult,
 } from "../../tests/helpers/route";
+import { action } from "./sign-up";
 
 type Args = Parameters<typeof action>[0];
 
@@ -22,7 +22,7 @@ describe("sign-up action", () => {
     const supabase = createSupabaseDouble();
 
     const result = await action(
-      actionArgs(url, { method: "google" }, supabase) as unknown as Args
+      actionArgs(url, { method: "google" }, supabase) as unknown as Args,
     );
 
     expect(await readResult(result)).toMatchObject({ status: 400 });
@@ -35,9 +35,14 @@ describe("sign-up action", () => {
     const result = await action(
       actionArgs(
         url,
-        { method: "email-password", email: "a@b.c", password: "one", confirmPassword: "two" },
-        supabase
-      ) as unknown as Args
+        {
+          method: "email-password",
+          email: "a@b.c",
+          password: "one",
+          confirmPassword: "two",
+        },
+        supabase,
+      ) as unknown as Args,
     );
 
     expect(await readResult(result)).toMatchObject({
@@ -54,10 +59,15 @@ describe("sign-up action", () => {
       action(
         actionArgs(
           url,
-          { method: "email-password", email: "a@b.c", password: "secret", confirmPassword: "secret" },
-          supabase
-        ) as unknown as Args
-      )
+          {
+            method: "email-password",
+            email: "a@b.c",
+            password: "secret",
+            confirmPassword: "secret",
+          },
+          supabase,
+        ) as unknown as Args,
+      ),
     );
 
     expect(supabase.auth.signUp).toHaveBeenCalledWith({
@@ -70,14 +80,22 @@ describe("sign-up action", () => {
 
   it("keeps the user on the form when email confirmation is required", async () => {
     const supabase = createSupabaseDouble();
-    supabase.auth.signUp.mockResolvedValueOnce({ data: { session: null }, error: null });
+    supabase.auth.signUp.mockResolvedValueOnce({
+      data: { session: null },
+      error: null,
+    });
 
     const result = await action(
       actionArgs(
         url,
-        { method: "email-password", email: "a@b.c", password: "secret", confirmPassword: "secret" },
-        supabase
-      ) as unknown as Args
+        {
+          method: "email-password",
+          email: "a@b.c",
+          password: "secret",
+          confirmPassword: "secret",
+        },
+        supabase,
+      ) as unknown as Args,
     );
 
     expect(await readResult(result)).toMatchObject({
@@ -89,7 +107,13 @@ describe("sign-up action", () => {
     const supabase = createSupabaseDouble();
 
     const redirect = await captureRedirect(
-      action(actionArgs(url, { method: "email-otp", email: "a@b.c" }, supabase) as unknown as Args)
+      action(
+        actionArgs(
+          url,
+          { method: "email-otp", email: "a@b.c" },
+          supabase,
+        ) as unknown as Args,
+      ),
     );
 
     expect(redirect.location).toBe("/auth/verify-otp?email=a%40b.c");
@@ -100,7 +124,11 @@ describe("sign-up action", () => {
     authConfig.methods.magicLink = true;
 
     const result = await action(
-      actionArgs(url, { method: "magic-link", email: "a@b.c" }, supabase) as unknown as Args
+      actionArgs(
+        url,
+        { method: "magic-link", email: "a@b.c" },
+        supabase,
+      ) as unknown as Args,
     );
 
     expect(await readResult(result)).toMatchObject({ body: { otpSent: true } });

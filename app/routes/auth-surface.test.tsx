@@ -1,9 +1,14 @@
-import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { createRoutesStub } from "react-router";
+import { afterEach, describe, expect, it } from "vitest";
+import {
+  type AuthMethod,
+  authConfig,
+  getEnabledFormMethods,
+  getMethodLabel,
+} from "~/lib/auth/config";
 import SignIn from "./sign-in";
 import SignUp from "./sign-up";
-import { authConfig, getEnabledFormMethods, getMethodLabel, type AuthMethod } from "~/lib/auth/config";
 
 afterEach(() => {
   cleanup();
@@ -44,8 +49,12 @@ describe("auth surface", () => {
 
     // A method that is enabled but never rendered is the failure this starter is most prone to.
     for (const method of getEnabledFormMethods()) {
-      fireEvent.click(screen.getByRole("button", { name: getMethodLabel(method) }));
-      expect(screen.getByRole("button", { name: PANEL_SUBMIT[method] })).toBeInTheDocument();
+      fireEvent.click(
+        screen.getByRole("button", { name: getMethodLabel(method) }),
+      );
+      expect(
+        screen.getByRole("button", { name: PANEL_SUBMIT[method] }),
+      ).toBeInTheDocument();
     }
   });
 
@@ -53,7 +62,9 @@ describe("auth surface", () => {
     authConfig.defaultMethod = "email-otp";
     renderSignIn();
 
-    expect(screen.getByRole("button", { name: "Send Code" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Send Code" }),
+    ).toBeInTheDocument();
   });
 
   it("opens on the first enabled method when the default is disabled", () => {
@@ -61,26 +72,34 @@ describe("auth surface", () => {
     authConfig.methods.magicLink = true;
     renderSignIn();
 
-    expect(screen.getByRole("button", { name: "Send Code" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Send Code" }),
+    ).toBeInTheDocument();
   });
 
   it("hides the selector when there is nothing to choose between", () => {
     authConfig.methods.emailOtp = false;
     renderSignIn();
 
-    expect(screen.queryByRole("button", { name: "Email OTP" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Email OTP" }),
+    ).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Sign In" })).toBeInTheDocument();
   });
 
   it("offers the OAuth divider and button only when the provider is enabled", () => {
     renderSignIn();
-    expect(screen.queryByRole("button", { name: "Sign in with Google" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Sign in with Google" }),
+    ).not.toBeInTheDocument();
 
     cleanup();
     authConfig.methods.google = true;
     renderSignIn();
 
-    expect(screen.getByRole("button", { name: "Sign in with Google" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Sign in with Google" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("or continue with")).toBeInTheDocument();
   });
 
@@ -91,18 +110,26 @@ describe("auth surface", () => {
 
     // The fallback default names email-password, but its action always rejects, so the page has
     // to say what is wrong instead of showing a form that cannot work.
-    expect(screen.queryByRole("button", { name: "Sign In" })).not.toBeInTheDocument();
-    expect(screen.getByText(/No authentication methods are enabled/)).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Sign In" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText(/No authentication methods are enabled/),
+    ).toBeInTheDocument();
   });
 
   it("renders the same methods on sign up, minus the reset affordance", () => {
     renderSignIn();
-    expect(screen.getByRole("button", { name: "Forgot password?" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Forgot password?" }),
+    ).toBeInTheDocument();
 
     cleanup();
     renderSignUp();
 
-    expect(screen.queryByRole("button", { name: "Forgot password?" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Forgot password?" }),
+    ).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Sign Up" })).toBeInTheDocument();
   });
 
@@ -110,6 +137,8 @@ describe("auth surface", () => {
     authConfig.passwordReset = false;
     renderSignIn();
 
-    expect(screen.queryByRole("button", { name: "Forgot password?" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Forgot password?" }),
+    ).not.toBeInTheDocument();
   });
 });

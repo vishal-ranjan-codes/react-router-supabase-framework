@@ -1,6 +1,6 @@
 import { fileURLToPath } from "node:url";
-import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   plugins: [react()],
@@ -9,7 +9,7 @@ export default defineConfig({
     // Server code reads bindings from the workerd builtin; under Vitest it is plain Node.
     alias: {
       "cloudflare:workers": fileURLToPath(
-        new URL("./tests/mocks/cloudflare-workers.ts", import.meta.url)
+        new URL("./tests/mocks/cloudflare-workers.ts", import.meta.url),
       ),
     },
   },

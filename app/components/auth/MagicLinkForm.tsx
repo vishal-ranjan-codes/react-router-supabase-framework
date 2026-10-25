@@ -9,7 +9,11 @@ interface MagicLinkFormProps {
   isLoading?: boolean;
 }
 
-export function MagicLinkForm({ error, success, isLoading }: MagicLinkFormProps) {
+export function MagicLinkForm({
+  error,
+  success,
+  isLoading,
+}: MagicLinkFormProps) {
   if (success) {
     return (
       <div className="rounded-md theme-bg-success p-4 text-sm theme-text-success text-center">

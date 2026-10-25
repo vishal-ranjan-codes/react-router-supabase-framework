@@ -45,8 +45,10 @@ export async function verifyWebhookSignature(options: {
   const timestamp = fields.get("t");
   const signature = fields.get("v1");
 
-  if (!timestamp || !signature) return fail("signature header needs t= and v1=");
-  if (!/^\d+$/.test(timestamp)) return fail("signature timestamp is not numeric");
+  if (!timestamp || !signature)
+    return fail("signature header needs t= and v1=");
+  if (!/^\d+$/.test(timestamp))
+    return fail("signature timestamp is not numeric");
 
   const nowSeconds = options.nowSeconds ?? Math.floor(Date.now() / 1000);
   if (Math.abs(nowSeconds - Number(timestamp)) > MAX_SKEW_SECONDS) {
@@ -61,14 +63,14 @@ export async function verifyWebhookSignature(options: {
     encoder.encode(secret),
     { name: "HMAC", hash: "SHA-256" },
     false,
-    ["verify"]
+    ["verify"],
   );
 
   const valid = await crypto.subtle.verify(
     "HMAC",
     key,
     expected,
-    encoder.encode(`${timestamp}.${body}`)
+    encoder.encode(`${timestamp}.${body}`),
   );
 
   return valid ? { valid: true } : fail("signature does not match body");

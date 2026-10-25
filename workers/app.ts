@@ -4,7 +4,7 @@ import { createAdminClient } from "~/lib/supabase/admin";
 
 const requestHandler = createRequestHandler(
   () => import("virtual:react-router/server-build"),
-  import.meta.env.MODE
+  import.meta.env.MODE,
 );
 
 export default {
@@ -13,7 +13,11 @@ export default {
   },
 
   // Cloudflare Cron Trigger
-  async scheduled(controller: ScheduledController, _env: Env, ctx: ExecutionContext) {
+  async scheduled(
+    controller: ScheduledController,
+    _env: Env,
+    ctx: ExecutionContext,
+  ) {
     console.log(`[Cron] Triggered: ${controller.cron}`);
 
     ctx.waitUntil(handleCronJob(controller.cron));

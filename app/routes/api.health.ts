@@ -1,7 +1,6 @@
 import { data } from "react-router";
-import type { LoaderFunctionArgs } from "react-router";
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader() {
   return data({
     status: "healthy",
     timestamp: new Date().toISOString(),

@@ -1,5 +1,4 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { action } from "./sign-in";
 import { authConfig } from "~/lib/auth/config";
 import {
   actionArgs,
@@ -7,6 +6,7 @@ import {
   createSupabaseDouble,
   readResult,
 } from "../../tests/helpers/route";
+import { action } from "./sign-in";
 
 type Args = Parameters<typeof action>[0];
 
@@ -22,7 +22,11 @@ describe("sign-in action", () => {
   it("refuses a method the config disables, without calling the provider", async () => {
     const supabase = createSupabaseDouble();
     const result = await action(
-      actionArgs("http://localhost/sign-in", { method: "magic-link", email: "a@b.c" }, supabase) as unknown as Args
+      actionArgs(
+        "http://localhost/sign-in",
+        { method: "magic-link", email: "a@b.c" },
+        supabase,
+      ) as unknown as Args,
     );
 
     expect(await readResult(result)).toMatchObject({
@@ -37,7 +41,11 @@ describe("sign-in action", () => {
     authConfig.methods.magicLink = true;
 
     const result = await action(
-      actionArgs("http://localhost/sign-in", { method: "magic-link", email: "a@b.c" }, supabase) as unknown as Args
+      actionArgs(
+        "http://localhost/sign-in",
+        { method: "magic-link", email: "a@b.c" },
+        supabase,
+      ) as unknown as Args,
     );
 
     expect(await readResult(result)).toMatchObject({
@@ -49,7 +57,11 @@ describe("sign-in action", () => {
 
   it("requires Supabase credentials to be configured", async () => {
     const result = await action(
-      actionArgs("http://localhost/sign-in", { method: "email-password" }, null) as unknown as Args
+      actionArgs(
+        "http://localhost/sign-in",
+        { method: "email-password" },
+        null,
+      ) as unknown as Args,
     );
 
     expect((await readResult(result)).status).toBe(503);
@@ -59,7 +71,11 @@ describe("sign-in action", () => {
     const supabase = createSupabaseDouble();
 
     const noEmail = await action(
-      actionArgs("http://localhost/sign-in", { method: "email-password", password: "secret" }, supabase) as unknown as Args
+      actionArgs(
+        "http://localhost/sign-in",
+        { method: "email-password", password: "secret" },
+        supabase,
+      ) as unknown as Args,
     );
     expect(await readResult(noEmail)).toMatchObject({
       status: 400,
@@ -67,7 +83,11 @@ describe("sign-in action", () => {
     });
 
     const noPassword = await action(
-      actionArgs("http://localhost/sign-in", { method: "email-password", email: " a@b.c " }, supabase) as unknown as Args
+      actionArgs(
+        "http://localhost/sign-in",
+        { method: "email-password", email: " a@b.c " },
+        supabase,
+      ) as unknown as Args,
     );
     expect(await readResult(noPassword)).toMatchObject({
       status: 400,
@@ -84,9 +104,9 @@ describe("sign-in action", () => {
         actionArgs(
           "http://localhost/sign-in",
           { method: "email-password", email: "  a@b.c  ", password: "secret" },
-          supabase
-        ) as unknown as Args
-      )
+          supabase,
+        ) as unknown as Args,
+      ),
     );
 
     expect(supabase.auth.signInWithPassword).toHaveBeenCalledWith({
@@ -106,11 +126,13 @@ describe("sign-in action", () => {
       actionArgs(
         "http://localhost/sign-in",
         { method: "email-password", email: "a@b.c", password: "secret" },
-        supabase
-      ) as unknown as Args
+        supabase,
+      ) as unknown as Args,
     );
 
-    expect(await readResult(result)).toMatchObject({ body: { error: "Invalid login credentials" } });
+    expect(await readResult(result)).toMatchObject({
+      body: { error: "Invalid login credentials" },
+    });
   });
 
   it("sends a reset link that returns to the new-password step", async () => {
@@ -120,14 +142,16 @@ describe("sign-in action", () => {
       actionArgs(
         "http://localhost/sign-in",
         { method: "email-password", intent: "reset", email: "a@b.c" },
-        supabase
-      ) as unknown as Args
+        supabase,
+      ) as unknown as Args,
     );
 
     expect(supabase.auth.resetPasswordForEmail).toHaveBeenCalledWith("a@b.c", {
       redirectTo: "http://localhost/auth/callback?next=/auth/reset-password",
     });
-    expect(await readResult(result)).toMatchObject({ body: { success: true, otpSent: true } });
+    expect(await readResult(result)).toMatchObject({
+      body: { success: true, otpSent: true },
+    });
   });
 
   it("hides the reset path when the config turns it off", async () => {
@@ -138,8 +162,8 @@ describe("sign-in action", () => {
       actionArgs(
         "http://localhost/sign-in",
         { method: "email-password", intent: "reset", email: "a@b.c" },
-        supabase
-      ) as unknown as Args
+        supabase,
+      ) as unknown as Args,
     );
 
     expect(await readResult(result)).toMatchObject({ status: 400 });
@@ -151,8 +175,12 @@ describe("sign-in action", () => {
 
     const redirect = await captureRedirect(
       action(
-        actionArgs("http://localhost/sign-in", { method: "email-otp", email: "a+b@c.d" }, supabase) as unknown as Args
-      )
+        actionArgs(
+          "http://localhost/sign-in",
+          { method: "email-otp", email: "a+b@c.d" },
+          supabase,
+        ) as unknown as Args,
+      ),
     );
 
     expect(redirect.location).toBe("/auth/verify-otp?email=a%2Bb%40c.d");
@@ -167,9 +195,14 @@ describe("sign-in action", () => {
     const result = await action(
       actionArgs(
         "http://localhost/sign-in",
-        { method: "email-otp", otpAction: "verify", email: "a@b.c", token: "123456" },
-        supabase
-      ) as unknown as Args
+        {
+          method: "email-otp",
+          otpAction: "verify",
+          email: "a@b.c",
+          token: "123456",
+        },
+        supabase,
+      ) as unknown as Args,
     );
 
     expect(await readResult(result)).toMatchObject({
@@ -183,8 +216,12 @@ describe("sign-in action", () => {
 
     const redirect = await captureRedirect(
       action(
-        actionArgs("http://localhost/sign-in", { method: "google" }, supabase) as unknown as Args
-      )
+        actionArgs(
+          "http://localhost/sign-in",
+          { method: "google" },
+          supabase,
+        ) as unknown as Args,
+      ),
     );
 
     expect(redirect.location).toContain("provider=google");

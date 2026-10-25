@@ -1,6 +1,6 @@
 import { redirect } from "react-router";
-import { supabaseMiddleware } from "~/middleware/supabase";
 import { supabaseContext } from "~/lib/supabase/context";
+import { supabaseMiddleware } from "~/middleware/supabase";
 import type { Route } from "./+types/sign-out";
 
 export const middleware: Route.MiddlewareFunction[] = [supabaseMiddleware];

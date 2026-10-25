@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { getTheme, setTheme, applyTheme, initTheme } from "./theme";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { applyTheme, getTheme, initTheme, setTheme } from "./theme";
 
 describe("theme", () => {
   beforeEach(() => {
@@ -41,14 +41,14 @@ describe("theme", () => {
 
     expect(list.addEventListener).toHaveBeenCalledWith(
       "change",
-      expect.any(Function)
+      expect.any(Function),
     );
 
     dispose();
 
     expect(list.removeEventListener).toHaveBeenCalledWith(
       "change",
-      expect.any(Function)
+      expect.any(Function),
     );
 
     matchMedia.mockRestore();

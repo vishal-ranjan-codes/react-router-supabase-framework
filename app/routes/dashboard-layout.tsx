@@ -1,10 +1,7 @@
+import { LayoutDashboard, LogOut, Menu, Settings, User } from "lucide-react";
 import { useState } from "react";
-import { Outlet, Link, Form, useLocation } from "react-router";
-import type { Route } from "./+types/dashboard-layout";
-import { requireAuth } from "~/middleware/chains";
-import { userContext } from "~/lib/context";
+import { Form, Link, Outlet, useLocation } from "react-router";
 import { RouteErrorBoundary } from "~/components/error/RouteErrorBoundary";
-import { LayoutDashboard, Settings, LogOut, User, Menu } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
   Sheet,
@@ -13,6 +10,9 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "~/components/ui/sheet";
+import { userContext } from "~/lib/context";
+import { requireAuth } from "~/middleware/chains";
+import type { Route } from "./+types/dashboard-layout";
 
 export const middleware: Route.MiddlewareFunction[] = requireAuth;
 
@@ -95,7 +95,10 @@ export default function DashboardLayout({ loaderData }: Route.ComponentProps) {
             <span className="sr-only">Toggle sidebar</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-[260px] theme-fg-color p-4 flex flex-col">
+        <SheetContent
+          side="left"
+          className="w-[260px] theme-fg-color p-4 flex flex-col"
+        >
           <SheetHeader className="p-0">
             <SheetTitle className="sr-only">Dashboard Navigation</SheetTitle>
           </SheetHeader>

@@ -1,7 +1,7 @@
-import { redirect } from "react-router";
 import type { MiddlewareFunction } from "react-router";
-import { userContext } from "~/lib/context";
+import { redirect } from "react-router";
 import type { SessionUser } from "~/lib/context";
+import { userContext } from "~/lib/context";
 import { authClaimsContext, supabaseContext } from "~/lib/supabase/context";
 
 /**

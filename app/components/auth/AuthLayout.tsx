@@ -28,7 +28,12 @@ export function AuthDivider({ label }: { label: string }) {
   );
 }
 
-export function AuthLayout({ children, title, description, footer }: AuthLayoutProps) {
+export function AuthLayout({
+  children,
+  title,
+  description,
+  footer,
+}: AuthLayoutProps) {
   return (
     <div className="flex min-h-screen items-center justify-center theme-bg-color px-4">
       <div className="w-full max-w-md">

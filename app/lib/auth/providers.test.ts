@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  captureRedirect,
+  createAuthClient,
+} from "../../../tests/helpers/route";
+import {
   resetPasswordForEmail,
   sendEmailOtp,
   signInWithGoogle,
@@ -9,7 +13,6 @@ import {
   updatePassword,
   verifyEmailOtp,
 } from "./providers";
-import { captureRedirect, createAuthClient } from "../../../tests/helpers/route";
 
 const origin = "https://app.example";
 
@@ -27,18 +30,25 @@ describe("auth providers", () => {
 
   it("returns a plain success when Supabase reports no error", async () => {
     const { client } = createAuthClient();
-    expect(await signInWithPassword(client, "a@b.c", "secret")).toEqual({ success: true });
+    expect(await signInWithPassword(client, "a@b.c", "secret")).toEqual({
+      success: true,
+    });
   });
 
   it("asks for email confirmation when the sign-up response has no session", async () => {
     const { double, client } = createAuthClient();
-    double.auth.signUp.mockResolvedValueOnce({ data: { session: null }, error: null });
-
-    expect(await signUpWithPassword(client, "a@b.c", "secret", origin)).toEqual({
-      success: true,
-      requiresConfirmation: true,
-      email: "a@b.c",
+    double.auth.signUp.mockResolvedValueOnce({
+      data: { session: null },
+      error: null,
     });
+
+    expect(await signUpWithPassword(client, "a@b.c", "secret", origin)).toEqual(
+      {
+        success: true,
+        requiresConfirmation: true,
+        email: "a@b.c",
+      },
+    );
     expect(double.auth.signUp).toHaveBeenCalledWith({
       email: "a@b.c",
       password: "secret",
@@ -63,7 +73,9 @@ describe("auth providers", () => {
   it("verifies a code as an email token", async () => {
     const { double, client } = createAuthClient();
 
-    expect(await verifyEmailOtp(client, "a@b.c", "123456")).toEqual({ success: true });
+    expect(await verifyEmailOtp(client, "a@b.c", "123456")).toEqual({
+      success: true,
+    });
     expect(double.auth.verifyOtp).toHaveBeenCalledWith({
       email: "a@b.c",
       token: "123456",
@@ -101,8 +113,12 @@ describe("auth providers", () => {
   it("updates the password of the recovery session", async () => {
     const { double, client } = createAuthClient();
 
-    expect(await updatePassword(client, "newsecret")).toEqual({ success: true });
-    expect(double.auth.updateUser).toHaveBeenCalledWith({ password: "newsecret" });
+    expect(await updatePassword(client, "newsecret")).toEqual({
+      success: true,
+    });
+    expect(double.auth.updateUser).toHaveBeenCalledWith({
+      password: "newsecret",
+    });
   });
 
   it("hands the browser the OAuth consent url", async () => {

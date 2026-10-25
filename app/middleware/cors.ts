@@ -1,7 +1,7 @@
 import type { MiddlewareFunction } from "react-router";
 
 export function createCorsMiddleware(
-  origins: string[] = ["*"]
+  origins: string[] = ["*"],
 ): MiddlewareFunction<Response> {
   return async ({ request }, next) => {
     const origin = request.headers.get("origin") ?? "";
@@ -34,11 +34,11 @@ export function createCorsMiddleware(
       response.headers.set("Access-Control-Allow-Origin", allowedOrigin);
       response.headers.set(
         "Access-Control-Allow-Methods",
-        "GET, POST, PUT, DELETE, OPTIONS"
+        "GET, POST, PUT, DELETE, OPTIONS",
       );
       response.headers.set(
         "Access-Control-Allow-Headers",
-        "Content-Type, Authorization"
+        "Content-Type, Authorization",
       );
     }
 

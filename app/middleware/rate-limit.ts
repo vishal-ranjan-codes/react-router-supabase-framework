@@ -23,7 +23,7 @@ function prune(buckets: Map<string, Bucket>, now: number): void {
  */
 export function createRateLimitMiddleware(
   maxRequests: number,
-  windowMs: number
+  windowMs: number,
 ): MiddlewareFunction<Response> {
   const buckets = new Map<string, Bucket>();
 

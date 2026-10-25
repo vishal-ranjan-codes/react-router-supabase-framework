@@ -23,7 +23,12 @@ export async function loader({ params }: Route.LoaderArgs) {
     });
 
     const response = await r2.send(command);
-    const body = await response.Body!.transformToByteArray();
+
+    if (!response.Body) {
+      return new Response("File not found", { status: 404 });
+    }
+
+    const body = await response.Body.transformToByteArray();
 
     return new Response(body as unknown as BodyInit, {
       headers: {

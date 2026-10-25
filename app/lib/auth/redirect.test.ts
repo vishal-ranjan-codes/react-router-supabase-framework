@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { safeRedirectTarget } from "./redirect";
 
 describe("safeRedirectTarget", () => {
@@ -6,7 +6,7 @@ describe("safeRedirectTarget", () => {
     expect(safeRedirectTarget("/dashboard")).toBe("/dashboard");
     expect(safeRedirectTarget("/")).toBe("/");
     expect(safeRedirectTarget("/admin/users?tab=roles")).toBe(
-      "/admin/users?tab=roles"
+      "/admin/users?tab=roles",
     );
   });
 

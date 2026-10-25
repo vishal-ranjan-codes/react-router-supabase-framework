@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
   isRouteErrorResponse,
   Links,
@@ -7,16 +8,14 @@ import {
   ScrollRestoration,
   useLocation,
 } from "react-router";
-
-import type { Route } from "./+types/root";
-import stylesheet from "./globals.css?url";
-import Header from "~/components/layout/Header";
 import Footer from "~/components/layout/Footer";
+import Header from "~/components/layout/Header";
 import { Toaster } from "~/components/ui/sonner";
 import { authClaimsContext } from "~/lib/supabase/context";
-import { supabaseMiddleware } from "~/middleware/supabase";
 import { initTheme } from "~/lib/theme";
-import { useEffect } from "react";
+import { supabaseMiddleware } from "~/middleware/supabase";
+import type { Route } from "./+types/root";
+import stylesheet from "./globals.css?url";
 
 export const links: Route.LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
@@ -42,7 +41,7 @@ const themeBootstrap = `
     var dark = stored === "dark" ||
       (stored === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
     document.documentElement.classList.toggle("dark", dark);
-  } catch (error) {}
+  } catch {}
 `;
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -51,6 +50,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: static string above, no interpolation */}
         <script dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
         <Meta />
         <Links />
@@ -73,7 +73,7 @@ export default function App() {
   useEffect(() => initTheme(), []);
 
   const isAuthPage = AUTH_PATH_PREFIXES.some((prefix) =>
-    location.pathname.startsWith(prefix)
+    location.pathname.startsWith(prefix),
   );
   const isAdminPage = location.pathname.startsWith("/admin");
 
@@ -82,7 +82,9 @@ export default function App() {
   return (
     <>
       {!isAuthPage && <Header />}
-      <main className="flex-1"><Outlet /></main>
+      <main className="flex-1">
+        <Outlet />
+      </main>
       {!isAuthPage && <Footer />}
       <Toaster />
     </>

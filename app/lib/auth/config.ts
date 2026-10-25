@@ -7,7 +7,11 @@
  * Default: Email + Password (primary), Email OTP (secondary)
  */
 
-export type AuthMethod = 'email-password' | 'email-otp' | 'magic-link' | 'google';
+export type AuthMethod =
+  | "email-password"
+  | "email-otp"
+  | "magic-link"
+  | "google";
 
 export interface AuthConfig {
   methods: {
@@ -24,30 +28,35 @@ export interface AuthConfig {
 
 export const authConfig: AuthConfig = {
   methods: {
-    emailPassword: true,   // Primary: Email + Password
-    emailOtp: true,        // Secondary: Email OTP
-    magicLink: false,      // Enable for passwordless magic link
-    google: false,         // Enable for Google OAuth
+    emailPassword: true, // Primary: Email + Password
+    emailOtp: true, // Secondary: Email OTP
+    magicLink: false, // Enable for passwordless magic link
+    google: false, // Enable for Google OAuth
   },
-  defaultMethod: 'email-password',
+  defaultMethod: "email-password",
   passwordMinLength: 8,
   passwordReset: true,
 };
 
-const METHOD_ORDER: AuthMethod[] = ['email-password', 'email-otp', 'magic-link', 'google'];
+const METHOD_ORDER: AuthMethod[] = [
+  "email-password",
+  "email-otp",
+  "magic-link",
+  "google",
+];
 
-const METHOD_FLAGS: Record<AuthMethod, keyof AuthConfig['methods']> = {
-  'email-password': 'emailPassword',
-  'email-otp': 'emailOtp',
-  'magic-link': 'magicLink',
-  'google': 'google',
+const METHOD_FLAGS: Record<AuthMethod, keyof AuthConfig["methods"]> = {
+  "email-password": "emailPassword",
+  "email-otp": "emailOtp",
+  "magic-link": "magicLink",
+  google: "google",
 };
 
 const METHOD_LABELS: Record<AuthMethod, string> = {
-  'email-password': 'Password',
-  'email-otp': 'Email OTP',
-  'magic-link': 'Magic Link',
-  'google': 'Google',
+  "email-password": "Password",
+  "email-otp": "Email OTP",
+  "magic-link": "Magic Link",
+  google: "Google",
 };
 
 /**
@@ -60,7 +69,7 @@ export function getEnabledMethods(): AuthMethod[] {
 
 /** Enabled methods that render a form panel; OAuth providers render as buttons instead. */
 export function getEnabledFormMethods(): AuthMethod[] {
-  return getEnabledMethods().filter((method) => method !== 'google');
+  return getEnabledMethods().filter((method) => method !== "google");
 }
 
 export function isMethodEnabled(method: AuthMethod): boolean {
@@ -74,9 +83,10 @@ export function isMethodEnabled(method: AuthMethod): boolean {
 export function getDefaultMethod(): AuthMethod {
   const enabled = getEnabledMethods();
 
-  if (enabled.includes(authConfig.defaultMethod)) return authConfig.defaultMethod;
+  if (enabled.includes(authConfig.defaultMethod))
+    return authConfig.defaultMethod;
 
-  return enabled[0] ?? 'email-password';
+  return enabled[0] ?? "email-password";
 }
 
 export function getMethodLabel(method: AuthMethod): string {

@@ -1,5 +1,5 @@
-import { data } from "react-router";
 import { env } from "cloudflare:workers";
+import { data } from "react-router";
 import { verifyWebhookSignature } from "~/lib/webhooks";
 import type { Route } from "./+types/api.webhooks";
 
@@ -11,7 +11,7 @@ export async function action({ request }: Route.ActionArgs) {
   if (!env.WEBHOOK_SECRET) {
     return data(
       { error: "Webhook verification is not configured" },
-      { status: 503 }
+      { status: 503 },
     );
   }
 

@@ -1,13 +1,8 @@
-import type { Route } from "./+types/dashboard-home";
+import { Calendar, Shield, User } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { userContext } from "~/lib/context";
 import { supabaseContext } from "~/lib/supabase/context";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
-import { User, Calendar, Shield } from "lucide-react";
+import type { Route } from "./+types/dashboard-home";
 
 export async function loader({ context }: Route.LoaderArgs) {
   const user = context.get(userContext);

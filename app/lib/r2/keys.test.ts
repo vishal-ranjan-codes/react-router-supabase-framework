@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   attachmentDisposition,
   createUploadFileName,
@@ -9,8 +9,8 @@ describe("isValidObjectKey", () => {
   it("accepts a generated upload name", () => {
     expect(
       isValidObjectKey(
-        "1700000000000-2f7f6a2e-3d0a-4a1e-9b8c-1a2b3c4d5e6f.png"
-      )
+        "1700000000000-2f7f6a2e-3d0a-4a1e-9b8c-1a2b3c4d5e6f.png",
+      ),
     ).toBe(true);
   });
 
@@ -60,7 +60,7 @@ describe("createUploadFileName", () => {
 
   it("gives every call a distinct name", () => {
     const names = new Set(
-      Array.from({ length: 20 }, () => createUploadFileName("image/png"))
+      Array.from({ length: 20 }, () => createUploadFileName("image/png")),
     );
 
     expect(names.size).toBe(20);
@@ -70,13 +70,13 @@ describe("createUploadFileName", () => {
 describe("attachmentDisposition", () => {
   it("keeps a validated ascii name readable in both forms", () => {
     expect(attachmentDisposition("report.pdf")).toBe(
-      `attachment; filename="report.pdf"; filename*=UTF-8''report.pdf`
+      `attachment; filename="report.pdf"; filename*=UTF-8''report.pdf`,
     );
   });
 
   it("percent-escapes non-ascii bytes in filename*", () => {
     expect(attachmentDisposition("résumé.pdf")).toContain(
-      "filename*=UTF-8''r%C3%A9sum%C3%A9.pdf"
+      "filename*=UTF-8''r%C3%A9sum%C3%A9.pdf",
     );
   });
 

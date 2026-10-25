@@ -1,5 +1,4 @@
-import type { Route } from "./+types/admin-users";
-import { supabaseContext } from "~/lib/supabase/context";
+import { Badge } from "~/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -8,7 +7,8 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import { Badge } from "~/components/ui/badge";
+import { supabaseContext } from "~/lib/supabase/context";
+import type { Route } from "./+types/admin-users";
 
 export async function loader({ context }: Route.LoaderArgs) {
   const supabase = context.get(supabaseContext);

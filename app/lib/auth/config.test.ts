@@ -1,13 +1,13 @@
 import { afterEach, describe, expect, it } from "vitest";
 import {
+  type AuthConfig,
+  type AuthMethod,
   authConfig,
   getDefaultMethod,
   getEnabledFormMethods,
   getEnabledMethods,
   getMethodLabel,
   isMethodEnabled,
-  type AuthConfig,
-  type AuthMethod,
 } from "./config";
 
 const pristine: AuthConfig = structuredClone(authConfig);
@@ -17,7 +17,9 @@ afterEach(() => {
 });
 
 function enableOnly(method: AuthMethod) {
-  for (const flag of Object.keys(authConfig.methods) as (keyof AuthConfig["methods"])[]) {
+  for (const flag of Object.keys(
+    authConfig.methods,
+  ) as (keyof AuthConfig["methods"])[]) {
     authConfig.methods[flag] = false;
   }
   const key = methodKey(method);
@@ -72,7 +74,9 @@ describe("auth config", () => {
   });
 
   it("still names a default when every method is disabled", () => {
-    for (const flag of Object.keys(authConfig.methods) as (keyof AuthConfig["methods"])[]) {
+    for (const flag of Object.keys(
+      authConfig.methods,
+    ) as (keyof AuthConfig["methods"])[]) {
       authConfig.methods[flag] = false;
     }
     expect(getEnabledMethods()).toEqual([]);

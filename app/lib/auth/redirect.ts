@@ -4,7 +4,7 @@
  */
 export function safeRedirectTarget(
   raw: string | null,
-  fallback = "/dashboard"
+  fallback = "/dashboard",
 ): string {
   if (!raw) return fallback;
   if (!raw.startsWith("/")) return fallback;

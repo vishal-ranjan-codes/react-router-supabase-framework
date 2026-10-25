@@ -1,7 +1,7 @@
 import { redirect } from "react-router";
-import { supabaseMiddleware } from "~/middleware/supabase";
-import { supabaseContext } from "~/lib/supabase/context";
 import { safeRedirectTarget } from "~/lib/auth/redirect";
+import { supabaseContext } from "~/lib/supabase/context";
+import { supabaseMiddleware } from "~/middleware/supabase";
 import type { Route } from "./+types/auth.callback";
 
 export const middleware: Route.MiddlewareFunction[] = [supabaseMiddleware];

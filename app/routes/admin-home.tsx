@@ -1,12 +1,7 @@
-import type { Route } from "./+types/admin-home";
+import { Activity, Database, Users } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { supabaseContext } from "~/lib/supabase/context";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
-import { Users, Activity, Database } from "lucide-react";
+import type { Route } from "./+types/admin-home";
 
 export async function loader({ context }: Route.LoaderArgs) {
   const supabase = context.get(supabaseContext);
@@ -44,9 +39,7 @@ export default function AdminHome({ loaderData }: Route.ComponentProps) {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">
-              System Status
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">System Status</CardTitle>
             <Activity className="h-4 w-4 theme-fc-light" />
           </CardHeader>
           <CardContent>

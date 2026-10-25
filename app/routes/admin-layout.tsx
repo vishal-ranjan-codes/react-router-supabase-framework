@@ -1,16 +1,7 @@
+import { ArrowLeft, LayoutDashboard, Menu, Shield, Users } from "lucide-react";
 import { useState } from "react";
-import { Outlet, Link, useLocation } from "react-router";
-import type { Route } from "./+types/admin-layout";
-import { requireAdmin } from "~/middleware/chains";
-import { userContext } from "~/lib/context";
+import { Link, Outlet, useLocation } from "react-router";
 import { RouteErrorBoundary } from "~/components/error/RouteErrorBoundary";
-import {
-  LayoutDashboard,
-  Users,
-  ArrowLeft,
-  Shield,
-  Menu,
-} from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
   Sheet,
@@ -19,6 +10,9 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "~/components/ui/sheet";
+import { userContext } from "~/lib/context";
+import { requireAdmin } from "~/middleware/chains";
+import type { Route } from "./+types/admin-layout";
 
 export const middleware: Route.MiddlewareFunction[] = requireAdmin;
 
@@ -96,7 +90,10 @@ export default function AdminLayout({ loaderData }: Route.ComponentProps) {
             <span className="sr-only">Toggle sidebar</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-[260px] theme-fg-color p-4 flex flex-col">
+        <SheetContent
+          side="left"
+          className="w-[260px] theme-fg-color p-4 flex flex-col"
+        >
           <SheetHeader className="p-0">
             <SheetTitle className="sr-only">Admin Navigation</SheetTitle>
           </SheetHeader>

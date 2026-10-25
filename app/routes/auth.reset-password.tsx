@@ -1,12 +1,12 @@
-import { Form, Link, useActionData, useNavigation, data } from "react-router";
-import { requireAuth } from "~/middleware/chains";
-import { supabaseContext } from "~/lib/supabase/context";
-import { authConfig } from "~/lib/auth/config";
-import { updatePassword } from "~/lib/auth/providers";
+import { data, Form, Link, useActionData, useNavigation } from "react-router";
 import { AuthLayout } from "~/components/auth/AuthLayout";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { authConfig } from "~/lib/auth/config";
+import { updatePassword } from "~/lib/auth/providers";
+import { supabaseContext } from "~/lib/supabase/context";
+import { requireAuth } from "~/middleware/chains";
 import type { Route } from "./+types/auth.reset-password";
 
 export const middleware: Route.MiddlewareFunction[] = requireAuth;
@@ -27,15 +27,12 @@ export async function action({ request, context }: Route.ActionArgs) {
         error:
           "Authentication is not configured. Please set up Supabase credentials.",
       },
-      { status: 503 }
+      { status: 503 },
     );
   }
 
   if (!authConfig.passwordReset) {
-    return data(
-      { error: "Password reset is not available" },
-      { status: 400 }
-    );
+    return data({ error: "Password reset is not available" }, { status: 400 });
   }
 
   const formData = await request.formData();
@@ -47,7 +44,7 @@ export async function action({ request, context }: Route.ActionArgs) {
       {
         error: `Use at least ${authConfig.passwordMinLength} characters`,
       },
-      { status: 400 }
+      { status: 400 },
     );
   }
 

@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { verifyWebhookSignature } from "./webhooks";
 
 const SECRET = "whsec_local_test_secret";
@@ -8,19 +8,19 @@ const encoder = new TextEncoder();
 async function sign(
   body: string,
   timestamp: number,
-  secret = SECRET
+  secret = SECRET,
 ): Promise<string> {
   const key = await crypto.subtle.importKey(
     "raw",
     encoder.encode(secret),
     { name: "HMAC", hash: "SHA-256" },
     false,
-    ["sign"]
+    ["sign"],
   );
   const signature = await crypto.subtle.sign(
     "HMAC",
     key,
-    encoder.encode(`${timestamp}.${body}`)
+    encoder.encode(`${timestamp}.${body}`),
   );
   const hex = [...new Uint8Array(signature)]
     .map((byte) => byte.toString(16).padStart(2, "0"))
@@ -48,7 +48,7 @@ describe("verifyWebhookSignature", () => {
     const header = await sign(body, NOW);
     const upperCased = header.replace(
       /v1=(.+)$/,
-      (_, hex: string) => `v1=${hex.toUpperCase()}`
+      (_, hex: string) => `v1=${hex.toUpperCase()}`,
     );
 
     const result = await verifyWebhookSignature({
@@ -141,6 +141,9 @@ describe("verifyWebhookSignature", () => {
       nowSeconds: NOW,
     });
 
-    expect(result).toEqual({ valid: false, reason: "missing signature header" });
+    expect(result).toEqual({
+      valid: false,
+      reason: "missing signature header",
+    });
   });
 });

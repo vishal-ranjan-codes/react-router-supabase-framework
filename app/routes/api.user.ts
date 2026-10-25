@@ -1,7 +1,7 @@
 import { data } from "react-router";
-import type { Route } from "./+types/api.user";
-import { requireAuth } from "~/middleware/chains";
 import { userContext } from "~/lib/context";
+import { requireAuth } from "~/middleware/chains";
+import type { Route } from "./+types/api.user";
 
 export const middleware: Route.MiddlewareFunction[] = requireAuth;
 

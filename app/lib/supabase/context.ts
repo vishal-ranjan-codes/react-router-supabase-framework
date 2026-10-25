@@ -1,5 +1,5 @@
-import { createContext } from "react-router";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { createContext } from "react-router";
 import type { Database } from "~/types/database.types";
 
 /**
@@ -9,7 +9,7 @@ import type { Database } from "~/types/database.types";
 export type AuthClaims = { sub: string; email?: string };
 
 export const supabaseContext = createContext<SupabaseClient<Database> | null>(
-  null
+  null,
 );
 
 /** Verified claims for this request, or null when there is no valid session. */

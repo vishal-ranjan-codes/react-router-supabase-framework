@@ -13,7 +13,8 @@ let client: ReturnType<typeof createBrowserClient<Database>> | null = null;
 export function getSupabaseBrowserClient() {
   if (!client) {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabasePublishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+    const supabasePublishableKey = import.meta.env
+      .VITE_SUPABASE_PUBLISHABLE_KEY;
 
     // Return null if not configured
     if (!supabaseUrl || !supabasePublishableKey) {

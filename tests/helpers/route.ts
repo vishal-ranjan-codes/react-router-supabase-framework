@@ -1,5 +1,5 @@
-import { vi } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { vi } from "vitest";
 import { supabaseContext } from "~/lib/supabase/context";
 import type { Database } from "~/types/database.types";
 
@@ -9,7 +9,10 @@ type Supabase = SupabaseClient<Database>;
  * A POST Request shaped the way the browser sends a route form, so actions can be called
  * directly instead of booting a server.
  */
-export function formRequest(url: string, fields: Record<string, string>): Request {
+export function formRequest(
+  url: string,
+  fields: Record<string, string>,
+): Request {
   const body = new FormData();
   for (const [name, value] of Object.entries(fields)) body.set(name, value);
   return new Request(url, { method: "POST", body });
@@ -26,9 +29,13 @@ export function contextFor(supabase: unknown) {
 export function actionArgs(
   url: string,
   fields: Record<string, string>,
-  supabase: unknown = createSupabaseDouble()
+  supabase: unknown = createSupabaseDouble(),
 ) {
-  return { request: formRequest(url, fields), context: contextFor(supabase), params: {} };
+  return {
+    request: formRequest(url, fields),
+    context: contextFor(supabase),
+    params: {},
+  };
 }
 
 /**
@@ -37,13 +44,20 @@ export function actionArgs(
  * decided rather than about which wrapper the current React Router release happens to use.
  */
 export async function readResult(
-  result: unknown
+  result: unknown,
 ): Promise<{ status: number; body: Record<string, unknown> }> {
   if (result instanceof Response) {
-    return { status: result.status, body: (await result.json()) as Record<string, unknown> };
+    return {
+      status: result.status,
+      body: (await result.json()) as Record<string, unknown>,
+    };
   }
 
-  const carrier = result as { type?: unknown; data?: unknown; init?: ResponseInit };
+  const carrier = result as {
+    type?: unknown;
+    data?: unknown;
+    init?: ResponseInit;
+  };
   if (carrier?.type === "DataWithResponseInit") {
     return {
       status: carrier.init?.status ?? 200,
@@ -56,7 +70,7 @@ export async function readResult(
 
 /** `throw redirect(...)` unwinds out of the action as a Response, preserving Set-Cookie writes. */
 export async function captureRedirect(
-  promise: Promise<unknown>
+  promise: Promise<unknown>,
 ): Promise<{ status: number; location: string }> {
   let thrown: unknown = null;
   try {
@@ -69,7 +83,10 @@ export async function captureRedirect(
     throw new Error("Expected the action to throw a redirect Response");
   }
 
-  return { status: thrown.status, location: thrown.headers.get("Location") ?? "" };
+  return {
+    status: thrown.status,
+    location: thrown.headers.get("Location") ?? "",
+  };
 }
 
 export function createSupabaseDouble() {
@@ -84,7 +101,9 @@ export function createSupabaseDouble() {
       updateUser: vi.fn().mockResolvedValue({ error: null }),
       signOut: vi.fn().mockResolvedValue({ error: null }),
       signInWithOAuth: vi.fn().mockResolvedValue({
-        data: { url: "https://supabase.example/auth/v1/authorize?provider=google" },
+        data: {
+          url: "https://supabase.example/auth/v1/authorize?provider=google",
+        },
         error: null,
       }),
     },

@@ -2,17 +2,12 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "react-router-supabase-starter",
   "compatibility_date": "2026-10-24",
-  "compatibility_flags": [
-    "nodejs_compat"
-  ],
+  "compatibility_flags": ["nodejs_compat"],
   "main": "./workers/app.ts",
   "observability": {
     "enabled": true
   },
   "triggers": {
-    "crons": [
-      "0 * * * *",
-      "0 0 * * *"
-    ]
+    "crons": ["0 * * * *", "0 0 * * *"]
   }
 }

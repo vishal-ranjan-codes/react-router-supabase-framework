@@ -1,7 +1,5 @@
-import { Form, useActionData, useNavigation, data } from "react-router";
-import type { Route } from "./+types/dashboard-settings";
-import { userContext } from "~/lib/context";
-import { supabaseContext } from "~/lib/supabase/context";
+import { data, Form, useActionData, useNavigation } from "react-router";
+import { Button } from "~/components/ui/button";
 import {
   Card,
   CardContent,
@@ -9,9 +7,11 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { userContext } from "~/lib/context";
+import { supabaseContext } from "~/lib/supabase/context";
+import type { Route } from "./+types/dashboard-settings";
 
 export async function loader({ context }: Route.LoaderArgs) {
   const user = context.get(userContext);

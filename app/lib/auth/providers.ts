@@ -8,7 +8,7 @@ type Supabase = SupabaseClient<Database>;
 export async function signInWithPassword(
   supabase: Supabase,
   email: string,
-  password: string
+  password: string,
 ): Promise<AuthResult> {
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) return { error: error.message };
@@ -19,7 +19,7 @@ export async function signUpWithPassword(
   supabase: Supabase,
   email: string,
   password: string,
-  origin: string
+  origin: string,
 ): Promise<AuthResult> {
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -41,7 +41,7 @@ export async function signUpWithPassword(
 
 export async function sendEmailOtp(
   supabase: Supabase,
-  email: string
+  email: string,
 ): Promise<AuthResult> {
   const { error } = await supabase.auth.signInWithOtp({
     email,
@@ -56,7 +56,7 @@ export async function sendEmailOtp(
 export async function verifyEmailOtp(
   supabase: Supabase,
   email: string,
-  token: string
+  token: string,
 ): Promise<AuthResult> {
   const { error } = await supabase.auth.verifyOtp({
     email,
@@ -70,7 +70,7 @@ export async function verifyEmailOtp(
 export async function signInWithMagicLink(
   supabase: Supabase,
   email: string,
-  origin: string
+  origin: string,
 ): Promise<AuthResult> {
   const { error } = await supabase.auth.signInWithOtp({
     email,
@@ -85,7 +85,7 @@ export async function signInWithMagicLink(
 export async function resetPasswordForEmail(
   supabase: Supabase,
   email: string,
-  origin: string
+  origin: string,
 ): Promise<AuthResult> {
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${origin}/auth/callback?next=/auth/reset-password`,
@@ -100,7 +100,7 @@ export async function resetPasswordForEmail(
  */
 export async function updatePassword(
   supabase: Supabase,
-  password: string
+  password: string,
 ): Promise<AuthResult> {
   const { error } = await supabase.auth.updateUser({ password });
   if (error) return { error: error.message };
@@ -114,7 +114,7 @@ export async function updatePassword(
  */
 export async function signInWithGoogle(
   supabase: Supabase,
-  origin: string
+  origin: string,
 ): Promise<never> {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",

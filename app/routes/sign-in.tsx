@@ -1,29 +1,35 @@
 import { useState } from "react";
-import { Link, useActionData, useNavigation, data, redirect } from "react-router";
-import { supabaseMiddleware } from "~/middleware/supabase";
-import { supabaseContext } from "~/lib/supabase/context";
 import {
+  data,
+  Link,
+  redirect,
+  useActionData,
+  useNavigation,
+} from "react-router";
+import { AuthDivider, AuthLayout } from "~/components/auth/AuthLayout";
+import { EmailOtpForm } from "~/components/auth/EmailOtpForm";
+import { GoogleButton } from "~/components/auth/GoogleButton";
+import { MagicLinkForm } from "~/components/auth/MagicLinkForm";
+import { MethodSelector } from "~/components/auth/MethodSelector";
+import { PasswordForm } from "~/components/auth/PasswordForm";
+import {
+  type AuthMethod,
   authConfig,
   getDefaultMethod,
   getEnabledFormMethods,
   isMethodEnabled,
-  type AuthMethod,
 } from "~/lib/auth/config";
 import {
-  signInWithPassword,
-  signInWithMagicLink,
-  sendEmailOtp,
-  verifyEmailOtp,
   resetPasswordForEmail,
+  sendEmailOtp,
   signInWithGoogle,
+  signInWithMagicLink,
+  signInWithPassword,
+  verifyEmailOtp,
 } from "~/lib/auth/providers";
-import { AuthLayout, AuthDivider } from "~/components/auth/AuthLayout";
-import { MethodSelector } from "~/components/auth/MethodSelector";
-import { PasswordForm } from "~/components/auth/PasswordForm";
-import { EmailOtpForm } from "~/components/auth/EmailOtpForm";
-import { MagicLinkForm } from "~/components/auth/MagicLinkForm";
-import { GoogleButton } from "~/components/auth/GoogleButton";
 import type { OtpIntent } from "~/lib/auth/types";
+import { supabaseContext } from "~/lib/supabase/context";
+import { supabaseMiddleware } from "~/middleware/supabase";
 import type { Route } from "./+types/sign-in";
 
 export const middleware: Route.MiddlewareFunction[] = [supabaseMiddleware];
@@ -44,7 +50,7 @@ export async function action({ request, context }: Route.ActionArgs) {
         error:
           "Authentication is not configured. Please set up Supabase credentials.",
       },
-      { status: 503 }
+      { status: 503 },
     );
   }
 
@@ -62,7 +68,10 @@ export async function action({ request, context }: Route.ActionArgs) {
     case "email-password": {
       if (formData.get("intent") === "reset") {
         if (!authConfig.passwordReset || !email) {
-          return data({ error: "Enter a valid email address" }, { status: 400 });
+          return data(
+            { error: "Enter a valid email address" },
+            { status: 400 },
+          );
         }
         return resetPasswordForEmail(supabase, email, origin);
       }
@@ -92,7 +101,7 @@ export async function action({ request, context }: Route.ActionArgs) {
         if (!token) {
           return data(
             { error: "Enter the 6-digit code", otpStep: "verify" },
-            { status: 400 }
+            { status: 400 },
           );
         }
 
@@ -129,7 +138,8 @@ export default function SignIn() {
   const navigation = useNavigation();
   const isLoading = navigation.state === "submitting";
   const methods = getEnabledFormMethods();
-  const [activeMethod, setActiveMethod] = useState<AuthMethod>(getDefaultMethod);
+  const [activeMethod, setActiveMethod] =
+    useState<AuthMethod>(getDefaultMethod);
   // When every flag is off, getDefaultMethod() still names a method so the page is never blank -
   // but rendering its panel would show a form the action always rejects, so gate it on the flags.
   const panel = methods.includes(activeMethod) ? activeMethod : undefined;

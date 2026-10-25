@@ -1,10 +1,10 @@
+import { env } from "cloudflare:workers";
+import type { CookieOptions } from "@supabase/ssr";
 import {
   createServerClient,
   parseCookieHeader,
   serializeCookieHeader,
 } from "@supabase/ssr";
-import type { CookieOptions } from "@supabase/ssr";
-import { env } from "cloudflare:workers";
 import type { MiddlewareFunction } from "react-router";
 import {
   authClaimsContext,
@@ -20,7 +20,7 @@ type PendingCookie = {
 
 export const supabaseMiddleware: MiddlewareFunction<Response> = async (
   { request, context },
-  next
+  next,
 ) => {
   // app/root.tsx already installs this middleware, so a route that lists it again must no-op:
   // running twice would validate the JWT twice and duplicate every refreshed cookie.
@@ -60,7 +60,7 @@ export const supabaseMiddleware: MiddlewareFunction<Response> = async (
   const { data, error } = await supabase.auth.getClaims();
   context.set(
     authClaimsContext,
-    error || !data ? null : { sub: data.claims.sub, email: data.claims.email }
+    error || !data ? null : { sub: data.claims.sub, email: data.claims.email },
   );
 
   // Store client in context for downstream routes
@@ -73,7 +73,7 @@ export const supabaseMiddleware: MiddlewareFunction<Response> = async (
   for (const { name, value, options } of pendingCookies) {
     response.headers.append(
       "Set-Cookie",
-      serializeCookieHeader(name, value, options)
+      serializeCookieHeader(name, value, options),
     );
   }
 
