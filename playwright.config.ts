@@ -1,5 +1,16 @@
 import { defineConfig, devices } from "@playwright/test";
 
+/**
+ * The repo supports npm and pnpm, so the e2e runner has to start the dev server with whichever
+ * one invoked it. `npm_config_user_agent` is set by both, and CI only ever runs npm.
+ */
+function devCommand(): string {
+  const agent = process.env.npm_config_user_agent ?? "";
+  if (agent.startsWith("pnpm")) return "pnpm dev";
+  if (agent.startsWith("yarn")) return "yarn dev";
+  return "npm run dev";
+}
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
@@ -27,7 +38,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "pnpm dev",
+    command: devCommand(),
     url: "http://localhost:5173",
     reuseExistingServer: !process.env.CI,
   },

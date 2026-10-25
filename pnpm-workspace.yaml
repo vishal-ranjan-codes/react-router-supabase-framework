@@ -1,0 +1,9 @@
+# Settings for pnpm only - npm ignores this file, so both package managers stay usable.
+#
+# pnpm 10+ refuses to run a dependency's install scripts unless the package is listed here.
+# esbuild and workerd both ship a `node install.js` postinstall, and workerd is the runtime the
+# dev server and `wrangler deploy` execute in, so a plain `pnpm install` without this list leaves
+# a broken toolchain that only fails at `npm run dev` time.
+onlyBuiltDependencies:
+  - esbuild
+  - workerd
