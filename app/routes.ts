@@ -18,6 +18,7 @@ export default [
   route("sign-out", "routes/sign-out.tsx"),
   route("auth/callback", "routes/auth.callback.ts"),
   route("auth/verify-otp", "routes/auth.verify-otp.tsx"),
+  route("auth/reset-password", "routes/auth.reset-password.tsx"),
 
   // User Dashboard Routes (Phase 3)
   layout("routes/dashboard-layout.tsx", [

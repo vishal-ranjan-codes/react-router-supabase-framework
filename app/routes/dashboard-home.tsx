@@ -64,8 +64,8 @@ export default function DashboardHome({ loaderData }: Route.ComponentProps) {
           </CardHeader>
           <CardContent>
             <p className="theme-fc-base text-lg">
-              {user?.created_at
-                ? new Date(user.created_at).toLocaleDateString()
+              {profile?.created_at
+                ? new Date(profile.created_at).toLocaleDateString()
                 : "N/A"}
             </p>
           </CardContent>

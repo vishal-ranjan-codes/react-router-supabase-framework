@@ -1,17 +1,11 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "react-router-supabase-starter",
-  "compatibility_date": "2025-07-15",
+  "compatibility_date": "2026-10-24",
   "compatibility_flags": [
     "nodejs_compat"
   ],
   "main": "./workers/app.ts",
-  "alias": {
-    "virtual:react-router/server-build": "./build/server/index.js"
-  },
-  "assets": {
-    "directory": "./build/client"
-  },
   "observability": {
     "enabled": true
   },
@@ -20,9 +14,5 @@
       "0 * * * *",
       "0 0 * * *"
     ]
-  },
-  "vars": {
-    "SUPABASE_URL": "",
-    "SUPABASE_PUBLISHABLE_KEY": ""
   }
 }

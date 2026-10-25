@@ -21,7 +21,7 @@ export async function signUpWithPassword(
   password: string,
   origin: string
 ): Promise<AuthResult> {
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -29,6 +29,13 @@ export async function signUpWithPassword(
     },
   });
   if (error) return { error: error.message };
+
+  // With "Confirm email" enabled the response carries no session; signing in happens in
+  // /auth/callback once the link is clicked.
+  if (!data.session) {
+    return { success: true, requiresConfirmation: true, email };
+  }
+
   return { success: true };
 }
 
@@ -71,6 +78,31 @@ export async function signInWithMagicLink(
       emailRedirectTo: `${origin}/auth/callback`,
     },
   });
+  if (error) return { error: error.message };
+  return { success: true, otpSent: true, email };
+}
+
+export async function resetPasswordForEmail(
+  supabase: Supabase,
+  email: string,
+  origin: string
+): Promise<AuthResult> {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${origin}/auth/callback?next=/auth/reset-password`,
+  });
+  if (error) return { error: error.message };
+  return { success: true, otpSent: true, email };
+}
+
+/**
+ * Applies a new password to the session the recovery link just created.
+ * Requires a signed-in user, so the route guarding this must require auth.
+ */
+export async function updatePassword(
+  supabase: Supabase,
+  password: string
+): Promise<AuthResult> {
+  const { error } = await supabase.auth.updateUser({ password });
   if (error) return { error: error.message };
   return { success: true };
 }

@@ -10,17 +10,25 @@ import {
 
 interface EmailOtpFormProps {
   error?: string | null;
+  /** Renders the code-entry step instead of the email step. */
   otpSent?: boolean;
   email?: string;
+  /** Shown on the code-entry step after a resend. */
+  resent?: boolean;
   isLoading?: boolean;
 }
 
-export function EmailOtpForm({ error, otpSent, email, isLoading }: EmailOtpFormProps) {
+export function EmailOtpForm({
+  error,
+  otpSent,
+  email,
+  resent,
+  isLoading,
+}: EmailOtpFormProps) {
   if (otpSent) {
     return (
       <Form method="POST" className="space-y-4">
         <input type="hidden" name="method" value="email-otp" />
-        <input type="hidden" name="otpAction" value="verify" />
         <input type="hidden" name="email" value={email} />
 
         <div className="space-y-2 text-center">
@@ -41,11 +49,38 @@ export function EmailOtpForm({ error, otpSent, email, isLoading }: EmailOtpFormP
           </InputOTP>
         </div>
 
-        {error && <p className="text-sm text-destructive text-center">{error}</p>}
+        {error && (
+          <p className="text-sm text-destructive text-center">{error}</p>
+        )}
+        {resent && (
+          <p className="text-sm theme-text-success text-center">
+            A new code is on its way.
+          </p>
+        )}
 
-        <Button type="submit" className="w-full" disabled={isLoading}>
+        {/* Each submitter carries its own otpAction, so one form serves both steps. */}
+        <Button
+          type="submit"
+          name="otpAction"
+          value="verify"
+          className="w-full"
+          disabled={isLoading}
+        >
           {isLoading ? "Verifying..." : "Verify Code"}
         </Button>
+
+        <div className="text-center">
+          <Button
+            type="submit"
+            name="otpAction"
+            value="resend"
+            variant="ghost"
+            size="sm"
+            disabled={isLoading}
+          >
+            Didn&apos;t receive a code? Resend
+          </Button>
+        </div>
       </Form>
     );
   }

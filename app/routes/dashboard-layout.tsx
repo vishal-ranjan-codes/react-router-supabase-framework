@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Outlet, Link, useLocation } from "react-router";
+import { Outlet, Link, Form, useLocation } from "react-router";
 import type { Route } from "./+types/dashboard-layout";
-import { supabaseMiddleware } from "~/middleware/supabase";
-import { authMiddleware } from "~/middleware/auth";
+import { requireAuth } from "~/middleware/chains";
 import { userContext } from "~/lib/context";
+import { RouteErrorBoundary } from "~/components/error/RouteErrorBoundary";
 import { LayoutDashboard, Settings, LogOut, User, Menu } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
@@ -14,11 +14,7 @@ import {
   SheetTrigger,
 } from "~/components/ui/sheet";
 
-// Middleware chain: Supabase client → Auth check
-export const middleware: Route.MiddlewareFunction[] = [
-  supabaseMiddleware,
-  authMiddleware,
-];
+export const middleware: Route.MiddlewareFunction[] = requireAuth;
 
 export function meta() {
   return [{ title: "Dashboard" }];
@@ -30,19 +26,7 @@ export async function loader({ context }: Route.LoaderArgs) {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  return (
-    <div className="flex min-h-screen items-center justify-center theme-bg-color">
-      <div className="text-center">
-        <h1 className="theme-h2 mb-2">Something went wrong</h1>
-        <p className="theme-fc-light mb-4">
-          {error instanceof Error ? error.message : "Unknown error"}
-        </p>
-        <a href="/dashboard" className="text-primary hover:underline">
-          Try again
-        </a>
-      </div>
-    </div>
-  );
+  return <RouteErrorBoundary error={error} retryHref="/dashboard" />;
 }
 
 export default function DashboardLayout({ loaderData }: Route.ComponentProps) {
@@ -84,14 +68,19 @@ export default function DashboardLayout({ loaderData }: Route.ComponentProps) {
       </nav>
 
       <div className="border-t theme-border-color pt-4 mt-4">
-        <Link
-          to="/sign-out"
-          onClick={() => setSidebarOpen(false)}
-          className="flex items-center gap-3 rounded-md px-3 py-2 text-sm theme-fc-light hover:theme-bg-shade-5 transition-colors"
+        <Form
+          method="post"
+          action="/sign-out"
+          onSubmit={() => setSidebarOpen(false)}
         >
-          <LogOut className="h-4 w-4" />
-          Sign Out
-        </Link>
+          <button
+            type="submit"
+            className="flex items-center gap-3 rounded-md px-3 py-2 text-sm theme-fc-light hover:theme-bg-shade-5 transition-colors"
+          >
+            <LogOut className="h-4 w-4" />
+            Sign Out
+          </button>
+        </Form>
       </div>
     </>
   );

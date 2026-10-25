@@ -1,6 +1,7 @@
 import { redirect } from "react-router";
 import { supabaseMiddleware } from "~/middleware/supabase";
 import { supabaseContext } from "~/lib/supabase/context";
+import { safeRedirectTarget } from "~/lib/auth/redirect";
 import type { Route } from "./+types/auth.callback";
 
 export const middleware: Route.MiddlewareFunction[] = [supabaseMiddleware];
@@ -8,7 +9,7 @@ export const middleware: Route.MiddlewareFunction[] = [supabaseMiddleware];
 export async function loader({ request, context }: Route.LoaderArgs) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
-  const next = requestUrl.searchParams.get("next") || "/dashboard";
+  const next = safeRedirectTarget(requestUrl.searchParams.get("next"));
 
   const supabase = context.get(supabaseContext);
   if (!supabase || !code) {

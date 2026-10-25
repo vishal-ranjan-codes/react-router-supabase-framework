@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { getTheme, setTheme, applyTheme } from "./theme";
+import { getTheme, setTheme, applyTheme, initTheme } from "./theme";
 
 describe("theme", () => {
   beforeEach(() => {
@@ -24,5 +24,33 @@ describe("theme", () => {
   it("applies light theme", () => {
     applyTheme("light");
     expect(document.documentElement.classList.contains("dark")).toBe(false);
+  });
+
+  it("initTheme subscribes to the OS and the cleanup unsubscribes", () => {
+    const list = {
+      matches: false,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    };
+    const matchMedia = vi
+      .spyOn(window, "matchMedia")
+      .mockReturnValue(list as unknown as MediaQueryList);
+
+    localStorage.setItem("theme", "system");
+    const dispose = initTheme();
+
+    expect(list.addEventListener).toHaveBeenCalledWith(
+      "change",
+      expect.any(Function)
+    );
+
+    dispose();
+
+    expect(list.removeEventListener).toHaveBeenCalledWith(
+      "change",
+      expect.any(Function)
+    );
+
+    matchMedia.mockRestore();
   });
 });

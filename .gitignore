@@ -2,12 +2,24 @@
 .env
 .env.local
 .dev.vars
+.dev.vars.*
+!.dev.vars.example
 /node_modules/
 .wrangler/
+worker-configuration.d.ts
+.commandcode/
+
+# TypeScript build info (emitted by `tsc -b` next to each project tsconfig)
+*.tsbuildinfo
 
 # React Router
 /.react-router/
 /build/
+
+# Tests
+/coverage/
+/playwright-report/
+/test-results/
 
 # Plans
 /plans/

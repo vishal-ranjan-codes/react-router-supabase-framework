@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Outlet, Link, useLocation } from "react-router";
 import type { Route } from "./+types/admin-layout";
-import { supabaseMiddleware } from "~/middleware/supabase";
-import { adminMiddleware } from "~/middleware/auth";
+import { requireAdmin } from "~/middleware/chains";
 import { userContext } from "~/lib/context";
+import { RouteErrorBoundary } from "~/components/error/RouteErrorBoundary";
 import {
   LayoutDashboard,
   Users,
@@ -20,11 +20,7 @@ import {
   SheetTrigger,
 } from "~/components/ui/sheet";
 
-// Middleware chain: Supabase client → Admin auth check
-export const middleware: Route.MiddlewareFunction[] = [
-  supabaseMiddleware,
-  adminMiddleware,
-];
+export const middleware: Route.MiddlewareFunction[] = requireAdmin;
 
 export function meta() {
   return [{ title: "Admin Panel" }];
@@ -36,19 +32,7 @@ export async function loader({ context }: Route.LoaderArgs) {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  return (
-    <div className="flex min-h-screen items-center justify-center theme-bg-color">
-      <div className="text-center">
-        <h1 className="theme-h2 mb-2">Something went wrong</h1>
-        <p className="theme-fc-light mb-4">
-          {error instanceof Error ? error.message : "Unknown error"}
-        </p>
-        <a href="/admin" className="text-primary hover:underline">
-          Try again
-        </a>
-      </div>
-    </div>
-  );
+  return <RouteErrorBoundary error={error} retryHref="/admin" />;
 }
 
 export default function AdminLayout({ loaderData }: Route.ComponentProps) {

@@ -1,8 +1,9 @@
-import { Link, useLocation } from 'react-router'
+import { Link, Form, useLocation, useRouteLoaderData } from 'react-router'
 import Logo from './Logo'
 import ThemeToggle from './ThemeToggle'
 import MobileNav from './MobileNav'
 import { Button } from '~/components/ui/button'
+import type { SessionUser } from '~/lib/context'
 import {
     NavigationMenu,
     NavigationMenuContent,
@@ -15,6 +16,9 @@ import { cn } from '~/lib/utils'
 
 export default function Header() {
     const location = useLocation()
+    // root's loader runs supabaseMiddleware, so even these public pages know the signed-in user.
+    const rootData = useRouteLoaderData<{ user: SessionUser | null }>('root')
+    const user = rootData?.user ?? null
 
     return (
         <header className="sticky top-0 z-50 theme-fg-color theme-border-color border-b backdrop-blur-sm bg-opacity-90">
@@ -128,14 +132,47 @@ export default function Header() {
                     {/* Action Buttons */}
                     <div className="flex items-center gap-2">
                         <ThemeToggle />
-                        <Button
-                            variant="default"
-                            size="sm"
-                            asChild
-                            className="hidden sm:inline-flex"
-                        >
-                            <Link to="/sign-in">Sign In</Link>
-                        </Button>
+                        {user ? (
+                            <>
+                                <Button
+                                    variant="default"
+                                    size="sm"
+                                    asChild
+                                    className="hidden sm:inline-flex"
+                                >
+                                    <Link to="/dashboard">Dashboard</Link>
+                                </Button>
+                                <Form method="post" action="/sign-out">
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        type="submit"
+                                        className="hidden sm:inline-flex"
+                                    >
+                                        Sign Out
+                                    </Button>
+                                </Form>
+                            </>
+                        ) : (
+                            <>
+                                <Button
+                                    variant="default"
+                                    size="sm"
+                                    asChild
+                                    className="hidden sm:inline-flex"
+                                >
+                                    <Link to="/sign-in">Sign In</Link>
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    asChild
+                                    className="hidden sm:inline-flex"
+                                >
+                                    <Link to="/sign-up">Sign Up</Link>
+                                </Button>
+                            </>
+                        )}
                         <MobileNav />
                     </div>
                 </div>

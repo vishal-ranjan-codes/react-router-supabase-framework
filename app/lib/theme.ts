@@ -3,7 +3,7 @@ export type Theme = "light" | "dark" | "system";
 const THEME_KEY = "theme";
 
 export function getTheme(): Theme {
-  if (typeof window === "undefined") return "dark";
+  if (typeof window === "undefined") return "system";
   return (localStorage.getItem(THEME_KEY) as Theme) || "system";
 }
 
@@ -21,10 +21,19 @@ export function applyTheme(theme: Theme): void {
   root.classList.toggle("dark", isDark);
 }
 
-export function initTheme(): void {
-  const theme = getTheme();
-  applyTheme(theme);
-  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+/**
+ * Applies the stored theme and follows the OS while set to "system".
+ * Returns the teardown, so a mount effect can drop the listener on unmount.
+ */
+export function initTheme(): () => void {
+  applyTheme(getTheme());
+
+  const dark = window.matchMedia("(prefers-color-scheme: dark)");
+  const onChange = () => {
     if (getTheme() === "system") applyTheme("system");
-  });
+  };
+
+  dark.addEventListener("change", onChange);
+
+  return () => dark.removeEventListener("change", onChange);
 }

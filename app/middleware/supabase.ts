@@ -4,8 +4,13 @@ import {
   serializeCookieHeader,
 } from "@supabase/ssr";
 import type { CookieOptions } from "@supabase/ssr";
+import { env } from "cloudflare:workers";
 import type { MiddlewareFunction } from "react-router";
-import { supabaseContext } from "~/lib/supabase/context";
+import {
+  authClaimsContext,
+  supabaseContext,
+  supabaseHandledContext,
+} from "~/lib/supabase/context";
 
 type PendingCookie = {
   name: string;
@@ -17,12 +22,20 @@ export const supabaseMiddleware: MiddlewareFunction<Response> = async (
   { request, context },
   next
 ) => {
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const supabasePublishableKey = process.env.SUPABASE_PUBLISHABLE_KEY;
+  // app/root.tsx already installs this middleware, so a route that lists it again must no-op:
+  // running twice would validate the JWT twice and duplicate every refreshed cookie.
+  if (context.get(supabaseHandledContext)) {
+    return next();
+  }
+  context.set(supabaseHandledContext, true);
+
+  const supabaseUrl = env.SUPABASE_URL;
+  const supabasePublishableKey = env.SUPABASE_PUBLISHABLE_KEY;
 
   // Graceful degradation: If credentials missing, store null and continue
   if (!supabaseUrl || !supabasePublishableKey) {
     context.set(supabaseContext, null);
+    context.set(authClaimsContext, null);
     return next();
   }
 
@@ -41,10 +54,14 @@ export const supabaseMiddleware: MiddlewareFunction<Response> = async (
     },
   });
 
-  // Trigger session refresh before any route code runs.
-  // getClaims() validates the JWT locally (via JWKS) and returns claims.
-  // If the token is expired, it uses the refresh token from cookies.
-  await supabase.auth.getClaims();
+  // Trigger session refresh before any route code runs, and keep the result: getClaims()
+  // verifies the JWT locally (via JWKS) and refreshes it when expired, so downstream middleware
+  // can trust these claims instead of calling getUser() for a second network round trip.
+  const { data, error } = await supabase.auth.getClaims();
+  context.set(
+    authClaimsContext,
+    error || !data ? null : { sub: data.claims.sub, email: data.claims.email }
+  );
 
   // Store client in context for downstream routes
   context.set(supabaseContext, supabase);

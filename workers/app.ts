@@ -1,73 +1,53 @@
+import { env } from "cloudflare:workers";
 import { createRequestHandler } from "react-router";
+import { createAdminClient } from "~/lib/supabase/admin";
 
 const requestHandler = createRequestHandler(
-  () => import("virtual:react-router/server-build")
+  () => import("virtual:react-router/server-build"),
+  import.meta.env.MODE
 );
 
-interface CloudflareEnv {
-  SUPABASE_URL: string;
-  SUPABASE_SERVICE_ROLE_KEY: string;
-  [key: string]: unknown;
-}
-
 export default {
-  async fetch(request: Request, env: CloudflareEnv, ctx: ExecutionContext) {
+  async fetch(request: Request) {
     return requestHandler(request);
   },
 
   // Cloudflare Cron Trigger
-  async scheduled(
-    controller: ScheduledController,
-    env: CloudflareEnv,
-    ctx: ExecutionContext
-  ) {
+  async scheduled(controller: ScheduledController, _env: Env, ctx: ExecutionContext) {
     console.log(`[Cron] Triggered: ${controller.cron}`);
 
-    ctx.waitUntil(handleCronJob(controller, env));
+    ctx.waitUntil(handleCronJob(controller.cron));
   },
-} satisfies ExportedHandler<CloudflareEnv>;
+} satisfies ExportedHandler<Env>;
 
-async function handleCronJob(
-  controller: ScheduledController,
-  env: CloudflareEnv
-) {
+async function handleCronJob(cron: string) {
   // Skip if credentials not configured
-  if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) {
+  if (!env.SUPABASE_URL || !env.SUPABASE_SECRET_KEY) {
     console.log("[Cron] Supabase credentials not configured, skipping");
     return;
   }
 
-  // Dynamic import to avoid issues when Supabase is not configured
-  const { createClient } = await import("@supabase/supabase-js");
-  
-  const supabase = createClient(
-    env.SUPABASE_URL,
-    env.SUPABASE_SERVICE_ROLE_KEY,
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
-    }
-  );
+  const supabase = createAdminClient();
 
   try {
-    switch (controller.cron) {
+    switch (cron) {
       case "0 * * * *": // Every hour
-        await processHourlyTasks();
+        await processHourlyTasks(supabase);
         break;
       case "0 0 * * *": // Daily at midnight
-        await processDailyTasks();
+        await processDailyTasks(supabase);
         break;
       default:
-        console.log(`[Cron] Unhandled cron schedule: ${controller.cron}`);
+        console.log(`[Cron] Unhandled cron schedule: ${cron}`);
     }
   } catch (error) {
     console.error("[Cron] Error:", error);
   }
 }
 
-async function processHourlyTasks() {
+type AdminClient = ReturnType<typeof createAdminClient>;
+
+async function processHourlyTasks(_supabase: AdminClient) {
   // Example: Process expired items
   // const { data, error } = await supabase.rpc("zt_process_expired_items");
   // if (error) {
@@ -78,7 +58,7 @@ async function processHourlyTasks() {
   console.log("[Cron] Running hourly tasks...");
 }
 
-async function processDailyTasks() {
+async function processDailyTasks(_supabase: AdminClient) {
   // Example: Generate daily reports
   console.log("[Cron] Running daily tasks...");
 }

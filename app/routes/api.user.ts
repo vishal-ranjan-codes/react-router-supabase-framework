@@ -1,24 +1,15 @@
 import { data } from "react-router";
-import type { LoaderFunctionArgs } from "react-router";
-import { supabaseContext } from "~/lib/supabase/context";
-import { supabaseMiddleware } from "~/middleware/supabase";
-import { authMiddleware } from "~/middleware/auth";
 import type { Route } from "./+types/api.user";
+import { requireAuth } from "~/middleware/chains";
+import { userContext } from "~/lib/context";
 
-export const middleware: Route.MiddlewareFunction[] = [
-  supabaseMiddleware,
-  authMiddleware,
-];
+export const middleware: Route.MiddlewareFunction[] = requireAuth;
 
-export async function loader({ context }: LoaderFunctionArgs) {
-  const supabase = context.get(supabaseContext);
-  const {
-    data: { user },
-  } = await supabase!.auth.getUser();
+export async function loader({ context }: Route.LoaderArgs) {
+  const user = context.get(userContext);
+  if (!user) {
+    return data({ error: "Unauthorized" }, { status: 401 });
+  }
 
-  return data({
-    id: user!.id,
-    email: user!.email,
-    created_at: user!.created_at,
-  });
+  return data({ id: user.id, email: user.email });
 }

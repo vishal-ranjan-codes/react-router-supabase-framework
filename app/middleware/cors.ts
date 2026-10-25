@@ -20,11 +20,15 @@ export function createCorsMiddleware(
           "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
           "Access-Control-Allow-Headers": "Content-Type, Authorization",
           "Access-Control-Max-Age": "86400",
+          Vary: "Origin",
         },
       });
     }
 
     const response = await next();
+
+    // Without this a shared cache can serve one origin's CORS headers to another.
+    response.headers.append("Vary", "Origin");
 
     if (allowedOrigin) {
       response.headers.set("Access-Control-Allow-Origin", allowedOrigin);

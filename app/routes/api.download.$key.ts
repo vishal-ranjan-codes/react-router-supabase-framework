@@ -1,23 +1,20 @@
-import type { LoaderFunctionArgs } from "react-router";
+import { env } from "cloudflare:workers";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { createR2Client } from "~/lib/r2/client";
-import { supabaseMiddleware } from "~/middleware/supabase";
-import { authMiddleware } from "~/middleware/auth";
+import { attachmentDisposition, isValidObjectKey } from "~/lib/r2/keys";
+import { requireAuth } from "~/middleware/chains";
 import type { Route } from "./+types/api.download.$key";
 
-export const middleware: Route.MiddlewareFunction[] = [
-  supabaseMiddleware,
-  authMiddleware,
-];
+export const middleware: Route.MiddlewareFunction[] = requireAuth;
 
-export async function loader({ params, context }: LoaderFunctionArgs) {
-  const env = (context as any).cloudflare?.env;
-  if (!env) {
-    return new Response("Cloudflare environment not available", { status: 500 });
-  }
-  
-  const r2 = createR2Client(env);
+export async function loader({ params }: Route.LoaderArgs) {
   const { key } = params;
+
+  if (!isValidObjectKey(key)) {
+    return new Response("Invalid file key", { status: 400 });
+  }
+
+  const r2 = createR2Client(env);
 
   try {
     const command = new GetObjectCommand({
@@ -31,7 +28,7 @@ export async function loader({ params, context }: LoaderFunctionArgs) {
     return new Response(body as unknown as BodyInit, {
       headers: {
         "Content-Type": response.ContentType ?? "application/octet-stream",
-        "Content-Disposition": `attachment; filename="${key}"`,
+        "Content-Disposition": attachmentDisposition(key),
       },
     });
   } catch (error) {

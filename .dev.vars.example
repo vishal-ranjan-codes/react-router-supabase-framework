@@ -1,0 +1,21 @@
+# Copy this file to .dev.vars for local development (wrangler dev / vite-plugin workerd).
+# In production set the same values with `wrangler secret put <NAME>` - never commit real
+# credentials, and never put them in wrangler.jsonc (text vars are visible in the dashboard).
+
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_PUBLISHABLE_KEY=sb_publishable_your-publishable-key
+SUPABASE_SECRET_KEY=sb_secret_your-secret-key
+
+# Cloudflare R2 (optional - used by /api/upload and /api/download via the S3 API)
+CLOUDFLARE_ACCOUNT_ID=your-account-id
+R2_ACCESS_KEY_ID=your-r2-access-key
+R2_SECRET_ACCESS_KEY=your-r2-secret-key
+R2_BUCKET_NAME=your-bucket-name
+R2_PUBLIC_DOMAIN=pub-your-account-id.r2.dev
+
+# Webhooks (optional - HMAC-SHA256 secret for /api/webhooks)
+WEBHOOK_SECRET=your-webhook-secret
+
+# Google OAuth (optional - enable methods.google in app/lib/auth/config.ts)
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret

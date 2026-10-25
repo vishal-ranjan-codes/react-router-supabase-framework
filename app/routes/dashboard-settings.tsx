@@ -68,7 +68,7 @@ export default function DashboardSettings({
               <Input
                 id="email"
                 type="email"
-                defaultValue={user?.email}
+                defaultValue={user?.email ?? ""}
                 disabled
               />
               <p className="text-xs theme-fc-light">Email cannot be changed</p>

@@ -1,41 +1,50 @@
 import { data } from "react-router";
-import type { ActionFunctionArgs } from "react-router";
+import { env } from "cloudflare:workers";
+import { verifyWebhookSignature } from "~/lib/webhooks";
+import type { Route } from "./+types/api.webhooks";
 
-export async function action({ request, context }: ActionFunctionArgs) {
+export async function action({ request }: Route.ActionArgs) {
   if (request.method !== "POST") {
     return data({ error: "Method Not Allowed" }, { status: 405 });
   }
 
-  try {
-    // Verify webhook signature
-    const signature = request.headers.get("x-webhook-signature");
-    if (!signature) {
-      return data({ error: "Missing signature" }, { status: 400 });
-    }
-
-    const bodyText = await request.text();
-
-    // Verify signature using Cloudflare env secret
-    // const secret = context.cloudflare.env.WEBHOOK_SECRET;
-    // const isValid = verifySignature(bodyText, signature, secret);
-
-    const payload = JSON.parse(bodyText);
-
-    // Process webhook based on event type
-    switch (payload.type) {
-      case "payment.completed":
-        // Handle payment
-        break;
-      case "user.created":
-        // Handle new user
-        break;
-      default:
-        console.log("Unhandled webhook type:", payload.type);
-    }
-
-    return data({ received: true });
-  } catch (error) {
-    console.error("Webhook error:", error);
-    return data({ error: "Internal error" }, { status: 500 });
+  if (!env.WEBHOOK_SECRET) {
+    return data(
+      { error: "Webhook verification is not configured" },
+      { status: 503 }
+    );
   }
+
+  const bodyText = await request.text();
+
+  const verification = await verifyWebhookSignature({
+    body: bodyText,
+    header: request.headers.get("x-webhook-signature"),
+    secret: env.WEBHOOK_SECRET,
+  });
+
+  if (!verification.valid) {
+    console.warn("Webhook rejected:", verification.reason);
+    return data({ error: "Invalid signature" }, { status: 401 });
+  }
+
+  let payload: { type?: string } | null;
+  try {
+    payload = JSON.parse(bodyText);
+  } catch {
+    return data({ error: "Invalid JSON body" }, { status: 400 });
+  }
+
+  switch (payload?.type) {
+    case "payment.completed":
+      // Handle payment
+      break;
+    case "user.created":
+      // Handle new user
+      break;
+    default:
+      console.log("Unhandled webhook type:", payload?.type);
+  }
+
+  return data({ received: true });
 }

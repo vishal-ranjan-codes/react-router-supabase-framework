@@ -18,6 +18,8 @@ export interface AuthConfig {
   };
   defaultMethod: AuthMethod;
   passwordMinLength: number;
+  /** Offers "Forgot password?" and the /auth/reset-password step for the password method. */
+  passwordReset: boolean;
 }
 
 export const authConfig: AuthConfig = {
@@ -29,6 +31,23 @@ export const authConfig: AuthConfig = {
   },
   defaultMethod: 'email-password',
   passwordMinLength: 8,
+  passwordReset: true,
+};
+
+const METHOD_ORDER: AuthMethod[] = ['email-password', 'email-otp', 'magic-link', 'google'];
+
+const METHOD_FLAGS: Record<AuthMethod, keyof AuthConfig['methods']> = {
+  'email-password': 'emailPassword',
+  'email-otp': 'emailOtp',
+  'magic-link': 'magicLink',
+  'google': 'google',
+};
+
+const METHOD_LABELS: Record<AuthMethod, string> = {
+  'email-password': 'Password',
+  'email-otp': 'Email OTP',
+  'magic-link': 'Magic Link',
+  'google': 'Google',
 };
 
 /**
@@ -36,21 +55,30 @@ export const authConfig: AuthConfig = {
  * Only methods enabled in authConfig.methods are included.
  */
 export function getEnabledMethods(): AuthMethod[] {
-  const all: AuthMethod[] = ['email-password', 'email-otp', 'magic-link', 'google'];
-  return all.filter((m) => authConfig.methods[m === 'email-password' ? 'emailPassword' : m === 'email-otp' ? 'emailOtp' : m === 'magic-link' ? 'magicLink' : 'google']);
+  return METHOD_ORDER.filter(isMethodEnabled);
+}
+
+/** Enabled methods that render a form panel; OAuth providers render as buttons instead. */
+export function getEnabledFormMethods(): AuthMethod[] {
+  return getEnabledMethods().filter((method) => method !== 'google');
 }
 
 export function isMethodEnabled(method: AuthMethod): boolean {
-  const key = method === 'email-password' ? 'emailPassword' : method === 'email-otp' ? 'emailOtp' : method === 'magic-link' ? 'magicLink' : 'google';
-  return authConfig.methods[key];
+  return authConfig.methods[METHOD_FLAGS[method]];
+}
+
+/**
+ * The method a form should open on. A disabled `defaultMethod` would otherwise
+ * leave the page with a selector that has no matching panel.
+ */
+export function getDefaultMethod(): AuthMethod {
+  const enabled = getEnabledMethods();
+
+  if (enabled.includes(authConfig.defaultMethod)) return authConfig.defaultMethod;
+
+  return enabled[0] ?? 'email-password';
 }
 
 export function getMethodLabel(method: AuthMethod): string {
-  const labels: Record<AuthMethod, string> = {
-    'email-password': 'Password',
-    'email-otp': 'Email OTP',
-    'magic-link': 'Magic Link',
-    'google': 'Google',
-  };
-  return labels[method];
+  return METHOD_LABELS[method];
 }

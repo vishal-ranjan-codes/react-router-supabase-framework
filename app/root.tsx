@@ -6,7 +6,6 @@ import {
   Scripts,
   ScrollRestoration,
   useLocation,
-  useLoaderData,
 } from "react-router";
 
 import type { Route } from "./+types/root";
@@ -14,6 +13,8 @@ import stylesheet from "./globals.css?url";
 import Header from "~/components/layout/Header";
 import Footer from "~/components/layout/Footer";
 import { Toaster } from "~/components/ui/sonner";
+import { authClaimsContext } from "~/lib/supabase/context";
+import { supabaseMiddleware } from "~/middleware/supabase";
 import { initTheme } from "~/lib/theme";
 import { useEffect } from "react";
 
@@ -21,30 +22,38 @@ export const links: Route.LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
 ];
 
-export function loader() {
+// Every render route gets a Supabase client and verified claims, so public pages can show real
+// auth state (Header) without requiring a session.
+export const middleware: Route.MiddlewareFunction[] = [supabaseMiddleware];
+
+export function loader({ context }: Route.LoaderArgs) {
+  const claims = context.get(authClaimsContext);
+
   return {
-    env: {
-      SUPABASE_URL: process.env.SUPABASE_URL || "",
-      SUPABASE_PUBLISHABLE_KEY: process.env.SUPABASE_PUBLISHABLE_KEY || "",
-    },
+    user: claims ? { id: claims.sub, email: claims.email ?? null } : null,
   };
 }
 
-export function Layout({ children }: { children: React.ReactNode }) {
-  const { env } = useLoaderData<typeof loader>();
+// Runs before the first paint, so the stored preference wins over the server HTML. This mirrors
+// applyTheme() in ~/lib/theme; keep the two in step.
+const themeBootstrap = `
+  try {
+    var stored = localStorage.getItem("theme") || "system";
+    var dark = stored === "dark" ||
+      (stored === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
+    document.documentElement.classList.toggle("dark", dark);
+  } catch (error) {}
+`;
 
+export function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <script dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
         <Meta />
         <Links />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.env = ${JSON.stringify(env)}`,
-          }}
-        />
       </head>
       <body className="theme-bg-color theme-fc-base font-inter antialiased min-h-screen flex flex-col">
         {children}
@@ -55,16 +64,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+// Auth screens render without the marketing header/footer.
+const AUTH_PATH_PREFIXES = ["/sign-in", "/sign-up", "/auth/"];
+
 export default function App() {
   const location = useLocation();
 
-  useEffect(() => {
-    initTheme();
-  }, []);
+  useEffect(() => initTheme(), []);
 
-  const isAuthPage = location.pathname.startsWith("/sign-in") ||
-                     location.pathname.startsWith("/sign-up") ||
-                     location.pathname.startsWith("/auth/verify-otp");
+  const isAuthPage = AUTH_PATH_PREFIXES.some((prefix) =>
+    location.pathname.startsWith(prefix)
+  );
   const isAdminPage = location.pathname.startsWith("/admin");
 
   if (isAdminPage) return <Outlet />;

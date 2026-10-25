@@ -1,5 +1,4 @@
 import { S3Client } from "@aws-sdk/client-s3";
-import type { Env } from "~/lib/env";
 
 export function createR2Client(env: Env) {
   if (
