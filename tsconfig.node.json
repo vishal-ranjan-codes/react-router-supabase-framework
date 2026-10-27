@@ -4,7 +4,8 @@
     "vitest.config.ts",
     "playwright.config.ts",
     "react-router.config.ts",
-    "e2e/**/*.ts"
+    "e2e/**/*.ts",
+    "tests/**/*.test.ts"
   ],
   "compilerOptions": {
     "composite": true,

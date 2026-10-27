@@ -22,7 +22,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 theme-fg-color theme-border-color border-b backdrop-blur-sm bg-opacity-90">
-      <div className="container">
+      <div className="container-page">
         <div className="flex items-center justify-between h-20">
           {/* Logo and Site Title */}
           <div className="flex items-center gap-3">

@@ -10,6 +10,7 @@
     "worker-configuration.d.ts",
     "tests/**/*"
   ],
+  "exclude": ["tests/**/*.test.ts"],
   "compilerOptions": {
     "composite": true,
     "noEmit": true,

@@ -17,7 +17,7 @@ export default function AboutPage() {
     <div className="theme-bg-color">
       {/* Hero Section */}
       <section className="relative overflow-hidden py-20 md:py-28">
-        <div className="container">
+        <div className="container-page">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="theme-h1 text-4xl md:text-5xl mb-6">
               About Our Framework
@@ -116,7 +116,7 @@ export default function AboutPage() {
 
       {/* Values Section */}
       <section className="py-16 theme-bg-color-dark">
-        <div className="container">
+        <div className="container-page">
           <h2 className="theme-h2 text-center mb-12">Our Principles</h2>
           <div className="grid md:grid-cols-3 gap-8">
             {principles.map((principle) => (

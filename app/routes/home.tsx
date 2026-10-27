@@ -17,7 +17,7 @@ export default function HomePage() {
     <div className="theme-bg-color">
       {/* Hero Section */}
       <section className="relative overflow-hidden py-24 md:py-32">
-        <div className="container">
+        <div className="container-page">
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="theme-h1 mb-6 text-4xl md:text-5xl lg:text-6xl">
               React Router + Supabase Framework
@@ -46,7 +46,7 @@ export default function HomePage() {
 
       {/* Features Section */}
       <section className="py-16 md:py-24 theme-bg-color-dark">
-        <div className="container">
+        <div className="container-page">
           <h2 className="theme-h2 text-center mb-12">What&apos;s Included</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature) => (
@@ -64,7 +64,7 @@ export default function HomePage() {
 
       {/* CTA Section */}
       <section className="py-16 md:py-24">
-        <div className="container">
+        <div className="container-page">
           <div className="box p-12 text-center max-w-3xl mx-auto bg-primary/5 theme-border-color">
             <h2 className="theme-h2 mb-4">Ready to Get Started?</h2>
             <p className="theme-fc-light text-lg mb-8">

@@ -37,20 +37,20 @@ const Toaster = ({ ...props }: ToasterProps) => {
       position="bottom-right"
       style={
         {
-          "--normal-bg": "var(--color-layout-foreground)",
-          "--normal-border": "var(--color-layout-border)",
-          "--normal-text": "var(--color-fc-heading)",
-          "--success-bg": "var(--color-primary)",
-          "--success-border": "var(--color-primary)",
+          "--normal-bg": "var(--popover)",
+          "--normal-border": "var(--border)",
+          "--normal-text": "var(--foreground)",
+          "--success-bg": "var(--primary)",
+          "--success-border": "var(--primary)",
           "--success-text": "#ffffff",
-          "--error-bg": "var(--color-destructive)",
-          "--error-border": "var(--color-destructive)",
+          "--error-bg": "var(--destructive)",
+          "--error-border": "var(--destructive)",
           "--error-text": "#ffffff",
           "--warning-bg": "#f59e0b",
           "--warning-border": "#f59e0b",
           "--warning-text": "#ffffff",
-          "--info-bg": "var(--color-primary)",
-          "--info-border": "var(--color-primary)",
+          "--info-bg": "var(--primary)",
+          "--info-border": "var(--primary)",
           "--info-text": "#ffffff",
         } as React.CSSProperties
       }

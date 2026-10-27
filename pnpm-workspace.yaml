@@ -10,6 +10,8 @@ minimumReleaseAgeExclude:
   - "@biomejs/cli-linux-x64@2.6.3"
   - "@biomejs/cli-win32-arm64@2.6.3"
   - "@biomejs/cli-win32-x64@2.6.3"
+  - "@shadcn/registry@0.2.1"
+  - shadcn@4.23.0
 # Settings for pnpm only - npm ignores this file, so both package managers stay usable.
 #
 # pnpm 10+ refuses to run a dependency's install scripts unless the package is listed here.

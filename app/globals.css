@@ -1,502 +1,521 @@
-@import 'tailwindcss';
+@import "tailwindcss";
+@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
-/* Self-hosted Inter variable font */
+/* The documented Tier-3 vocabulary must compile even where no shipped component
+   or page references it yet; everything else is generated on demand. */
+@source inline("text-display text-h1 text-h2 text-h3 text-h4 text-h5 text-h6 text-body-lg text-body text-body-sm text-body-xs text-eyebrow shadow-card shadow-pop bg-success-subtle");
+
 @font-face {
-  font-family: 'Inter';
-  src: url('/fonts/Inter-Variable.ttf') format('truetype');
+  font-family: "Inter";
+  src: url("/fonts/Inter-Variable.ttf") format("truetype");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
 
-/* ========================================================================
-   CSS VARIABLES - THEME DEFINITIONS
-   Define values for Light and Dark modes here via standard CSS variables.
-   The @theme block references these variables.
-   ======================================================================== */
+/* Phase 4 deletes this together with the .ttf above: body already gets Inter
+   from --font-sans in the base layer. */
+.font-inter {
+  @apply font-sans;
+}
 
 :root {
-  /* ------------------------------------------------------------------------ 
-     Primary Brand Color (Facebook Blue)
-     Usage: bg-primary, text-primary, bg-primary/75
-     ------------------------------------------------------------------------ */
-  --color-primary: #1877F2;
+  /* ---- Tier 1: primitive ramps. Data, never meaning. Theme-invariant. ---- */
+  --p-neutral-0: #ffffff;
+  --p-neutral-50: #fafafa;
+  --p-neutral-100: #f4f4f4;
+  --p-neutral-150: #ececec;
+  --p-neutral-200: #e0e0e0;
+  --p-neutral-300: #c4c4c4;
+  --p-neutral-400: #9e9e9e;
+  --p-neutral-500: #737373;
+  --p-neutral-600: #595959;
+  --p-neutral-700: #404040;
+  --p-neutral-750: #333333;
+  --p-neutral-800: #262626;
+  --p-neutral-850: #1f1f1f;
+  --p-neutral-900: #161616;
+  --p-neutral-950: #0a0a0a;
 
-  --color-primary-btn-gradient: linear-gradient(230deg, #1877F2 15%, #4A9FFF 100%);
+  --p-brand-50: #eef6ff;
+  --p-brand-100: #d9e9ff;
+  --p-brand-200: #b6d4ff;
+  --p-brand-300: #7cb8ff;
+  --p-brand-400: #4a9fff;
+  --p-brand-500: #2f7ae0;
+  --p-brand-600: #1160c9;
+  --p-brand-700: #0e51aa;
+  --p-brand-800: #0a3d7d;
+  --p-brand-900: #0d2c50;
+  --p-brand-950: #04121f;
 
-  /* ------------------------------------------------------------------------ 
-     Typography Colors
-     ------------------------------------------------------------------------ */
-  --color-fc-heading: #262626;
-  --color-fc-heading-light: #363636;
-  --color-fc-base: #4D4D4D;
-  --color-fc-light: #8C8C8C;
-  --color-fc-lighter: #BFBFBF;
+  --p-success-50: #ecfdf5;
+  --p-success-100: #d1fae5;
+  --p-success-200: #a7f3d0;
+  --p-success-300: #6ee7b7;
+  --p-success-400: #34d399;
+  --p-success-500: #10b981;
+  --p-success-600: #059669;
+  --p-success-700: #047857;
+  --p-success-800: #065f46;
+  --p-success-900: #064e3b;
+  --p-success-950: #022c22;
 
-  /* ------------------------------------------------------------------------ 
-     Layout Colors
-     ------------------------------------------------------------------------ */
-  --color-layout-background: #F5F5F5;
-  --color-layout-background-dark: #eeeeee;
-  --color-layout-foreground: #fff;
-  --color-layout-foreground-dark: #FAFAFA;
-  --color-layout-border: #dfdfdf;
-  --color-layout-border-light: #F0F0F0;
+  --p-warning-50: #fffbeb;
+  --p-warning-100: #fef3c7;
+  --p-warning-200: #fde68a;
+  --p-warning-300: #fcd34d;
+  --p-warning-400: #fbbf24;
+  --p-warning-500: #f59e0b;
+  --p-warning-600: #d97706;
+  --p-warning-700: #a16207;
+  --p-warning-800: #854d0e;
+  --p-warning-900: #713f12;
+  --p-warning-950: #451a03;
 
-  /* ------------------------------------------------------------------------ 
-     UI Component Tokens
-     ------------------------------------------------------------------------ */
-  --radius: 0.6rem;
-  --theme-rounded: 10px;
-  --theme-rounded-sm: 6px;
+  --p-danger-50: #fef2f2;
+  --p-danger-100: #fee2e2;
+  --p-danger-200: #fecaca;
+  --p-danger-300: #fca5a5;
+  --p-danger-400: #f87171;
+  --p-danger-500: #ef4444;
+  --p-danger-600: #dc2626;
+  --p-danger-700: #b91c1c;
+  --p-danger-800: #991b1b;
+  --p-danger-900: #7f1d1d;
+  --p-danger-950: #450a0a;
 
-  /* Opacity Util Bases */
-  --color-white-opacity-03: rgb(255 255 255 / 3%);
-  --color-white-opacity-05: rgb(255 255 255 / 5%);
-  --color-white-opacity-10: rgb(255 255 255 / 10%);
-  --color-white-opacity-20: rgb(255 255 255 / 20%);
-  --color-white-opacity-30: rgb(255 255 255 / 30%);
-  --color-white-opacity-40: rgb(255 255 255 / 40%);
-  --color-white-opacity-50: rgb(255 255 255 / 50%);
-  --color-white-opacity-60: rgb(255 255 255 / 60%);
-  --color-white-opacity-70: rgb(255 255 255 / 70%);
-  --color-white-opacity-80: rgb(255 255 255 / 80%);
-  --color-white-opacity-90: rgb(255 255 255 / 90%);
-  --color-white-opacity-100: rgb(255 255 255 / 100%);
+  --p-info-50: #f0f9ff;
+  --p-info-100: #e0f2fe;
+  --p-info-200: #bae6fd;
+  --p-info-300: #7dd3fc;
+  --p-info-400: #38bdf8;
+  --p-info-500: #0ea5e9;
+  --p-info-600: #0284c7;
+  --p-info-700: #0369a1;
+  --p-info-800: #075985;
+  --p-info-900: #0c4a6e;
+  --p-info-950: #082f49;
 
-  --color-black-opacity-03: rgb(0 0 0 / 3%);
-  --color-black-opacity-05: rgb(0 0 0 / 5%);
-  --color-black-opacity-10: rgb(0 0 0 / 10%);
-  --color-black-opacity-20: rgb(0 0 0 / 20%);
-  --color-black-opacity-30: rgb(0 0 0 / 30%);
-  --color-black-opacity-40: rgb(0 0 0 / 40%);
-  --color-black-opacity-50: rgb(0 0 0 / 50%);
-  --color-black-opacity-60: rgb(0 0 0 / 60%);
-  --color-black-opacity-70: rgb(0 0 0 / 70%);
-  --color-black-opacity-80: rgb(0 0 0 / 80%);
-  --color-black-opacity-90: rgb(0 0 0 / 90%);
-  --color-black-opacity-100: rgb(0 0 0 / 100%);
+  --p-chart-4-light: #7e22ce;
+  --p-chart-4-dark: #c084fc;
 
-  --header-height: 80px;
+  /* Alpha, consumed inside rgb()/color-mix(); not a Tailwind namespace. */
+  --alpha-hover: 0.06;
+  --alpha-pressed: 0.1;
+  --alpha-scrim: 0.5;
+  --alpha-scrim-strong: 0.64;
+
+  /* ---- Tier 2: semantics, light. Dark mode remaps these onto Tier 1. ---- */
+
+  /* surfaces */
+  --background: var(--p-neutral-100);
+  --background-subtle: var(--p-neutral-150);
+  --card: var(--p-neutral-0);
+  --popover: var(--p-neutral-0);
+  --scrim: #00000080;
+  --surface-inverse: var(--p-neutral-850);
+  --surface-brand: var(--p-brand-800);
+
+  /* content */
+  --foreground: var(--p-neutral-850);
+  --foreground-muted: var(--p-neutral-600);
+  --foreground-subtle: var(--p-neutral-500);
+  --foreground-disabled: var(--p-neutral-400);
+  --foreground-inverse: var(--p-neutral-50);
+  --foreground-on-brand: var(--p-neutral-0);
+  --link: var(--p-brand-600);
+  --link-hover: var(--p-brand-700);
+  --placeholder: var(--p-neutral-500);
+
+  /* brand and interaction */
+  --primary: var(--p-brand-600);
+  --primary-hover: var(--p-brand-700);
+  --primary-active: var(--p-brand-800);
+  --primary-subtle: var(--p-brand-50);
+  --primary-on-subtle: var(--p-brand-700);
+  --primary-foreground: var(--p-neutral-0);
+  --primary-deep: var(--p-brand-800);
+  --primary-deep-foreground: var(--p-neutral-0);
+  --secondary: var(--p-neutral-150);
+  --secondary-hover: var(--p-neutral-200);
+  --secondary-foreground: var(--p-neutral-850);
+  --muted: var(--p-neutral-150);
+  --muted-foreground: var(--p-neutral-600);
+  --accent: var(--p-neutral-150);
+  --accent-foreground: var(--p-neutral-850);
+
+  /* status: solid / on-solid / subtle / on-subtle / border */
+  --success: var(--p-success-700);
+  --success-foreground: var(--p-neutral-0);
+  --success-subtle: var(--p-success-50);
+  --success-on-subtle: var(--p-success-700);
+  --success-border: var(--p-success-200);
+  --warning: var(--p-warning-700);
+  --warning-foreground: var(--p-neutral-0);
+  --warning-subtle: var(--p-warning-50);
+  --warning-on-subtle: var(--p-warning-800);
+  --warning-border: var(--p-warning-200);
+  --destructive: var(--p-danger-700);
+  --destructive-hover: var(--p-danger-800);
+  --destructive-foreground: var(--p-neutral-0);
+  --destructive-subtle: var(--p-danger-50);
+  --destructive-on-subtle: var(--p-danger-700);
+  --destructive-border: var(--p-danger-200);
+  --info: var(--p-info-700);
+  --info-foreground: var(--p-neutral-0);
+  --info-subtle: var(--p-info-50);
+  --info-on-subtle: var(--p-info-700);
+  --info-border: var(--p-info-200);
+
+  /* lines, focus, selection */
+  --border: var(--p-neutral-200);
+  --border-subtle: var(--p-neutral-150);
+  --border-strong: var(--p-neutral-500);
+  --input: var(--p-neutral-500);
+  --input-hover: var(--p-neutral-600);
+  --ring: var(--p-brand-600);
+  --ring-offset: var(--p-neutral-0);
+  --selection: var(--p-brand-100);
+  --selection-foreground: var(--p-neutral-850);
+
+  /* data visualisation and loading */
+  --chart-1: var(--p-brand-600);
+  --chart-2: var(--p-success-600);
+  --chart-3: var(--p-warning-600);
+  --chart-4: var(--p-chart-4-light);
+  --chart-5: var(--p-danger-600);
+  --chart-grid: var(--p-neutral-200);
+  --chart-label: var(--p-neutral-500);
+  --skeleton: var(--p-neutral-150);
+
+  /* sidebar */
+  --sidebar: var(--p-neutral-0);
+  --sidebar-foreground: var(--p-neutral-850);
+  --sidebar-primary: var(--p-brand-600);
+  --sidebar-primary-foreground: var(--p-neutral-0);
+  --sidebar-accent: var(--p-neutral-150);
+  --sidebar-accent-foreground: var(--p-neutral-850);
+  --sidebar-border: var(--p-neutral-200);
+  --sidebar-ring: var(--p-brand-600);
 }
 
 .dark {
-  /* ------------------------------------------------------------------------ 
-     Primary Brand Color (Dark Mode)
-     ------------------------------------------------------------------------ */
-  --color-primary: #4A9FFF;
+  --background: var(--p-neutral-950);
+  --background-subtle: var(--p-neutral-900);
+  --card: var(--p-neutral-900);
+  --popover: var(--p-neutral-850);
+  --scrim: #000000a3;
+  --surface-inverse: var(--p-neutral-50);
+  --surface-brand: var(--p-brand-900);
 
-  /* ------------------------------------------------------------------------ 
-     Typography Colors (Dark Mode)
-     ------------------------------------------------------------------------ */
-  --color-fc-heading: #FAFAFA;
-  --color-fc-heading-light: #E8E8E8;
-  --color-fc-base: #CCCCCC;
-  --color-fc-light: #A0A0A0;
-  --color-fc-lighter: #808080;
+  --foreground: var(--p-neutral-50);
+  --foreground-muted: var(--p-neutral-400);
+  --foreground-subtle: var(--p-neutral-500);
+  --foreground-disabled: var(--p-neutral-600);
+  --foreground-inverse: var(--p-neutral-950);
+  --foreground-on-brand: var(--p-brand-950);
+  --link: var(--p-brand-400);
+  --link-hover: var(--p-brand-300);
+  --placeholder: var(--p-neutral-400);
 
-  /* ------------------------------------------------------------------------ 
-     Layout Colors (Dark Mode)
-     ------------------------------------------------------------------------ */
-  --color-layout-background: #0A0A0A;
-  --color-layout-background-dark: #050505;
-  --color-layout-foreground: #1A1A1A;
-  --color-layout-foreground-dark: #242424;
-  --color-layout-border: #333333;
-  --color-layout-border-light: #2A2A2A;
+  --primary: var(--p-brand-400);
+  --primary-hover: var(--p-brand-300);
+  --primary-active: var(--p-brand-200);
+  --primary-subtle: var(--p-brand-950);
+  --primary-on-subtle: var(--p-brand-300);
+  --primary-foreground: var(--p-brand-950);
+  --primary-deep: var(--p-brand-900);
+  --primary-deep-foreground: var(--p-brand-100);
+  --secondary: var(--p-neutral-800);
+  --secondary-hover: var(--p-neutral-750);
+  --secondary-foreground: var(--p-neutral-50);
+  --muted: var(--p-neutral-800);
+  --muted-foreground: var(--p-neutral-400);
+  --accent: var(--p-neutral-800);
+  --accent-foreground: var(--p-neutral-50);
+
+  --success: var(--p-success-400);
+  --success-foreground: var(--p-success-950);
+  --success-subtle: var(--p-success-950);
+  --success-on-subtle: var(--p-success-300);
+  --success-border: var(--p-success-800);
+  --warning: var(--p-warning-400);
+  --warning-foreground: var(--p-warning-950);
+  --warning-subtle: var(--p-warning-950);
+  --warning-on-subtle: var(--p-warning-300);
+  --warning-border: var(--p-warning-800);
+  --destructive: var(--p-danger-400);
+  --destructive-hover: var(--p-danger-300);
+  --destructive-foreground: var(--p-danger-950);
+  --destructive-subtle: var(--p-danger-950);
+  --destructive-on-subtle: var(--p-danger-300);
+  --destructive-border: var(--p-danger-800);
+  --info: var(--p-info-300);
+  --info-foreground: var(--p-info-950);
+  --info-subtle: var(--p-info-950);
+  --info-on-subtle: var(--p-info-300);
+  --info-border: var(--p-info-800);
+
+  --border: var(--p-neutral-750);
+  --border-subtle: var(--p-neutral-800);
+  --border-strong: var(--p-neutral-500);
+  --input: var(--p-neutral-500);
+  --input-hover: var(--p-neutral-400);
+  --ring: var(--p-brand-300);
+  --ring-offset: var(--p-neutral-900);
+  --selection: var(--p-brand-800);
+  --selection-foreground: var(--p-neutral-50);
+
+  --chart-1: var(--p-brand-400);
+  --chart-2: var(--p-success-400);
+  --chart-3: var(--p-warning-400);
+  --chart-4: var(--p-chart-4-dark);
+  --chart-5: var(--p-danger-400);
+  --chart-grid: var(--p-neutral-800);
+  --chart-label: var(--p-neutral-400);
+  --skeleton: var(--p-neutral-800);
+
+  --sidebar: var(--p-neutral-900);
+  --sidebar-foreground: var(--p-neutral-50);
+  --sidebar-primary: var(--p-brand-400);
+  --sidebar-primary-foreground: var(--p-brand-950);
+  --sidebar-accent: var(--p-neutral-800);
+  --sidebar-accent-foreground: var(--p-neutral-50);
+  --sidebar-border: var(--p-neutral-750);
+  --sidebar-ring: var(--p-brand-300);
 }
 
-/* ========================================================================
-   TAILWIND THEME CONFIGURATION
-   Map tokens to the CSS variables defined above.
-   ======================================================================== */
-@theme {
-  /* Colors */
-  --color-primary: var(--color-primary);
-  --color-primary-btn-gradient: var(--color-primary-btn-gradient);
+/* ---- Tier 3: the only vocabulary components and app code may use. ----
+   `inline` makes utilities emit var(--<tier-2>) directly, so the .dark remap
+   wins without any self-reference. */
+@theme inline {
+  --color-background: var(--background);
+  --color-background-subtle: var(--background-subtle);
+  --color-foreground: var(--foreground);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-foreground-subtle: var(--foreground-subtle);
+  --color-foreground-disabled: var(--foreground-disabled);
+  --color-foreground-inverse: var(--foreground-inverse);
+  --color-foreground-on-brand: var(--foreground-on-brand);
+  --color-card: var(--card);
+  --color-card-foreground: var(--foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--foreground);
+  --color-scrim: var(--scrim);
+  --color-surface-inverse: var(--surface-inverse);
+  --color-surface-brand: var(--surface-brand);
 
-  --color-fc-heading: var(--color-fc-heading);
-  --color-fc-heading-light: var(--color-fc-heading-light);
-  --color-fc-base: var(--color-fc-base);
-  --color-fc-light: var(--color-fc-light);
-  --color-fc-lighter: var(--color-fc-lighter);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-active: var(--primary-active);
+  --color-primary-subtle: var(--primary-subtle);
+  --color-primary-on-subtle: var(--primary-on-subtle);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-deep: var(--primary-deep);
+  --color-primary-deep-foreground: var(--primary-deep-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-link: var(--link);
+  --color-link-hover: var(--link-hover);
+  --color-placeholder: var(--placeholder);
 
-  --color-layout-background: var(--color-layout-background);
-  --color-layout-background-dark: var(--color-layout-background-dark);
-  --color-layout-foreground: var(--color-layout-foreground);
-  --color-layout-foreground-dark: var(--color-layout-foreground-dark);
-  --color-layout-border: var(--color-layout-border);
-  --color-layout-border-light: var(--color-layout-border-light);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-subtle: var(--success-subtle);
+  --color-success-on-subtle: var(--success-on-subtle);
+  --color-success-border: var(--success-border);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-subtle: var(--warning-subtle);
+  --color-warning-on-subtle: var(--warning-on-subtle);
+  --color-warning-border: var(--warning-border);
+  --color-destructive: var(--destructive);
+  --color-destructive-hover: var(--destructive-hover);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-destructive-subtle: var(--destructive-subtle);
+  --color-destructive-on-subtle: var(--destructive-on-subtle);
+  --color-destructive-border: var(--destructive-border);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-info-subtle: var(--info-subtle);
+  --color-info-on-subtle: var(--info-on-subtle);
+  --color-info-border: var(--info-border);
 
-  /* Shadcn / UI Tokens */
-  --color-background: var(--color-layout-background);
-  --color-foreground: var(--color-fc-heading);
-  --color-card: var(--color-layout-foreground);
-  --color-card-foreground: var(--color-fc-heading);
-  --color-popover: var(--color-layout-foreground);
-  --color-popover-foreground: var(--color-fc-heading);
-  --color-primary: var(--color-primary);
-  --color-primary-foreground: #FFFFFF;
-  --color-secondary: var(--color-layout-background-dark);
-  --color-secondary-foreground: var(--color-fc-heading);
-  --color-muted: var(--color-layout-background-dark);
-  --color-muted-foreground: var(--color-fc-light);
-  --color-accent: var(--color-primary);
-  /* Use Primary for accent but handle opacity in utility if needed */
-  --color-accent-foreground: var(--color-fc-heading);
-  --color-destructive: #DC2626;
-  --color-destructive-foreground: #FFFFFF;
-  --color-border: var(--color-layout-border);
-  --color-input: var(--color-layout-border);
-  --color-ring: var(--color-primary);
+  --color-border: var(--border);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+  --color-input: var(--input);
+  --color-input-hover: var(--input-hover);
+  --color-ring: var(--ring);
+  --color-ring-offset: var(--ring-offset);
+  --color-selection: var(--selection);
+  --color-selection-foreground: var(--selection-foreground);
 
-  /* Animations */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-grid: var(--chart-grid);
+  --color-chart-label: var(--chart-label);
+  --color-skeleton: var(--skeleton);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --font-sans:
+    "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
+    monospace;
+
+  /* Size tokens only; colour and weight come from the base layer and utilities. */
+  --text-display: 3.75rem;
+  --text-display--line-height: 1.08;
+  --text-h1: 2.25rem;
+  --text-h1--line-height: 2.75rem;
+  --text-h2: 1.75rem;
+  --text-h2--line-height: 2.25rem;
+  --text-h3: 1.375rem;
+  --text-h3--line-height: 1.75rem;
+  --text-h4: 1.125rem;
+  --text-h4--line-height: 1.5rem;
+  --text-h5: 1rem;
+  --text-h5--line-height: 1.5rem;
+  --text-h6: 0.875rem;
+  --text-h6--line-height: 1.25rem;
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: 1.7rem;
+  --text-body: 1rem;
+  --text-body--line-height: 1.6rem;
+  --text-body-sm: 0.875rem;
+  --text-body-sm--line-height: 1.45rem;
+  --text-body-xs: 0.8125rem;
+  --text-body-xs--line-height: 1.35rem;
+  --text-eyebrow: 0.75rem;
+  --text-eyebrow--line-height: 1rem;
+  --text-eyebrow--letter-spacing: 0.08em;
+
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.06), 0 1px 3px rgb(0 0 0 / 0.1);
+  --shadow-pop: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 12px 24px -8px rgb(0 0 0 / 0.18);
+
+  --transition-duration-fast: 120ms;
+  --transition-duration-base: 200ms;
+  --transition-duration-slow: 360ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasized: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --ease-enter: cubic-bezier(0, 0.4, 0.2, 1);
+
+  --z-index-sticky: 40;
+  --z-index-dropdown: 50;
+  --z-index-overlay: 60;
+  --z-index-modal: 70;
+  --z-index-popover: 80;
+  --z-index-toast: 90;
+
+  --size-control-sm: 2rem;
+  --size-control-md: 2.5rem;
+  --size-control-lg: 2.75rem;
+  --size-icon-sm: 1rem;
+  --size-icon-md: 1.25rem;
+  --size-icon-lg: 1.5rem;
+  --size-touch-min: 2.75rem;
+
+  --spacing-section-sm: 3rem;
+  --spacing-section-md: 4.5rem;
+  --spacing-section-lg: 6rem;
+
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
-
-  /* Typography Scale */
-  --text-h1: 2rem;
-  --text-h2: 1.75rem;
-  --text-h3: 1.5rem;
-  --text-h4: 1.25rem;
-  --text-h5: 1rem;
-  --text-h6: 0.875rem;
-}
-
-/* ========================================================================
-   BASE STYLES & UTILITIES
-   ======================================================================== */
-html {
-  scroll-behavior: smooth;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-}
-
-.font-inter {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 @layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
 
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--color-layout-border, currentcolor);
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  /* Headings take their colour here so text-h1…h6 stay size tokens. */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply text-foreground;
+  }
+
+  ::selection {
+    @apply bg-selection text-selection-foreground;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
   }
 }
 
-/* Backgrounds */
-@utility theme-bg-color {
-  background-color: var(--color-layout-background);
-}
-
-@utility theme-bg-color-dark {
-  background-color: var(--color-layout-background-dark);
-}
-
-@utility theme-fg-color {
-  background-color: var(--color-layout-foreground);
-}
-
-@utility theme-fg-color-dark {
-  background-color: var(--color-layout-foreground-dark);
-}
-
-/* Text Colors */
-@utility theme-fc-base {
-  color: var(--color-fc-base);
-}
-
-@utility theme-fc-light {
-  color: var(--color-fc-light);
-}
-
-@utility theme-fc-lighter {
-  color: var(--color-fc-lighter);
-}
-
-@utility theme-fc-heading {
-  color: var(--color-fc-heading);
-}
-
-@utility theme-fc-heading-light {
-  color: var(--color-fc-heading-light);
-}
-
-/* Borders */
-@utility theme-border-color {
-  border-color: var(--color-layout-border);
-}
-
-@utility theme-border-color-light {
-  border-color: var(--color-layout-border-light);
-}
-
-/* Primary Utilities */
-@utility theme-primary-btn-gradient {
-  background: var(--color-primary-btn-gradient);
-}
-
-/* Note: Opacity variants are now handled via standard utilities: e.g. bg-primary/75 */
-
-/* Shadcn Compatibility Utilities */
-@utility theme-bg-card {
-  background-color: var(--color-card);
-}
-
-@utility theme-bg-popover {
-  background-color: var(--color-popover);
-}
-
-@utility theme-bg-secondary {
-  background-color: var(--color-secondary);
-}
-
-@utility theme-text-secondary {
-  color: var(--color-secondary-foreground);
-}
-
-@utility theme-bg-muted {
-  background-color: var(--color-muted);
-}
-
-@utility theme-text-muted {
-  color: var(--color-muted-foreground);
-}
-
-@utility theme-bg-accent {
-  background-color: var(--color-primary);
-  opacity: 0.12;
-}
-
-/* Simulating accent */
-@utility theme-text-accent {
-  color: var(--color-accent-foreground);
-}
-
-@utility theme-bg-destructive {
-  background-color: var(--color-destructive);
-}
-
-@utility theme-text-destructive {
-  color: var(--color-destructive-foreground);
-}
-
-@utility theme-bg-success {
-  background-color: rgb(16 185 129 / 15%);
-}
-
-@utility theme-text-success {
-  color: rgb(16 185 129);
-}
-
-@utility theme-border-input {
-  border-color: var(--color-input);
-}
-
-@utility theme-ring {
-  --tw-ring-color: var(--color-ring);
-}
-
-/* Typography Scale */
-@utility theme-h1 {
-  @apply text-h1 font-medium theme-fc-heading;
-}
-
-@utility theme-h2 {
-  @apply text-h2 font-medium theme-fc-heading;
-}
-
-@utility theme-h3 {
-  @apply text-h3 font-medium theme-fc-heading;
-}
-
-@utility theme-h4 {
-  @apply text-h4 font-medium theme-fc-heading;
-}
-
-@utility theme-h5 {
-  @apply text-h5 font-bold theme-fc-heading;
-}
-
-@utility theme-h6 {
-  @apply text-h6 font-bold uppercase theme-fc-heading;
-}
-
-/* Components */
-@utility container {
-  @apply max-w-7xl mx-auto px-4 sm:px-7;
+@utility container-page {
+  @apply mx-auto w-full max-w-7xl px-4 sm:px-7;
 }
 
 @utility container-max-sm {
-  @apply max-w-lg mx-auto px-4 sm:px-7;
+  @apply mx-auto w-full max-w-lg px-4 sm:px-7;
 }
 
 @utility container-max-tab {
-  @apply max-w-3xl mx-auto px-4 sm:px-7;
+  @apply mx-auto w-full max-w-3xl px-4 sm:px-7;
 }
 
 @utility container-max-md {
-  @apply max-w-4xl mx-auto px-4 sm:px-7;
+  @apply mx-auto w-full max-w-4xl px-4 sm:px-7;
 }
 
 @utility container-max-lg {
-  @apply max-w-5xl mx-auto px-4 sm:px-7;
+  @apply mx-auto w-full max-w-5xl px-4 sm:px-7;
 }
 
 @utility container-max-xl {
-  @apply max-w-7xl mx-auto px-4 sm:px-7;
+  @apply mx-auto w-full max-w-7xl px-4 sm:px-7;
 }
 
 @utility box {
-  @apply theme-fg-color theme-border-color border rounded-[var(--theme-rounded)];
+  @apply rounded-lg border border-border bg-card;
 }
 
 @utility nav-menu-item {
-  @apply theme-fc-light hover:text-primary dark:hover:theme-fc-heading no-underline p-[6px] text-base md:text-sm transition-all duration-300;
-}
-
-/* Border Radius Variants */
-@utility theme-rounded {
-  border-radius: var(--theme-rounded);
-}
-
-@utility theme-rounded-sm {
-  border-radius: var(--theme-rounded-sm);
-}
-
-@utility theme-rounded-t {
-  border-radius: var(--theme-rounded) var(--theme-rounded) 0 0;
-}
-
-@utility theme-rounded-b {
-  border-radius: 0 0 var(--theme-rounded) var(--theme-rounded);
-}
-
-@utility theme-rounded-l {
-  border-radius: var(--theme-rounded) 0 0 var(--theme-rounded);
-}
-
-@utility theme-rounded-r {
-  border-radius: 0 var(--theme-rounded) var(--theme-rounded) 0;
-}
-
-/* Shades (Opacity Overlays) */
-@utility theme-bg-shade-3 {
-  background-color: var(--color-black-opacity-03);
-
-  &:is(.dark *) {
-    background-color: var(--color-white-opacity-03);
-  }
-}
-
-@utility theme-bg-shade-5 {
-  background-color: var(--color-black-opacity-05);
-
-  &:is(.dark *) {
-    background-color: var(--color-white-opacity-05);
-  }
-}
-
-@utility theme-bg-shade-10 {
-  background-color: var(--color-black-opacity-10);
-
-  &:is(.dark *) {
-    background-color: var(--color-white-opacity-10);
-  }
-}
-
-@utility theme-bg-shade-20 {
-  background-color: var(--color-black-opacity-20);
-
-  &:is(.dark *) {
-    background-color: var(--color-white-opacity-20);
-  }
-}
-
-@utility theme-bg-shade-30 {
-  background-color: var(--color-black-opacity-30);
-
-  &:is(.dark *) {
-    background-color: var(--color-white-opacity-30);
-  }
-}
-
-@utility theme-bg-shade-40 {
-  background-color: var(--color-black-opacity-40);
-
-  &:is(.dark *) {
-    background-color: var(--color-white-opacity-40);
-  }
-}
-
-@utility theme-bg-shade-50 {
-  background-color: var(--color-black-opacity-50);
-
-  &:is(.dark *) {
-    background-color: var(--color-white-opacity-50);
-  }
-}
-
-@utility theme-bg-shade-60 {
-  background-color: var(--color-black-opacity-60);
-
-  &:is(.dark *) {
-    background-color: var(--color-white-opacity-60);
-  }
-}
-
-@utility theme-bg-shade-70 {
-  background-color: var(--color-black-opacity-70);
-
-  &:is(.dark *) {
-    background-color: var(--color-white-opacity-70);
-  }
-}
-
-@utility theme-bg-shade-80 {
-  background-color: var(--color-black-opacity-80);
-
-  &:is(.dark *) {
-    background-color: var(--color-white-opacity-80);
-  }
-}
-
-@utility theme-bg-shade-90 {
-  background-color: var(--color-black-opacity-90);
-
-  &:is(.dark *) {
-    background-color: var(--color-white-opacity-90);
-  }
-}
-
-@utility theme-bg-shade-100 {
-  background-color: var(--color-black-opacity-100);
-
-  &:is(.dark *) {
-    background-color: var(--color-white-opacity-100);
-  }
-}
-
-/* Button Hover Effects */
-@utility button-hover-dark {
-  &:hover {
-    box-shadow: rgb(0 0 0 / 10%) 0px 0px 0px 9999px inset;
-  }
-}
-
-@utility button-hover-darker {
-  &:hover {
-    box-shadow: rgb(0 0 0 / 15%) 0px 0px 0px 9999px inset;
-  }
+  @apply text-muted-foreground no-underline p-1.5 text-base md:text-sm transition-all duration-300 hover:text-primary;
 }
 
 @keyframes accordion-down {
@@ -517,4 +536,153 @@ html {
   to {
     height: 0;
   }
+}
+
+/* TEMPORARY — phase 2 deletes this whole block. It maps the retired theme-*
+   vocabulary onto the contract so existing pages keep rendering until the
+   codemod has replaced every call site. */
+@utility theme-bg-color {
+  background-color: var(--background);
+}
+
+@utility theme-bg-color-dark {
+  background-color: var(--muted);
+}
+
+@utility theme-fg-color {
+  background-color: var(--card);
+}
+
+@utility theme-fg-color-dark {
+  background-color: var(--card);
+}
+
+@utility theme-fc-heading {
+  color: var(--foreground);
+}
+
+@utility theme-fc-heading-light {
+  color: var(--foreground);
+}
+
+@utility theme-fc-base {
+  color: var(--foreground);
+}
+
+@utility theme-fc-light {
+  color: var(--muted-foreground);
+}
+
+@utility theme-fc-lighter {
+  color: var(--muted-foreground);
+}
+
+@utility theme-text-muted {
+  color: var(--muted-foreground);
+}
+
+@utility theme-text-secondary {
+  color: var(--secondary-foreground);
+}
+
+@utility theme-text-accent {
+  color: var(--accent-foreground);
+}
+
+@utility theme-bg-accent {
+  background-color: var(--accent);
+}
+
+@utility theme-bg-secondary {
+  background-color: var(--secondary);
+}
+
+@utility theme-bg-muted {
+  background-color: var(--muted);
+}
+
+@utility theme-bg-card {
+  background-color: var(--card);
+}
+
+@utility theme-bg-popover {
+  background-color: var(--popover);
+}
+
+@utility theme-bg-destructive {
+  background-color: var(--destructive);
+}
+
+@utility theme-text-destructive {
+  color: var(--destructive);
+}
+
+@utility theme-bg-success {
+  background-color: var(--success-subtle);
+}
+
+@utility theme-text-success {
+  color: var(--success);
+}
+
+@utility theme-border-color {
+  border-color: var(--border);
+}
+
+@utility theme-border-color-light {
+  border-color: var(--border);
+}
+
+@utility theme-border-input {
+  border-color: var(--input);
+}
+
+@utility theme-ring {
+  --tw-ring-color: var(--ring);
+}
+
+@utility theme-rounded {
+  @apply rounded-lg;
+}
+
+@utility theme-rounded-sm {
+  @apply rounded-sm;
+}
+
+@utility theme-bg-shade-5 {
+  background-color: rgb(0 0 0 / 5%);
+}
+
+@utility theme-bg-shade-10 {
+  background-color: rgb(0 0 0 / 10%);
+}
+
+@utility button-hover-darker {
+  &:hover {
+    background-color: var(--primary-hover);
+  }
+}
+
+@utility theme-h1 {
+  @apply text-h1;
+}
+
+@utility theme-h2 {
+  @apply text-h2;
+}
+
+@utility theme-h3 {
+  @apply text-h3;
+}
+
+@utility theme-h4 {
+  @apply text-h4;
+}
+
+@utility theme-h5 {
+  @apply text-h5;
+}
+
+@utility theme-h6 {
+  @apply text-h6;
 }

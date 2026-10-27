@@ -1,30 +1,15 @@
-/**
- * Alert Component
- *
- * Integrated with custom design system - uses theme utilities for consistent
- * theming across light/dark modes with proper contrast and accessibility.
- *
- * Variants:
- * - default: Standard informational alert
- * - destructive: Error/warning alert
- */
-
-import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
-
-import { cn } from "~/lib/utils";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "cn";
 
 const alertVariants = cva(
-  "relative w-full theme-rounded border px-4 py-3 text-sm grid has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] grid-cols-[0_1fr] has-[>svg]:gap-x-3 gap-y-0.5 items-start [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current",
+  "relative grid w-full grid-cols-[0_1fr] items-start gap-y-0.5 rounded-lg border px-4 py-3 text-sm has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] has-[>svg]:gap-x-3 [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current",
   {
     variants: {
       variant: {
-        // Default alert - uses theme card colors
-        default: "theme-bg-card theme-fc-heading",
-
-        // Destructive alert - error/warning styling
+        default: "bg-card text-card-foreground",
         destructive:
-          "theme-text-destructive theme-bg-card [&>svg]:text-current *:data-[slot=alert-description]:text-red-500",
+          "bg-card text-destructive *:data-[slot=alert-description]:text-destructive/90 [&>svg]:text-current",
       },
     },
     defaultVariants: {
@@ -69,7 +54,7 @@ function AlertDescription({
     <div
       data-slot="alert-description"
       className={cn(
-        "theme-text-muted col-start-2 grid justify-items-start gap-1 text-sm [&_p]:leading-relaxed",
+        "col-start-2 grid justify-items-start gap-1 text-sm text-muted-foreground [&_p]:leading-relaxed",
         className,
       )}
       {...props}
@@ -77,4 +62,4 @@ function AlertDescription({
   );
 }
 
-export { Alert, AlertDescription, AlertTitle };
+export { Alert, AlertTitle, AlertDescription };

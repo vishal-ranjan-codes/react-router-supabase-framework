@@ -3,7 +3,7 @@ import { Link } from "react-router";
 export default function Footer() {
   return (
     <footer className="theme-bg-color-dark theme-border-color border-t mt-20">
-      <div className="container py-12">
+      <div className="container-page py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="col-span-1">
