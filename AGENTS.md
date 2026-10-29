@@ -23,7 +23,7 @@ editing `app/`.
    - When chromatic accent is enabled (`enableAccent = true`), its scope is strictly restricted
      to **tiny punctuation only**: an 8px indicator dot or a small pill badge.
    - **NEVER use `--brand-accent` on buttons (`<Button>`).** Primary CTAs must always use `bg-primary`
-     (`default` variant) or neutral outlines.
+     (`default` variant) or neutral outlines. On dark hero or brand-deep sections, use the on-dark variants (`white`, `white-secondary`, `white-outline`).
    - **NEVER use `--brand-accent` on cards, hero backgrounds, or large surfaces.**
    - `--accent` and `--secondary` are neutral component surfaces by decision (hover/selected and neutral controls);
      do not tint them to improvise an accent. For presets, see `app/lib/theme-presets.ts` and `app/config/theme.ts`.
@@ -39,7 +39,7 @@ editing `app/`.
 6. Scoped Subtrees & Theme Islands:
    - Auto-Inverting Dark Tones: `Section tone="brand-deep"` automatically embeds
      the `dark` class. All nested components (`SectionHeading`, `Button variant="outline"`,
-     `Card`, `p.text-foreground-muted`) automatically resolve to accessible dark-mode tokens.
+     `Card`, `p.text-foreground-muted`) automatically resolve to accessible dark-mode tokens. On `tone="brand-deep"`, use `variant="white"` for primary CTAs and `variant="white-secondary"` or `variant="white-outline"` for secondary CTAs.
    - Orthogonal Theme Prop: `<Section>`, `<Hero>`, and `<CtaBand>` accept `theme="dark" | "light"`
      to force a dark or light island on any page.
    - Scoped Card/Subtree Islands: Add `className="dark bg-card text-foreground"` to any container

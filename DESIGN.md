@@ -35,7 +35,8 @@ and Playwright E2E).
    - When accent is disabled, `--brand-accent` CSS variables automatically alias to `--primary` tokens.
    - When chromatic accent is enabled (`enableAccent = true`), its scope is strictly restricted to **tiny punctuation only**:
      an 8px indicator dot or a small status pill tag.
-   - **NEVER use `--brand-accent` on buttons (`<Button>`).** Primary CTAs must always use `bg-primary` or neutral outlines.
+   - **NEVER use `--brand-accent` on buttons (`<Button>`).** Primary CTAs must always use `bg-primary` (`default` variant) or neutral outlines on standard canvas.
+   - **On-Dark / Brand-Deep Surfaces**: On rich colored backgrounds or inverted sections (such as `Section tone="brand-deep"`, `<Hero tone="brand-deep">`, or full-bleed CTA banners), use the dedicated on-dark button variations: `variant="white"` (primary), `variant="white-secondary"` (glass secondary), or `variant="white-outline"` (translucent outline). Never use `variant="default"` (which blends into brand backgrounds) or `variant="secondary"` (which injects dark neutral charcoal).
    - **NEVER use `--brand-accent` as a background or border on cards, hero sections, or full-bleed bands.**
    - Neutral components (`--secondary`, `--accent`) must remain neutral controls (`#f3f3f3` light / `#262626` dark); do not tint them to improvise an accent.
 
@@ -212,33 +213,88 @@ When generating code for any feature, AI agents must use these exact patterns.
 
 ### A. Buttons & Interactive Controls
 
+The framework provides two distinct categories of button variants:
+1. **Standard Canvas Variants**: Engineered for neutral surfaces (`bg-background`, `bg-card`, modals, tables, and standard light/dark pages).
+2. **On-Dark / Inverted Surface Variants**: Engineered for rich brand-colored sections (`Section tone="brand-deep"`, `<Hero tone="brand-deep">`, `<CtaBand tone="brand-deep">`, or dark containers).
+
+#### Button Variant Matrix
+
+| Variant Name | Target Surface | Visual Characteristics | Where to Use |
+|---|---|---|---|
+| `variant="default"` | Standard Canvas | `bg-primary text-primary-foreground` | Primary CTA on standard pages, cards, and dialogs (30% Brand). |
+| `variant="secondary"` | Standard Canvas | `bg-secondary text-secondary-foreground` | Secondary neutral action on standard pages. |
+| `variant="outline"` | Standard Canvas | `border bg-background hover:bg-accent` | Bordered secondary action or filter on standard pages. |
+| `variant="ghost"` | Standard Canvas | `hover:bg-accent hover:text-accent-foreground` | Subtle tertiary actions, table row actions, or toolbar items. |
+| `variant="destructive"` | Standard Canvas | `bg-destructive text-white` | Dangerous or irreversible actions (delete, terminate). |
+| `variant="link"` | Standard Canvas | `text-primary underline-offset-4` | Inline text link styled with button semantics. |
+| `variant="white"` | On-Dark / Brand-Deep | Solid pure white (`bg-white text-neutral-950 font-semibold`) | Primary high-emphasis CTA on hero sections or dark brand backgrounds. |
+| `variant="white-secondary"` | On-Dark / Brand-Deep | Soft translucent glass (`bg-white/10 text-white font-medium`) | Secondary CTA on dark brand backgrounds; adapts to any dark hue. |
+| `variant="white-outline"` | On-Dark / Brand-Deep | Translucent white border (`border-white/25 text-white`) | Bordered secondary/tertiary action on dark brand backgrounds. |
+
+#### Why On-Dark Variants are Required
+On deep colored backgrounds (e.g. `tone="brand-deep"` navy `#051b38`, cobalt `#101522`, teal `#0c1917`, forest `#171c13`):
+- `variant="default"` (`bg-primary`) shares the same hue family as the background, resulting in weak visual hierarchy.
+- `variant="secondary"` (`bg-secondary`) resolves in dark mode to an opaque charcoal block (`#292929`), which looks like an alien grey smudge over saturated brand tones.
+- `variant="outline"` in dark mode injects `dark:border-input dark:bg-input/30`, resulting in a muddy dark-grey border.
+
+The three on-dark variants (`white`, `white-secondary`, `white-outline`) solve this universally across all 6 brand presets without hardcoding arbitrary hex colors in markup. Furthermore, all three variants include automatic focus-ring isolation tuned for dark surfaces:
+```tsx
+focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950
+```
+
+#### Blueprint 1: Standard Canvas Actions
+
 ```tsx
 import { Button } from "~/components/ui/button";
 import { Loader2, ArrowRight } from "lucide-react";
 
-// 1. Primary Action (30% Brand)
-<Button className="bg-primary hover:bg-primary-hover active:bg-primary-active text-primary-foreground font-semibold shadow-xs">
-  Get Started <ArrowRight className="ml-2 size-4" />
+// 1. Primary Action (Standard Page Canvas)
+<Button>
+  Get Started <ArrowRight className="size-4" />
 </Button>
 
-// 2. Secondary Action (Neutral)
-<Button variant="outline" className="border-border bg-card hover:bg-accent text-foreground font-medium">
-  View Documentation
-</Button>
-
-// 3. Secondary Neutral Action (Never use brand-accent on buttons!)
+// 2. Secondary Neutral Action
 <Button variant="secondary">
   Explore Features
 </Button>
 
+// 3. Outlined Neutral Action
+<Button variant="outline">
+  View Documentation
+</Button>
+
 // 4. Destructive Action
-<Button variant="destructive" className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
+<Button variant="destructive">
   Delete Project
 </Button>
 
 // 5. Loading State
-<Button disabled className="bg-surface-disabled text-foreground-disabled border border-border-disabled">
-  <Loader2 className="mr-2 size-4 animate-spin" /> Saving changes...
+<Button disabled>
+  <Loader2 className="size-4 animate-spin" /> Saving changes...
+</Button>
+```
+
+#### Blueprint 2: On-Dark Hero & Brand Section Actions
+
+```tsx
+import { Button } from "~/components/ui/button";
+import { ArrowRight } from "lucide-react";
+
+// Inside <Hero tone="brand-deep"> or <Section tone="brand-deep">:
+
+// 1. White Primary (High-Emphasis Hero CTA)
+<Button variant="white" size="lg">
+  Explore the design system <ArrowRight className="size-4" />
+</Button>
+
+// 2. White Secondary (Translucent Glass Effect)
+<Button variant="white-secondary" size="lg">
+  Why this exists
+</Button>
+
+// 3. White Outline (Bordered Action on Dark Surface)
+<Button variant="white-outline" size="lg">
+  Documentation
 </Button>
 ```
 
@@ -366,6 +422,7 @@ The framework supports scoped theming and isolated theme islands at any granular
    - `SECTION_TONES["brand-deep"]` embeds the `dark` class automatically.
    - Because `.dark` context is active on the `<section>`, all descendant elements—including `<SectionHeading>`, `<Button variant="outline">`, `<Card>`, and muted copy (`text-foreground-muted`)—automatically resolve to their accessible dark-mode CSS tokens.
    - **Zero Manual Styling**: Never write `text-white`, `text-gray-300`, or arbitrary border colors inside a dark section. Semantic tokens (`text-foreground`, `text-foreground-muted`, `border-border`, `bg-card`) adapt automatically.
+   - **Buttons on Brand-Deep Surfaces**: Inside `tone="brand-deep"` (such as `<Hero tone="brand-deep">` or `<CtaBand tone="brand-deep">`), pair primary actions with `variant="white"` and secondary actions with `variant="white-secondary"` or `variant="white-outline"`. Standard `variant="default"` lacks chromatic separation from the brand canvas, while `variant="secondary"` renders an opaque neutral dark charcoal block.
 
 2. **Orthogonal `theme?: "dark" | "light"` Prop**:
    - `Section`, `Hero`, and `CtaBand` accept an orthogonal `theme` prop independent of their `tone`.
@@ -420,10 +477,10 @@ export default function LandingPage() {
         subtitle="Zero-drift design system, Supabase auth, R2 storage, and Tailwind v4 ready for production."
         actions={
           <div className="flex items-center gap-3">
-            <Button className="bg-primary hover:bg-primary-hover text-primary-foreground font-semibold px-6 py-2.5">
+            <Button variant="white" className="px-6 py-2.5">
               Get Started Free
             </Button>
-            <Button variant="outline" className="border-border bg-card hover:bg-accent text-foreground font-medium px-6 py-2.5">
+            <Button variant="white-outline" className="px-6 py-2.5">
               Live Demo
             </Button>
           </div>
@@ -462,7 +519,7 @@ export default function LandingPage() {
         tone="brand-deep"
         title="Ready to build your next product?"
         actions={
-          <Button variant="secondary" className="font-semibold px-8 py-3 shadow-xs">
+          <Button variant="white" className="font-semibold px-8 py-3 shadow-xs">
             Start Building Now
           </Button>
         }
