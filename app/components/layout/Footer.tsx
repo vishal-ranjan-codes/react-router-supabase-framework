@@ -34,7 +34,7 @@ const COLUMNS: {
 ];
 
 const LINK_CLASS =
-  "text-body-sm text-foreground-inverse/80 hover:text-foreground-inverse transition-colors no-underline";
+  "text-body-sm text-foreground-on-inverse-muted hover:text-foreground-inverse transition-colors no-underline";
 
 export default function Footer() {
   return (
@@ -44,7 +44,7 @@ export default function Footer() {
           <h3 className="text-inherit text-h5 font-semibold mb-4">
             React Router + Supabase
           </h3>
-          <p className="text-body-sm text-foreground-inverse/80">
+          <p className="text-body-sm text-foreground-on-inverse-muted">
             A production-shaped starter for modern web applications on
             Cloudflare Workers.
           </p>
@@ -79,8 +79,8 @@ export default function Footer() {
         ))}
       </div>
 
-      <div className="border-foreground-inverse/20 border-t mt-8 pt-8">
-        <p className="text-body-sm text-foreground-inverse/80 text-center">
+      <div className="border-border-subtle border-t mt-8 pt-8">
+        <p className="text-body-sm text-foreground-on-inverse-muted text-center">
           © <span suppressHydrationWarning>{new Date().getFullYear()}</span>{" "}
           React Router + Supabase Framework.
         </p>

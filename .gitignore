@@ -26,3 +26,6 @@ worker-configuration.d.ts
 
 # Plans
 /plans/
+
+# Agent skills & workflows
+/.agents/

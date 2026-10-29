@@ -8,6 +8,8 @@ export type SectionTone =
   | "inverse"
   | "brand-deep";
 
+export type SectionTheme = "dark" | "light";
+
 export type SectionSize = "sm" | "md" | "lg";
 
 export const SECTION_TONES: Record<SectionTone, string> = {
@@ -15,7 +17,8 @@ export const SECTION_TONES: Record<SectionTone, string> = {
   raised: "border-y border-border bg-card text-foreground",
   sunken: "bg-background-subtle text-foreground",
   inverse: "bg-surface-inverse text-foreground-inverse",
-  "brand-deep": "bg-surface-brand text-primary-deep-foreground",
+  "brand-deep":
+    "dark bg-surface-brand text-primary-deep-foreground [--secondary:var(--secondary-on-brand)] [--secondary-hover:var(--secondary-on-brand-hover)] [--secondary-foreground:var(--secondary-on-brand-foreground)] [--border:var(--border-on-brand)]",
 };
 
 export const SECTION_SIZES: Record<SectionSize, string> = {
@@ -29,12 +32,13 @@ export const SECTION_MUTED: Record<SectionTone, string> = {
   page: "text-foreground-muted",
   raised: "text-foreground-muted",
   sunken: "text-foreground-muted",
-  inverse: "text-foreground-inverse/80",
-  "brand-deep": "text-primary-deep-foreground/80",
+  inverse: "text-foreground-on-inverse-muted",
+  "brand-deep": "text-foreground-on-brand-muted",
 };
 
 type SectionProps = {
   tone?: SectionTone;
+  theme?: SectionTheme;
   size?: SectionSize;
   as?: ElementType;
   id?: string;
@@ -49,15 +53,24 @@ type SectionProps = {
 export function Section({
   as: Tag = "section",
   tone = "page",
+  theme,
   size = "md",
   id,
   className,
   children,
 }: SectionProps) {
+  const themeClass =
+    theme === "dark" ? "dark" : theme === "light" ? "light" : undefined;
+
   return (
     <Tag
       id={id}
-      className={cn(SECTION_TONES[tone], SECTION_SIZES[size], className)}
+      className={cn(
+        SECTION_TONES[tone],
+        SECTION_SIZES[size],
+        themeClass,
+        className,
+      )}
     >
       <div className="container-page">{children}</div>
     </Tag>

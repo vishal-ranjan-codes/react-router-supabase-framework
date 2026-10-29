@@ -1,410 +1,642 @@
-# DESIGN.md — the token contract, in prose
+# Design System Specification & Engineering Handbook
 
-This file is the human-readable half of the contract. The machine-readable half is
-[`app/lib/design-system.ts`](app/lib/design-system.ts): it names every Tier-2 token, what it is
-for, what it is never for, and which contrast pairs a test must clear. Three consumers read it —
-this document, the style guide route ([`app/routes/design-system.tsx`](app/routes/design-system.tsx),
-served at `/design-system`), and [`tests/design-tokens.test.ts`](tests/design-tokens.test.ts) — and
-[`scripts/check-design-system.mjs`](scripts/check-design-system.mjs) enforces it in CI. They cannot
-drift apart, because they do not each hold a copy.
-
-Values are not transcribed here either. Colour lives in
-[`app/globals.css`](app/globals.css); this file names the Tier-1 _step_ a token resolves to
-(`n-600`, `brand-800`) so a row stays true when a hex is retuned. Measured ratios are printed by
-`/design-system`, which computes them in your browser from the shipped stylesheet.
-
-Read [`AGENTS.md`](AGENTS.md) first if you are an agent about to write UI. It is the seven-rule
-excerpt of this file.
+A comprehensive, contract-driven design system engineered for React Router v7, Tailwind CSS v4,
+and enterprise SaaS applications. This document is the canonical specification and instruction
+manual for both developers and AI coding agents building user interfaces in this repository.
 
 ---
 
-## 1. Principles
+## 1. Principles & Non-Negotiable Contract Constraints
 
-**Tokens over classes.** A page says `bg-card`, never a hex, never `bg-primary/5`, never
-`opacity` to fake a surface. If the vocabulary has no word for what you want, the vocabulary is
-incomplete — that is a token change, not a licence to write a hex.
+Every component, page, and feature in `app/` must adhere to these mechanical constraints.
+Regressions are caught by automated test suites (`npm run check:ds`, `npm run lint`, `npm test`,
+and Playwright E2E).
 
-**Three tiers, one direction.**
+1. **Semantic Tokens Only**:
+   - Never hardcode a raw hex code (`#1160c9`, `#ffffff`), RGB, or HSL color in markup or CSS.
+   - Never use raw Tailwind color utilities (`bg-blue-600`, `text-slate-500`, `border-gray-200`).
+   - Never use opacity to create a surface or tint (`bg-primary/10`, `opacity-50` on surfaces).
+   - Never use arbitrary values (`bg-[#1160c9]`).
+   - All colors must resolve through the semantic CSS variables defined in `app/globals.css`.
 
+2. **Upstream Component Ownership**:
+   - `app/components/ui/**` is vendored upstream shadcn. Wrap it, never edit it directly.
+   - Any local deviation must be documented in `app/components/ui/PATCHES.md`.
+
+3. **Brand is Punctuation (< 10% Viewport Area)**:
+   - Primary brand color (`--primary`) is an accent mark: primary action buttons, active navigation
+     indicators, links, focus rings, and chart series.
+   - Large brand surfaces are restricted: at most **one** full-bleed `Section tone="brand-deep"` is
+     permitted per page.
+   - Backgrounds, panels, cards, and wells must remain clean neutrals.
+
+4. **Single-Primary Default & Restricted Brand Accent Scope**:
+   - The framework defaults to a **Single-Primary Brand System** (`siteThemeConfig.enableAccent = false` in `app/config/theme.ts`).
+   - When accent is disabled, `--brand-accent` CSS variables automatically alias to `--primary` tokens.
+   - When chromatic accent is enabled (`enableAccent = true`), its scope is strictly restricted to **tiny punctuation only**:
+     an 8px indicator dot or a small status pill tag.
+   - **NEVER use `--brand-accent` on buttons (`<Button>`).** Primary CTAs must always use `bg-primary` or neutral outlines.
+   - **NEVER use `--brand-accent` as a background or border on cards, hero sections, or full-bleed bands.**
+   - Neutral components (`--secondary`, `--accent`) must remain neutral controls (`#f3f3f3` light / `#262626` dark); do not tint them to improvise an accent.
+
+5. **Strict Status vs. Label Separation (Rule 16)**:
+   - Status tokens (`success`, `warning`, `destructive`, `info`) represent **system health and state**.
+   - Label tokens (`--label-*`) represent **content categorization, metadata tags, and topics**.
+   - Never use status tokens on `<Chip>`, `<Tag>`, or chips/tags.
+   - Never use label tokens in `<Alert>`, `<Toast>`, or system notifications.
+   - Never mix status and label tokens on the same element or line of code.
+
+6. **Contrast is a Mechanical Invariant**:
+   - All normal body text must meet **WCAG AA $\ge 4.5:1$**.
+   - All interactive control boundaries and focus rings must meet **WCAG $\ge 3.0:1$**.
+   - Every semantic pairing is verified by `tests/design-tokens.test.ts`.
+
+---
+
+## 2. Global Brand Presets & The Scalable Identity System
+
+The framework decouples neutral surfaces from brand colors and provides a site-wide developer theme switcher:
+- Configure globally in `app/config/theme.ts` via `siteThemeConfig.preset`.
+- Preview interactively across any running page in development via the floating **Theme Dock** (`<ThemeDock />`).
+- Hydrates without layout shift (zero FOUC) via SSR `<html data-brand="..." data-accent="...">`.
+
+### Single-Primary Default (Stripe / Linear Architecture)
+By default, the starter framework runs in **Single-Primary mode** (`enableAccent: false`).
+In this mode, all `--brand-accent` CSS variables automatically alias directly to `--primary`:
+```css
+/* When accent is OFF (default) */
+--brand-accent: var(--primary);
+--brand-accent-foreground: var(--primary-foreground);
+--brand-accent-subtle: var(--primary-subtle);
+--brand-accent-on-subtle: var(--primary-on-subtle);
+--brand-accent-border: var(--primary);
 ```
-Tier 1  --p-*            primitives: hex lives here and nowhere else, theme-invariant
-Tier 2  --*              semantics: :root and .dark remap the same name onto a different step
-Tier 3  @theme inline    utilities: bg-card / text-h2 / shadow-card, the only layer app code writes
-```
+This guarantees an interface with zero color clash, prevents AI coding agents from generating out-of-place red buttons, and mirrors the clean, focused visual design of Stripe, Vercel, and Linear.
 
-Tier 3 is `@theme inline` on purpose (decision D4): the utility emits `var(--card)` directly, so the
-`.dark` remap wins without a token ever referencing itself.
+### Opt-In 60-30-10 Chromatic Accent Mode
+When a developer sets `enableAccent: true`, the framework activates the high-contrast chromatic accent:
+- **60% Neutral Canvas**: Off-white/slate surfaces (`bg-background`, `bg-card`, `bg-background-subtle`).
+- **30% Primary Brand Structure**: Primary actions, active tabs, links (`bg-primary`, `text-link`).
+- **10% Brand Accent Punctuation**: Strictly restricted to **tiny punctuation only** (8px notification dots, small status pill tags).
+- **Hard Rule**: NEVER use `--brand-accent` on buttons (`<Button>`). Primary CTAs must always use `bg-primary` or neutral outlines.
 
-**Upstream over forks.** `app/components/ui/**` is vendored shadcn and is never hand-edited. Wrap
-it, or record the deviation in `PATCHES.md`.
+### Pre-Configured Global Brand Presets (`app/lib/theme-presets.ts`)
 
-**Brand is punctuation.** Buttons, links, active nav, badges, the focus ring, chart series, one icon
-glyph. The only large brand surface is one full-bleed `Section tone="brand-deep"` per page — brand
-stays under roughly 10% of the viewport.
-
-**Exactly one chromatic hue** (decision D11). `--primary` is the only brand colour. `--secondary`,
-`--accent` and `--muted` are neutral _by decision_: `bg-accent` is the hover/selected surface, not
-an accent colour. Hues for tags and chart series are a separate, non-semantic family (`--label-*`,
-`--chart-*`) that arrives with phases 6–7; until it exists, do not improvise one with an alpha.
-
-**Contrast is a test.** 55 pairs, both themes, asserted by `npm test` and printed live on
-`/design-system`. A pair that fails fails the suite with its name and its actual ratio. Nobody has
-to trust a number written down in a document.
+| Preset ID | Name | 60% Canvas (Light / Dark) | 30% Primary Brand | 10% Accent (When Enabled) | Vibe / Industry |
+|---|---|---|---|---|---|
+| `tech-blue` | **Tech Blue** (Default) | `#fafafa` / `#090909` | `#1160c9` (Tech Blue) | `#d14118` (Sunset Coral) | Enterprise SaaS, Cloud, Fintech |
+| `signal` | **Signal** | `#f3f5fb` / `#101522` | `#1649d8` (Cobalt) | `#ddf85b` (Acid Yellow) | Developer Tools, AI, High-Velocity |
+| `tidal` | **Tidal** | `#f3f7f5` / `#0c1917` | `#006b64` (Maritime Teal) | `#e6b85c` (Warm Brass) | Maritime, Climate, Analytics |
+| `forest` | **Forest** | `#f5f6ec` / `#171c13` | `#365a28` (Forest Green) | `#e5989b` (Soft Rose) | Sustainability, Creators, Nature |
+| `terracotta` | **Terracotta** | `#faf5ec` / `#1d1713` | `#a33d26` (Terracotta) | `#ebc56d` (Warm Ochre) | Artisan, Architecture, Publishing |
+| `monochrome` | **Monochrome** | `#fafafa` / `#000000` | `#141414` (Solid Ink) | `#475569` (Slate Accent) | High-Fashion, Editorial, Minimalist |
 
 ---
 
-## 2. The surface ladder
+## 3. Surface Hierarchy & Elevation Stacking
 
-Six steps of elevation, each with a job. Pick a surface by asking what the element is _doing_, not
-what it looks like.
+Surfaces form an elevation ladder. Choose a surface token by asking what the element is **doing**,
+not what color it should look like.
 
-| Token                 | Light       | Dark        | Use for                                           | Never               |
-| --------------------- | ----------- | ----------- | ------------------------------------------------- | ------------------- |
-| `--background`        | n-100       | n-950       | page canvas                                       | cards               |
-| `--background-subtle` | n-150       | n-900       | sunken wells, icon tiles, alt rows, "darker band" | hover               |
-| `--card`              | n-0         | n-900       | raised panels, sticky header                      | page canvas         |
-| `--popover`           | n-0         | n-850       | menus, dialogs, tooltips, toasts                  | inline sections     |
-| `--scrim`             | `#00000080` | `#000000a3` | modal/dialog backdrop                             | anything else       |
-| `--surface-inverse`   | n-850       | n-50        | neutral inverse band (footer, CTA)                | small elements      |
-| `--surface-brand`     | brand-800   | brand-900   | one full-bleed brand band per page (hero/CTA)     | cards, tiles, hover |
+| Elevation Level | Token | Tailwind Utility | Light Value | Dark Value | Purpose & Practical Use |
+|---|---|---|---|---|---|
+| **0. Base Canvas** | `--background` | `bg-background` | `#fafafa` | `#090909` | Root page canvas, app body viewport. |
+| **1. Sunken Well** | `--background-subtle` | `bg-background-subtle` | `#f3f3f3` | `#1d1d1d` | Inset wells, table alternating rows, search inputs, icon tiles. |
+| **2. Raised Panel** | `--card` | `bg-card` | `#ffffff` | `#141414` | Cards, forms, metric panels, modals. Always pair with `border-border` and `shadow-card`. |
+| **3. Floating Layer** | `--popover` | `bg-popover` | `#ffffff` | `#141414` | Dropdown menus, selects, tooltips, dialogs. Pair with `shadow-pop`. |
+| **4. Overlay Dim** | `--scrim` | `bg-scrim` | `#00000080` | `#000000a3` | Modal backdrop overlay. |
+| **5. Inverse Band** | `--surface-inverse` | `bg-surface-inverse` | `#1d1d1d` | `#fafafa` | Full-width contrast band (footer, announcement banner). |
+| **Special: Deep Brand** | `--surface-brand` | `bg-surface-brand` | `#0a3d7d` | `#051b38` | Exactly **one** full-bleed hero or CTA section per page. |
 
-### Which token do I want?
-
-Written as questions on purpose: phase 6 adds context tokens (`--secondary-on-brand`,
-`--surface-disabled`), and a new row has to slot in without restructuring the prose. This list is
-`SURFACE_QUESTIONS` — the same array the style guide renders.
-
-- **Is this the page itself?** `bg-background`, or `Section tone="page"`.
-- **Does it sit raised above the page?** `bg-card border border-border shadow-card`.
-- **Does it sit sunken into the page?** `bg-background-subtle` — static; `Section tone="sunken"` for
-  a band.
-- **Is it a response to the pointer or the keyboard?** `bg-accent` + `text-accent-foreground`.
-  Neutral, never brand.
-- **Does it float over the page until it is dismissed?** `bg-popover` for the panel, `bg-scrim` for
-  the backdrop.
-- **Is it the one full-bleed emphasis band?** `Section tone="brand-deep"` — once per page.
-- **Do you want a tinted brand surface?** `bg-primary-subtle` + `text-primary-on-subtle` for a badge
-  or a tonal button. Never `bg-primary/<alpha>`, which is the pattern this system removed.
-- **Is it a status?** One family, five roles: `<status>-subtle` + `-on-subtle` + `-border`, or the
-  solid pair. Never a label or chart hue (decision D14).
-- **Does something sit on a brand or inverse band?** `text-primary-deep-foreground` /
-  `text-foreground-inverse` today; the context tokens arrive with phase 6.
+### Surface Stacking Decision Rules
+- **Page Canvas**: Always `bg-background` (or `<Section tone="page">`).
+- **Cards & Modals**: Always `bg-card border border-border shadow-card`.
+- **Sunken Wells**: Always `bg-background-subtle border border-border-subtle`.
+- **Hover Feedback**: Always `hover:bg-accent hover:text-accent-foreground` (neutral hover).
+- **Selection Feedback**: Always `bg-accent-selected text-accent-foreground` (neutral selected state).
+- **Brand Tint**: Use `bg-primary-subtle text-primary-on-subtle border border-border`. Never `bg-primary/10`.
 
 ---
 
-## 3. Token tables
+## 4. Complete 165-Token Reference Dictionary
 
-`Light` / `Dark` name the Tier-1 step each theme resolves to. `Floor` is the WCAG bar the pair must
-clear — 4.5:1 for text, 3:1 for a boundary a user has to find or a chart series. The measured number
-is on `/design-system#colors`; the pair list is `CONTRAST_PAIRS`.
+Every token in the design system contract is listed below. All tokens are available as Tailwind classes.
 
-### 3.1 Content — text and icons
+### A. Surfaces & Content (18 tokens)
+| CSS Variable | Tailwind Utility | Light Hex | Dark Hex | Permitted Usage | Forbidden Usage |
+|---|---|---|---|---|---|
+| `--background` | `bg-background` | `#fafafa` | `#090909` | Page canvas | Cards, floating menus |
+| `--background-subtle` | `bg-background-subtle` | `#f3f3f3` | `#1d1d1d` | Sunken wells, icon tiles | Page canvas |
+| `--card` | `bg-card` | `#ffffff` | `#141414` | Cards, elevated panels | Page canvas |
+| `--popover` | `bg-popover` | `#ffffff` | `#141414` | Menus, popovers, tooltips | Page canvas |
+| `--scrim` | `bg-scrim` | `#00000080` | `#000000a3` | Backdrop dimming overlay | Component fills |
+| `--surface-inverse` | `bg-surface-inverse` | `#1d1d1d` | `#fafafa` | High-contrast footer band | Card surfaces |
+| `--surface-brand` | `bg-surface-brand` | `#0a3d7d` | `#051b38` | One full-bleed CTA band | Inline cards |
+| `--foreground` | `text-foreground` | `#090909` | `#fafafa` | Primary headings, body text | Disabled text |
+| `--foreground-muted` | `text-foreground-muted` | `#5d5d5d` | `#c4c4c4` | Subtitles, metadata, captions | Low-contrast text |
+| `--foreground-subtle` | `text-foreground-subtle` | `#5d5d5d` | `#9e9e9e` | Helper hints, timestamps | Normal body copy |
+| `--foreground-disabled`| `text-foreground-disabled`| `#8a8a8a` | `#636363` | Disabled controls (3:1) | Active text |
+| `--foreground-inverse` | `text-foreground-inverse` | `#fafafa` | `#090909` | Text on surface-inverse | Text on light cards |
+| `--foreground-on-brand`| `text-foreground-on-brand`| `#ffffff` | `#ffffff` | Text on surface-brand | Text on white cards |
+| `--link` | `text-link` | `#1160c9` | `#4a9fff` | Interactive hyperlinks | Static labels |
+| `--link-hover` | `hover:text-link-hover` | `#0e51aa` | `#7cb8ff` | Link hover state | Button backgrounds |
+| `--placeholder` | `placeholder:text-placeholder`| `#5d5d5d` | `#9e9e9e` | Form field placeholders | Body copy |
+| `--surface-disabled` | `bg-surface-disabled` | `#dedede` | `#1d1d1d` | Disabled button background | Active buttons |
+| `--border-disabled` | `border-border-disabled` | `#c4c4c4` | `#292929` | Disabled control border | Active card borders |
 
-| Token                   | Light     | Dark      | Use                                              | Never                                                             | Floor                                        |
-| ----------------------- | --------- | --------- | ------------------------------------------------ | ----------------------------------------------------------------- | -------------------------------------------- |
-| `--foreground`          | n-850     | n-50      | headings, primary text                           | —                                                                 | 4.5:1 on every surface                       |
-| `--foreground-muted`    | n-600     | n-400     | body copy, secondary text                        | —                                                                 | 4.5:1 on background, card, background-subtle |
-| `--foreground-subtle`   | n-500     | n-450     | captions and metadata on a card or popover       | the page canvas or a sunken well — use `--foreground-muted` there | 4.5:1 on card, popover only                  |
-| `--foreground-disabled` | n-400     | n-600     | labels of disabled controls                      | any text that must be readable                                    | exempt (WCAG 1.4.3, inactive controls)       |
-| `--foreground-inverse`  | n-50      | n-950     | text on `--surface-inverse`                      | —                                                                 | 4.5:1                                        |
-| `--foreground-on-brand` | n-0       | n-0       | text and icons on a solid brand fill or the band | —                                                                 | 4.5:1                                        |
-| `--link`                | brand-600 | brand-400 | inline links — this is the brand-as-text role    | `--primary`, which is a fill                                      | 4.5:1 on background, card                    |
-| `--link-hover`          | brand-700 | brand-300 | link hover                                       | —                                                                 | 4.5:1 on background, card                    |
-| `--placeholder`         | n-500     | n-400     | input placeholder text                           | body copy                                                         | 4.5:1 on card                                |
+### B. Brand & Interaction (15 tokens)
+| CSS Variable | Tailwind Utility | Light Hex | Dark Hex | Permitted Usage |
+|---|---|---|---|---|
+| `--primary` | `bg-primary` | `#1160c9` | `#1160c9` | Primary CTA buttons, active state |
+| `--primary-hover` | `hover:bg-primary-hover` | `#0e51aa` | `#0e51aa` | Primary button hover |
+| `--primary-active` | `active:bg-primary-active` | `#0a3d7d` | `#0a3d7d` | Primary button press |
+| `--primary-foreground` | `text-primary-foreground` | `#ffffff` | `#ffffff` | Text on solid primary |
+| `--primary-subtle` | `bg-primary-subtle` | `#eef6ff` | `#04121f` | Tinted brand badge, tonal button |
+| `--primary-on-subtle` | `text-primary-on-subtle` | `#0e51aa` | `#7cb8ff` | Text on brand subtle |
+| `--primary-deep` | `bg-primary-deep` | `#0a3d7d` | `#0d2c50` | Full-bleed hero band |
+| `--primary-deep-foreground` | `text-primary-deep-foreground` | `#ffffff` | `#d9e9ff` | Text on primary deep band |
+| `--secondary` | `bg-secondary` | `#f3f3f3` | `#292929` | Secondary neutral button |
+| `--secondary-hover` | `hover:bg-secondary-hover` | `#e9e9e9` | `#383838` | Secondary button hover |
+| `--secondary-foreground`| `text-secondary-foreground` | `#141414` | `#fafafa` | Text on secondary button |
+| `--accent` | `bg-accent` | `#f3f3f3` | `#292929` | Component hover feedback |
+| `--accent-selected` | `bg-accent-selected` | `#e9e9e9` | `#383838` | Selected list item / active row |
+| `--accent-foreground` | `text-accent-foreground` | `#141414` | `#fafafa` | Text on accent surface |
+| `--primary-selected` | `bg-primary-selected` | `#0a3d7d` | `#0d2c50` | Primary active selection indicator |
 
-`--foreground-subtle` sits on its own dark half-step (n-450) because n-400 is already
-`--foreground-muted` there, and n-500 measures 3.82:1 on a card — not a text token. That is the
-single-step move this phase made; the duplicate-step guard that proves it is rule 10 in phase 6.
+### C. Brand Accent (7 tokens &mdash; Restricted Punctuation Only)
+| CSS Variable | Tailwind Utility | Light Hex | Dark Hex | Permitted Usage |
+|---|---|---|---|---|
+| `--brand-accent` | `bg-brand-accent` | `#d14118` | `#ff6f43` | Restricted punctuation: 8px notification dot, small pill tag (**NEVER on buttons**) |
+| `--brand-accent-hover` | `hover:bg-brand-accent-hover` | `#b8340f` | `#ff855f` | Interactive tag hover state |
+| `--brand-accent-active` | `active:bg-brand-accent-active` | `#99280a` | `#ffa182` | Interactive tag press state |
+| `--brand-accent-foreground`| `text-brand-accent-foreground` | `#ffffff` | `#1a0803` | Text on solid brand accent dot or tiny chip |
+| `--brand-accent-subtle` | `bg-brand-accent-subtle` | `#fff2ee` | `#3b1308` | Small pill tag well |
+| `--brand-accent-on-subtle` | `text-brand-accent-on-subtle` | `#942e12` | `#ffb094` | Readable text on accent pill tag (AAA $\ge 7:1$) |
+| `--brand-accent-border` | `border-brand-accent-border` | `#ffccbc` | `#7a2b15` | Border for small accent pill tags |
 
-### 3.2 Brand and interaction
+### D. Status Families (21 tokens &mdash; Success, Warning, Destructive, Info)
+| Family | Subtle Background | On-Subtle Text | Boundary Border | Solid Fill | Solid Text |
+|---|---|---|---|---|---|
+| **Success** | `bg-success-subtle` (`#eef9f0`) | `text-success-on-subtle` (`#1b6e2f`) | `border-success-border` | `bg-success` (`#248a3d`) | `text-success-foreground` (`#ffffff`) |
+| **Warning** | `bg-warning-subtle` (`#fef8ec`) | `text-warning-on-subtle` (`#8a5200`) | `border-warning-border` | `bg-warning` (`#b26a00`) | `text-warning-foreground` (`#ffffff`) |
+| **Destructive** | `bg-destructive-subtle` (`#fdf1f1`) | `text-destructive-on-subtle` (`#a82020`) | `border-destructive-border` | `bg-destructive` (`#c92a2a`) | `text-destructive-foreground` (`#ffffff`) |
+| **Info** | `bg-info-subtle` (`#edf5fc`) | `text-info-on-subtle` (`#0e5ea8`) | `border-info-border` | `bg-info` (`#1270c4`) | `text-info-foreground` (`#ffffff`) |
 
-| Token                       | Light     | Dark      | Use                                                             | Never                                   |
-| --------------------------- | --------- | --------- | --------------------------------------------------------------- | --------------------------------------- |
-| `--primary`                 | brand-600 | brand-600 | **filled brand surfaces only** — buttons, badges                | text, and never a surface at an alpha   |
-| `--primary-hover`           | brand-700 | brand-700 | primary hover                                                   | —                                       |
-| `--primary-active`          | brand-800 | brand-800 | primary pressed                                                 | —                                       |
-| `--primary-subtle`          | brand-50  | brand-950 | soft/tonal brand background: badge, tonal button                | a page or section surface               |
-| `--primary-on-subtle`       | brand-700 | brand-300 | text or icon on `--primary-subtle`                              | —                                       |
-| `--primary-foreground`      | n-0       | n-0       | text on solid `--primary`                                       | —                                       |
-| `--primary-deep`            | brand-800 | brand-900 | alias of `--surface-brand`, kept for the shadcn-era name        | —                                       |
-| `--primary-deep-foreground` | n-0       | brand-100 | text on the brand band                                          | —                                       |
-| `--secondary`               | n-150     | n-800     | secondary button fill                                           | a brand surface                         |
-| `--secondary-hover`         | n-200     | n-750     | secondary hover                                                 | —                                       |
-| `--secondary-foreground`    | n-850     | n-50      | text on secondary                                               | —                                       |
-| `--muted`                   | n-150     | n-800     | sunken static surface (shadcn's name for `--background-subtle`) | hover                                   |
-| `--muted-foreground`        | n-600     | n-400     | `= --foreground-muted`, under the shadcn name                   | —                                       |
-| `--accent`                  | n-150     | n-800     | hover and selected fill only — neutral, never brand             | an accent colour: it is a surface (D11) |
-| `--accent-foreground`       | n-850     | n-50      | text on `--accent`                                              | —                                       |
+### E. Non-Semantic Category Labels (50 tokens &mdash; 10 Hues &times; 5 Roles)
+Used strictly for metadata, topics, user categories, and tags. Available hues:
+`violet`, `indigo`, `teal`, `cyan`, `pink`, `lime`, `orange`, `brown`, `cool-gray`, `gray`.
+For any hue `{h}`:
+- Background: `bg-label-{h}-subtle`
+- Text on subtle: `text-label-{h}-on-subtle`
+- Border: `border-label-{h}-border`
+- Solid fill: `bg-label-{h}-solid`
+- Foreground: `text-label-{h}-foreground`
 
-The dark `--primary` ramp deliberately matches light. No single brand step serves both roles: white
-text on a fill needs ≥ brand-600, while brand-as-text on a near-black page needs ≤ brand-400 — which
-is why `--link`, `--ring` and `--chart-*` move to the bright steps and the fills do not.
+### F. Lines, Borders & Focus (11 tokens)
+- `--border`: `border-border` (`#dedede` light / `#292929` dark) &mdash; default panel and card boundary.
+- `--border-subtle`: `border-border-subtle` (`#e9e9e9` light / `#1d1d1d` dark) &mdash; table rows, dividers.
+- `--ring`: `ring-ring` (`#1160c9` light / `#4a9fff` dark) &mdash; interactive focus indicator.
+- `--ring-offset`: `ring-offset-ring-offset` (`#ffffff` light / `#090909` dark) &mdash; 3:1 isolation gap.
 
-### 3.3 Status families
-
-Four families — `success`, `warning`, `destructive`, `info` — each shipping the same five roles, so
-a new family cannot quietly arrive with three. Solid is the fill; subtle is the tinted panel.
-
-| Role                    | Light step                | Dark step          | Use                                |
-| ----------------------- | ------------------------- | ------------------ | ---------------------------------- |
-| `--<status>`            | *-700 (info: -700)        | *-400 (info: -300) | solid fill: badge, alert icon      |
-| `--<status>-foreground` | n-0                       | *-950              | text on the solid fill             |
-| `--<status>-subtle`     | *-50                      | *-950              | tinted panel: alert, inline notice |
-| `--<status>-on-subtle`  | _-700 (_-800 for warning) | *-300              | text and icon on the subtle panel  |
-| `--<status>-border`     | *-200                     | *-800              | outline of a subtle panel          |
-
-`destructive` is the one family with a sixth role, `--destructive-hover` (d-800 / d-300), because
-upstream's button and alert-dialog reference a hover fill for it.
-
-A status is never a label hue and a label hue is never a status (decision D14). The lime badge and
-the `warning-subtle` chip both destroy the meaning the family was built to carry.
-
-### 3.4 Lines, focus and selection
-
-| Token                    | Light     | Dark      | Use                                            | Never                                                     |
-| ------------------------ | --------- | --------- | ---------------------------------------------- | --------------------------------------------------------- |
-| `--border`               | n-200     | n-750     | card and section outlines                      | a boundary a user has to find — that is `--border-strong` |
-| `--border-subtle`        | n-150     | n-800     | dividers inside cards                          | —                                                         |
-| `--border-strong`        | n-500     | n-500     | borders that identify a non-input control      | —                                                         |
-| `--input`                | n-500     | n-500     | resting border of an input, textarea or select | —                                                         |
-| `--input-hover`          | n-600     | n-400     | input hover                                    | —                                                         |
-| `--ring`                 | brand-600 | brand-300 | focus ring                                     | a decorative outline                                      |
-| `--ring-offset`          | n-0       | n-900     | gap colour of the focus ring                   | consumed by the focus chain in phase 6                    |
-| `--selection`            | brand-100 | brand-800 | `::selection` background                       | —                                                         |
-| `--selection-foreground` | n-850     | n-50      | `::selection` text                             | —                                                         |
-
-### 3.5 Data and loading
-
-Five series today; phase 7 expands the family to twelve.
-
-| Token           | Light       | Dark        | Use                  | Never                                        |
-| --------------- | ----------- | ----------- | -------------------- | -------------------------------------------- |
-| `--chart-1`     | brand-600   | brand-400   | series 1 (brand)     | a status meaning — series are identity (D14) |
-| `--chart-2`     | success-600 | success-400 | series 2 (green)     | as above                                     |
-| `--chart-3`     | warning-600 | warning-400 | series 3 (amber)     | as above                                     |
-| `--chart-4`     | `#7e22ce`   | `#c084fc`   | series 4 (violet)    | as above                                     |
-| `--chart-5`     | danger-600  | danger-400  | series 5 (red)       | as above                                     |
-| `--chart-grid`  | n-200       | n-800       | gridlines            | —                                            |
-| `--chart-label` | n-500       | n-400       | axis and tick labels | the page canvas — charts are drawn on a card |
-| `--skeleton`    | n-150       | n-800       | loading placeholder  | —                                            |
-
-`--chart-4` is the one series with a dedicated Tier-1 pair (`--p-chart-4-light/dark`) because no
-violet ramp is shared with a status family.
-
-### 3.6 Sidebar
-
-The shipped proof that a component tier of tokens works: the sidebar needs its own remap because it
-is a distinct canvas, and generic tokens cannot cover it.
-
-| Token                               | Light           | Dark                  |
-| ----------------------------------- | --------------- | --------------------- |
-| `--sidebar` / `-foreground`         | n-0 / n-850     | n-900 / n-50          |
-| `--sidebar-primary` / `-foreground` | brand-600 / n-0 | brand-400 / brand-950 |
-| `--sidebar-accent` / `-foreground`  | n-150 / n-850   | n-800 / n-50          |
-| `--sidebar-border`                  | n-200           | n-750                 |
-| `--sidebar-ring`                    | brand-600       | brand-300             |
+### G. Data Visualization & Charts (28 tokens)
+- 12 Categorical series: `--chart-1` through `--chart-12` (`stroke-chart-1`, `bg-chart-1`, etc.).
+- 7 Sequential steps: `--chart-seq-1` through `--chart-seq-7` (heatmaps).
+- 7 Diverging steps: `--chart-div-neg-3` to `-1`, `--chart-div-mid`, `--chart-div-pos-1` to `3`.
+- Chart layout: `--chart-grid` (`stroke-chart-grid`), `--chart-label` (`text-chart-label`).
 
 ---
 
-## 4. Typography
+## 5. Component Implementation Blueprints (Ready-to-Use TSX for AI)
 
-One variable font, Inter, self-hosted at `/fonts/InterVariable.woff2`. The scale is a **size**
-vocabulary, never a colour: `text-h2` says how big, `text-foreground` says what colour, and the base
-layer paints headings `text-foreground` so the two never collide.
+When generating code for any feature, AI agents must use these exact patterns.
 
-| Utility        | Use               | Size      | Line height          |
-| -------------- | ----------------- | --------- | -------------------- |
-| `text-display` | hero heading only | 3.75rem   | 1.08                 |
-| `text-h1`      | page title        | 2.25rem   | 2.75rem              |
-| `text-h2`      | section title     | 1.75rem   | 2.25rem              |
-| `text-h3`      | subsection        | 1.375rem  | 1.75rem              |
-| `text-h4`      | card title        | 1.125rem  | 1.5rem               |
-| `text-h5`      | small heading     | 1rem      | 1.5rem               |
-| `text-h6`      | overline          | 0.875rem  | 1.25rem              |
-| `text-body-lg` | lede, intro copy  | 1.125rem  | 1.7rem               |
-| `text-body`    | default prose     | 1rem      | 1.6rem               |
-| `text-body-sm` | dense UI text     | 0.875rem  | 1.45rem              |
-| `text-body-xs` | fine print        | 0.8125rem | 1.35rem              |
-| `text-eyebrow` | uppercase kicker  | 0.75rem   | 1rem, tracking .08em |
+### A. Buttons & Interactive Controls
 
-Weight is `font-medium` / `font-semibold`, never a synthetic bold. Long-form headings take
-`text-balance`.
+```tsx
+import { Button } from "~/components/ui/button";
+import { Loader2, ArrowRight } from "lucide-react";
 
----
+// 1. Primary Action (30% Brand)
+<Button className="bg-primary hover:bg-primary-hover active:bg-primary-active text-primary-foreground font-semibold shadow-xs">
+  Get Started <ArrowRight className="ml-2 size-4" />
+</Button>
 
-## 5. Radius, spacing, elevation, motion
+// 2. Secondary Action (Neutral)
+<Button variant="outline" className="border-border bg-card hover:bg-accent text-foreground font-medium">
+  View Documentation
+</Button>
 
-| Group          | Token                         | Value                       | Use                                              |
-| -------------- | ----------------------------- | --------------------------- | ------------------------------------------------ |
-| Radius         | `--radius-xs`                 | .25rem                      | chips, inner fills                               |
-|                | `--radius-sm`                 | .375rem                     | small controls                                   |
-|                | `--radius-md`                 | .5rem                       | buttons, inputs                                  |
-|                | `--radius-lg`                 | .625rem                     | **the base radius**: cards                       |
-|                | `--radius-xl`                 | .75rem                      | large panels                                     |
-|                | `--radius-2xl`                | 1rem                        | modals, heroes                                   |
-| Section rhythm | `--spacing-section-sm`        | 3rem                        | PageHeader, tight bands                          |
-|                | `--spacing-section-md`        | 4.5rem                      | default Section                                  |
-|                | `--spacing-section-lg`        | 6rem                        | hero                                             |
-| Elevation      | `--shadow-card`               | two 1px layers              | card, raised section                             |
-|                | `--shadow-pop`                | 4px + 12px                  | popover, dialog                                  |
-| Motion         | `--transition-duration-fast`  | 120ms                       | colour and border change                         |
-|                | `--transition-duration-base`  | 200ms                       | default                                          |
-|                | `--transition-duration-slow`  | 360ms                       | sheet and drawer open                            |
-|                | `--ease-standard`             | cubic-bezier(.2,0,0,1)      | most transitions                                 |
-|                | `--ease-emphasized`           | cubic-bezier(.05,.7,.1,1)   | entrance                                         |
-|                | `--ease-enter`                | cubic-bezier(0,.4,.2,1)     | overlay in                                       |
-| Stacking       | `--z-index-sticky` … `-toast` | 40 · 50 · 60 · 70 · 80 · 90 | header, dropdown, scrim, dialog, popover, sonner |
-| Sizing         | `--size-control-sm/md/lg`     | 2rem / 2.5rem / 2.75rem     | control heights                                  |
-|                | `--size-icon-sm/md/lg`        | 1rem / 1.25rem / 1.5rem     | glyph sizes                                      |
-|                | `--size-touch-min`            | 2.75rem                     | WCAG 2.2 target floor                            |
+// 3. Secondary Neutral Action (Never use brand-accent on buttons!)
+<Button variant="secondary">
+  Explore Features
+</Button>
 
-Elevation is a shadow **or** a border, never a blur blob. `prefers-reduced-motion` is honoured
-globally in the base layer, so no component needs its own guard.
+// 4. Destructive Action
+<Button variant="destructive" className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
+  Delete Project
+</Button>
 
----
-
-## 6. Recipes — `app/components/patterns/`
-
-Sections are full-bleed; boxes are for cards, grids, forms and modals only. Build pages from these
-nine and extend them with `className`; do not fork a copy into a route. Every one of them is
-rendered live at [`app/routes/design-system.tsx`](app/routes/design-system.tsx) under `#patterns` — guardrail
-rule 9 fails CI if a pattern file ever stops appearing there.
-
-| Component        | Props                                                                                                           | Replaces                                                  | Use when                                                                                  |
-| ---------------- | --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `Section`        | `tone?: page \| raised \| sunken \| inverse \| brand-deep`, `size?: sm \| md \| lg`, `as?`, `id?`, `className?` | every `<section className="py-16 …">` and every boxed CTA | every band of a page — it paints edge to edge, the inner container is what is constrained |
-| `SectionHeading` | `eyebrow?`, `title`, `description?`, `align?`, `aside?`, `className?`                                           | the repeated centred heading                              | the start of a Section; centre only when it is the whole band                             |
-| `Hero`           | `eyebrow?`, `title`, `lede?`, `primary?`, `secondary?`, `artifact?`, `trust?`, `tone?`                          | the three centred hero blocks + blob                      | the first screen of a marketing page: two columns on `lg`, no decorative layer            |
-| `PageHeader`     | `eyebrow?`, `title`, `description?`, `className?`                                                               | centred title blocks on `/about`, `/contact`              | the title block of an app or info page                                                    |
-| `CtaBand`        | `title`, `description?`, `actions`, `tone?: brand-deep \| inverse`, `className?`                                | `box p-12 … bg-primary/5`                                 | the closing ask: full-bleed, copy left, actions right                                     |
-| `FeatureCard`    | `icon?`, `title`, `description`, `href?`, `className?`                                                          | `box p-6` + tile + heading + body                         | a grid item explaining one capability; hover is border + shadow, not a fill               |
-| `IconTile`       | `size?: sm \| md \| lg`, `tone?: muted \| brand`, `className?`                                                  | the 12 `bg-primary/12` tiles                              | an icon that anchors a card; `tone="brand"` at most once per page                         |
-| `CodeBlock`      | `code`, `filename?`, `className?`                                                                               | new                                                       | a command, a config shape, or a hero artifact                                             |
-| `LogoStrip`      | `items: { label }[]`, `className?`                                                                              | new                                                       | trust or stack row under a hero; wordmarks, not images                                    |
-
-Recipes compose `ui/` primitives and tokens only — no hex, no alpha surfaces, no `style={{}}`. Every
-recipe takes `className` merged with `cn()`. A recipe must earn its place on ≥2 pages; a one-off
-layout may still use plain utilities from the contract, because the guardrails ban the tint, not the
-abstraction.
-
----
-
-## 7. Component ownership
-
-| Directory                                         | Owner                    | Rule                                                                                                                               |
-| ------------------------------------------------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `app/components/ui/**`                            | upstream shadcn `4.23.0` | wrap it, never edit it; deviations are logged in [`PATCHES.md`](app/components/ui/PATCHES.md) and re-checked by `npm run ds:drift` |
-| `app/components/patterns/**`                      | this repo                | the nine recipes above; `check:ds` rule 9 keeps them documented                                                                    |
-| `app/components/layout/**`, `auth/**`, `error/**` | this repo                | app structure; writes Tier-3 utilities only                                                                                        |
-| `app/globals.css`                                 | the contract             | the only file that holds a hex                                                                                                     |
-
-Upstream ships no brand-as-text variant that conforms to this contract: `variant="link"` on `Button`
-and `Badge` writes `text-primary`, and `--primary` is a _fill_ that deliberately stays brand-600 in
-dark mode — under the 4.5:1 text floor on a dark card. App code therefore takes `text-link`, the
-token whose whole job is brand as text, which steps to brand-400 in dark. Nothing is patched for it
-(`PATCHES.md` logs real deviations only); closing the gap is phase 6's, and `/design-system` shows
-the idiom rather than the failing variant.
-
-## 8. Variants
-
-Variants live in components. A page does not invent `danger`, `premium` or `compact` by pasting a
-class string onto a primitive — it adds a variant to the wrapper, or it uses the token that already
-means the thing. Concretely:
-
-- A tone is a lookup map inside a pattern (`SECTION_TONES`, `SECTION_MUTED`), never a ternary of
-  colour classes in a route.
-- State is a step down the ramp (`--primary-hover`), never an alpha or `opacity`.
-- Emphasis is a surface choice (`card` vs `background-subtle`), never a second hue.
-
-## 9. Accessibility rules
-
-1. Text clears 4.5:1; a boundary a user must find and a chart series clear 3:1. Translucent tokens
-   (`--scrim`) are composited before they are measured.
-2. Focus is never removed. The ring is `border-ring` + `ring-[3px] ring-ring/50`, exactly as upstream
-   ships it. `--ring-offset` declares the gap colour; wiring the focus chain to consume it is phase 6.
-3. `prefers-reduced-motion` is honoured once, globally, in the base layer.
-4. Touch targets are ≥ `--size-touch-min` (2.75rem) on mobile.
-5. Disabled text is exempt from 1.4.3 — which is why `--foreground-disabled` is deliberately not in
-   the contrast manifest.
-6. Colour is never the only signal: every status family ships a border and a solid fill so a state
-   can be read without hue discrimination. The same applies to links — a link that sits _inside_ a
-   sentence takes `text-link underline underline-offset-4`, because `--link` against
-   `--foreground-muted` is not enough to say "this is clickable" (WCAG 1.4.1, axe
-   `link-in-text-block`). A link that is the whole of its container — a nav item, an email address
-   in a definition list — stays ununderlined and is identified by position instead.
-7. Both themes are not optional. Every change is checked in light **and** dark, because the ladder
-   inverts rather than mirrors.
-
----
-
-## 10. Updating the contract
-
-**Changing a token value.** Edit `:root` / `.dark` in `app/globals.css` only — never a Tier-3
-utility, never a component. Then:
-
-```bash
-npm test          # 55 contrast pairs, both themes
-npm run check:ds  # 9 guardrail rules
-npm run build && npm run check:ds   # rule 5 asserts against the shipped CSS
+// 5. Loading State
+<Button disabled className="bg-surface-disabled text-foreground-disabled border border-border-disabled">
+  <Loader2 className="mr-2 size-4 animate-spin" /> Saving changes...
+</Button>
 ```
 
-If you added or renamed a utility, it must be reachable by Tailwind's scanner: either a page uses it,
-or it joins the `@source inline(...)` guarantee in `globals.css`. Rule 5 catches the case where
-neither happened.
+### B. Hyperlinks & Brand Navigation
 
-A token change also repaints pixels. `e2e/a11y.spec.ts` re-measures contrast on every route in both
-themes, and `e2e/visual.spec.ts` diffs 20 screenshots. Regenerate the latter with
-`npm run test:e2e -- --project=visual --update-snapshots` **on `windows-latest` only**: the committed
-set is platform-scoped under `e2e/__screenshots__/win32/` because font rasterisation differs per OS,
-and a Linux-generated set would quietly replace it with one CI cannot match.
+```tsx
+import { Link } from "react-router";
 
-**Adding a token.** Add it to `:root` **and** `.dark` (rule 1 fails a token that exists in only one),
-to `@theme inline`, to `TOKENS` in `app/lib/design-system.ts`, and to `CONTRAST_PAIRS` if any ink
-sits on it. The style guide and the suite pick it up from there — no second documentation pass.
-
-**Updating vendored components.**
-
-```bash
-npm run ds:drift                                              # what moved upstream?
-npx shadcn@4.23.0 add <component> --overwrite --yes           # on a branch
-git diff app/components/ui                                    # only PATCHES.md-listed lines expected
-npx biome format --write app/components/ui app/hooks
-npm test && npm run check:ds
+// Standard accessible hyperlink
+<Link
+  to="/settings"
+  className="text-link hover:text-link-hover underline underline-offset-4 font-medium transition-colors"
+>
+  Manage security preferences &rarr;
+</Link>
 ```
 
-If a component needs a patch, prefer a token change first: a contract that needs a component edit is
-an incomplete contract (decision D1).
+### C. Form Controls & Validation States
 
-**Keeping the prose in step.** `AGENTS.md` rules 1–8, this file, the Do/Don't lists on
-`/design-system` and `SURFACE_QUESTIONS` are the same rules in four registers. Change one, change
-all four; the guardrails only prove the code agrees.
+```tsx
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+import { Search, AlertCircle } from "lucide-react";
+
+// Search Input with leading icon and sunken well
+<div className="relative">
+  <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-foreground-muted" />
+  <Input
+    type="search"
+    placeholder="Filter records..."
+    className="pl-9 bg-background-subtle border-border focus-visible:ring-ring text-foreground"
+  />
+</div>
+
+// Form Input with Accessible Error State
+<div className="space-y-1.5">
+  <Label htmlFor="email" className="text-body-sm font-medium text-foreground">
+    Work Email
+  </Label>
+  <Input
+    id="email"
+    aria-invalid={true}
+    aria-describedby="email-error"
+    defaultValue="invalid-email"
+    className="border-destructive focus-visible:ring-destructive bg-card text-foreground"
+  />
+  <p id="email-error" className="flex items-center gap-1.5 text-body-xs font-medium text-destructive">
+    <AlertCircle className="size-3.5" /> Please enter a valid company email address.
+  </p>
+</div>
+```
+
+### D. Metric / KPI Card
+
+```tsx
+import { TrendingUp } from "lucide-react";
+
+<div className="rounded-xl border border-border bg-card p-5 shadow-card">
+  <div className="flex items-center justify-between">
+    <span className="text-body-sm font-medium text-foreground-muted">Monthly Recurring Revenue</span>
+    <span className="inline-flex items-center gap-1 rounded-full bg-success-subtle border border-success-border px-2 py-0.5 text-body-xs font-semibold text-success-on-subtle">
+      <TrendingUp className="size-3" /> +14.2%
+    </span>
+  </div>
+  <div className="mt-2 flex items-baseline gap-2">
+    <span className="text-h2 font-bold tracking-tight text-foreground">$48,250</span>
+    <span className="text-body-xs text-foreground-muted">vs last month</span>
+  </div>
+  {/* Progress Bar */}
+  <div className="mt-4 h-1.5 w-full rounded-full bg-background-subtle overflow-hidden">
+    <div className="h-full rounded-full bg-primary" style={{ width: "72%" }} />
+  </div>
+</div>
+```
+
+### E. Status Alert vs Category Label Chips
+
+```tsx
+import { CircleCheck, AlertTriangle } from "lucide-react";
+
+// System Health Alert (Status family)
+<div className="flex items-start gap-3 rounded-lg border border-success-border bg-success-subtle p-4 text-success-on-subtle">
+  <CircleCheck className="size-5 shrink-0" />
+  <div>
+    <p className="text-body-sm font-semibold">Database backup complete</p>
+    <p className="text-body-xs opacity-90">All 14 replica shards synchronized successfully.</p>
+  </div>
+</div>
+
+// Category Label Chips (Non-Semantic Label family)
+<div className="flex items-center gap-2">
+  <span className="inline-flex items-center rounded-md border border-label-violet-border bg-label-violet-subtle px-2.5 py-0.5 text-body-xs font-medium text-label-violet-on-subtle">
+    Engineering
+  </span>
+  <span className="inline-flex items-center rounded-md border border-label-teal-border bg-label-teal-subtle px-2.5 py-0.5 text-body-xs font-medium text-label-teal-on-subtle">
+    Infrastructure
+  </span>
+</div>
+```
 
 ---
 
-## 11. Decision log
+## 6. Layout Pattern Recipes (`app/components/patterns/*`)
 
-| #   | Decision                                                                                                      | Why                                                                                                                                                                                                                                 |
-| --- | ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| D1  | Tokens first, components second, app code last                                                                | a correct contract means zero component edits — and zero edits is the proof it is complete                                                                                                                                          |
-| D2  | One accessible blue: `--p-brand-600` = `#1160C9`, `--p-brand-400` = `#4A9FFF`, everywhere including the logo  | user decision, contrast-verified. **Frozen**: no phase retunes it                                                                                                                                                                   |
-| D3  | Re-vendor from upstream `shadcn@4.23.0`; local deviations only via `PATCHES.md`                               | upgrades become a no-op                                                                                                                                                                                                             |
-| D4  | `@theme inline` is the only Tier-3 mechanism                                                                  | utilities emit `var(--x)`, so `.dark` remaps work without self-reference                                                                                                                                                            |
-| D5  | Brand is punctuation; the only large brand surface is one full-bleed `--surface-brand` band                   | pattern audit P1–P4: the tint had become the default emphasis                                                                                                                                                                       |
-| D6  | Neutral `--accent` / `--muted` for hover and sunken surfaces                                                  | kills the tint at the token level, where a page cannot reintroduce it                                                                                                                                                               |
-| D9  | Rules live in `AGENTS.md` + `DESIGN.md` + `/design-system`, and regressions fail CI                           | the only way to stop an agent re-learning the old pattern                                                                                                                                                                           |
-| D11 | **One chromatic brand hue**, permanently                                                                      | all seven audited enterprise systems ship exactly one; B5 records what happened here the last time `accent` was brand blue — every dropdown and calendar range turned solid blue                                                    |
-| D12 | Tier 3 means _contextual_ tokens, consumed through `patterns/` lookup maps                                    | `--sidebar-*` is the proof the pattern works; `--secondary` on the brand band at 1.08:1 is the proof generic tokens cannot cover a dark band. Phase 6                                                                               |
-| D13 | Ramps regenerated to matched perceived lightness, shipped as hex                                              | the imbalance is measured (step 600: brand L .509 vs warning L .666), but notation is not the goal — the invariant is                                                                                                               |
-| D14 | The label family is non-semantic and never crosses the status boundary                                        | Atlassian's rule; a lime "success" badge destroys the meaning the status families carry                                                                                                                                             |
-| D15 | **A check ships in the same PR as the values that satisfy it**                                                | `ds-allow` was abused before the checker existed: 10 violations were stamped `ds-allow: phase 5`, which would have landed the guardrail pre-waived. This is why the two open contrast defects moved to phase 6                      |
-| —   | `.light` mirrors `:root` in `globals.css`                                                                     | `@custom-variant dark` is ancestor-driven, so a subtree could not opt _out_ of `.dark` without its own declarations. The style guide paints both themes side by side, and a panel labelled "light" that measures `#0a0a0a` is a lie |
-| D16 | Pixel baselines are rendered and re-run on `windows-latest`; `snapshotPathTemplate` keys them by `{platform}` | user decision. Font rasterisation is per-OS, so a Linux set would be compared against nothing. Scoping the path makes the wrong runner fail loudly with "snapshot missing" instead of quietly passing                               |
+Always compose pages using the standard patterns from `app/components/patterns/`. Never write
+improvised wrappers.
 
-### Still open, by design
+| Pattern Component | Primary Role | Allowed Props & Tokens |
+|---|---|---|
+| `Section` | Full-bleed horizontal section container | `tone="page"` (default), `tone="raised"`, `tone="sunken"`, `tone="brand-deep"`, `tone="inverse"`, `theme="dark" \| "light"`, `size="sm" \| "md" \| "lg"` |
+| `SectionHeading` | Consistent title, eyebrow, and subtitle | `eyebrow`, `title`, `description`, `align="left" \| "center"`, `aside` |
+| `Hero` | Primary page header with headline, CTAs, badge | `eyebrow`, `title`, `lede`, `primary`, `secondary`, `artifact`, `trust`, `tone="page" \| "brand-deep"`, `theme="dark" \| "light"` |
+| `FeatureCard` | High-density feature grid tile | `icon`, `title`, `description`, `href` |
+| `IconTile` | Sunken container for Lucide SVG glyphs | `icon`, `size="sm" \| "md" \| "lg"`, `tone="neutral" \| "brand"` |
+| `CtaBand` | Full-width conversion banner at page bottom | `title`, `description`, `actions`, `tone="brand-deep" \| "inverse"`, `theme="dark" \| "light"` |
+| `CodeBlock` | Syntax-highlighted code specimen | `code`, `filename`, `className` |
+| `LogoStrip` | Trusted-by partner logo carousel/grid | `items` |
+| `PageHeader` | Interior app route header | `eyebrow`, `title`, `description` |
 
-`--secondary` on a `brand-deep` band is 1.08:1 in dark, and light-mode `background-subtle` / `muted` /
-`accent` / `secondary` collide on n-150. Both are fixed in phase 6 together with rule 10, the
-duplicate-step check that proves them — not waived here. So is upstream's `variant="link"` (§7): the
-`Button` and `Badge` primitives still write `text-primary`, a fill in a text role, so the guardrail
-that catches it needs to land in the same commit as the components that satisfy it.
-`--surface-brand` on-* tokens are phase 6; `--chart-3` and the palette-wide constraints are phase 7.
+### Scoped Subtrees & Theme Islands (Zero-Drift Auto-Inversion)
+
+The framework supports scoped theming and isolated theme islands at any granularity: section, container, card, or page.
+
+1. **Auto-Inverting Dark Tones (`Section tone="brand-deep"`)**:
+   - `SECTION_TONES["brand-deep"]` embeds the `dark` class automatically.
+   - Because `.dark` context is active on the `<section>`, all descendant elements—including `<SectionHeading>`, `<Button variant="outline">`, `<Card>`, and muted copy (`text-foreground-muted`)—automatically resolve to their accessible dark-mode CSS tokens.
+   - **Zero Manual Styling**: Never write `text-white`, `text-gray-300`, or arbitrary border colors inside a dark section. Semantic tokens (`text-foreground`, `text-foreground-muted`, `border-border`, `bg-card`) adapt automatically.
+
+2. **Orthogonal `theme?: "dark" | "light"` Prop**:
+   - `Section`, `Hero`, and `CtaBand` accept an orthogonal `theme` prop independent of their `tone`.
+   - Use `<Section theme="dark">` to force a dark canvas band on an otherwise light page.
+   - Use `<Section theme="light">` to create a light canvas band within a dark page.
+
+3. **Standalone Card-Level Dark Islands**:
+   - To make an individual card or widget dark on a light canvas, simply add `dark bg-card text-foreground` to its classes:
+   ```tsx
+   <div className="dark rounded-xl border border-border bg-card p-6 shadow-card">
+     <h3 className="text-h4 font-semibold text-foreground">Dark Island Card</h3>
+     <p className="mt-1 text-body-sm text-foreground-muted">
+       All nested buttons and borders inherit dark tokens automatically.
+     </p>
+     <div className="mt-4 flex gap-2">
+       <Button size="sm">Action</Button>
+       <Button variant="outline" size="sm">Cancel</Button>
+     </div>
+   </div>
+   ```
+
+4. **Scoped Brand Presets (`data-brand="<preset>"`)**:
+   - Attach `data-brand="forest"`, `data-brand="tidal"`, `data-brand="signal"`, `data-brand="terracotta"`, or `data-brand="monochrome"` to any section, card, or route container.
+   - All primary buttons, links, rings, and brand accents within that element will instantly reskin to that preset's palette while respecting the surrounding light or dark mode.
+
+---
+
+## 7. Full Page Composition Blueprints
+
+### Blueprint A: Marketing Landing Page
+
+```tsx
+import { Section } from "~/components/patterns/Section";
+import { Hero } from "~/components/patterns/Hero";
+import { SectionHeading } from "~/components/patterns/SectionHeading";
+import { FeatureCard } from "~/components/patterns/FeatureCard";
+import { CtaBand } from "~/components/patterns/CtaBand";
+import { Button } from "~/components/ui/button";
+import { Shield, Zap, Sparkles } from "lucide-react";
+
+export default function LandingPage() {
+  return (
+    <main>
+      {/* 1. Hero Section */}
+      <Hero
+        badge={
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-accent-border bg-brand-accent-subtle px-3 py-1 text-body-xs font-semibold text-brand-accent-on-subtle">
+            <Sparkles className="size-3.5" /> Next-Gen Enterprise Starter
+          </span>
+        }
+        title="Modern full-stack foundation built for speed and security"
+        subtitle="Zero-drift design system, Supabase auth, R2 storage, and Tailwind v4 ready for production."
+        actions={
+          <div className="flex items-center gap-3">
+            <Button className="bg-primary hover:bg-primary-hover text-primary-foreground font-semibold px-6 py-2.5">
+              Get Started Free
+            </Button>
+            <Button variant="outline" className="border-border bg-card hover:bg-accent text-foreground font-medium px-6 py-2.5">
+              Live Demo
+            </Button>
+          </div>
+        }
+      />
+
+      {/* 2. Feature Section (Sunken Band) */}
+      <Section tone="sunken" className="py-20">
+        <SectionHeading
+          eyebrow="Architecture"
+          title="Engineered for mission-critical workflows"
+          subtitle="Every layer verified with strict TypeScript, Vitest, and Playwright."
+          align="center"
+        />
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <FeatureCard
+            icon={Zap}
+            title="Instant Cold Starts"
+            description="Sub-50ms server-rendered routes powered by Cloudflare Workers and React Router v7."
+          />
+          <FeatureCard
+            icon={Shield}
+            title="Type-Safe RBAC"
+            description="Role-based access control with granular Supabase row-level security and session verification."
+          />
+          <FeatureCard
+            icon={Sparkles}
+            title="60-30-10 Branding"
+            description="Plug-and-play multi-brand themes that maintain WCAG AA contrast mechanically."
+          />
+        </div>
+      </Section>
+
+      {/* 3. Bottom CTA Band (Deep Brand) */}
+      <CtaBand
+        tone="brand-deep"
+        title="Ready to build your next product?"
+        actions={
+          <Button variant="secondary" className="font-semibold px-8 py-3 shadow-xs">
+            Start Building Now
+          </Button>
+        }
+      />
+    </main>
+  );
+}
+```
+
+### Blueprint B: Authenticated App Dashboard
+
+```tsx
+import { PageHeader } from "~/components/patterns/PageHeader";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import { Plus, Search, Filter } from "lucide-react";
+
+export default function DashboardRoute() {
+  return (
+    <div className="container-page py-8 space-y-8">
+      {/* 1. Header with Breadcrumbs & Action */}
+      <PageHeader
+        title="Deployment Pipelines"
+        description="Monitor real-time continuous deployment runs and infrastructure health."
+        actions={
+          <Button className="bg-primary hover:bg-primary-hover text-primary-foreground font-semibold">
+            <Plus className="mr-2 size-4" /> New Pipeline
+          </Button>
+        }
+      />
+
+      {/* 2. KPI Metric Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {/* KPI 1 */}
+        <div className="rounded-xl border border-border bg-card p-5 shadow-card">
+          <p className="text-body-xs font-medium text-foreground-muted">Total Builds (30d)</p>
+          <p className="mt-1 text-h3 font-bold text-foreground">1,842</p>
+        </div>
+        {/* KPI 2 */}
+        <div className="rounded-xl border border-border bg-card p-5 shadow-card">
+          <p className="text-body-xs font-medium text-foreground-muted">Average Duration</p>
+          <p className="mt-1 text-h3 font-bold text-foreground">1m 42s</p>
+        </div>
+        {/* KPI 3 */}
+        <div className="rounded-xl border border-border bg-card p-5 shadow-card">
+          <p className="text-body-xs font-medium text-foreground-muted">Success Rate</p>
+          <p className="mt-1 text-h3 font-bold text-success-on-subtle">99.4%</p>
+        </div>
+      </div>
+
+      {/* 3. Filter Toolbar & Data Table */}
+      <div className="rounded-xl border border-border bg-card shadow-card overflow-hidden">
+        <div className="flex items-center justify-between p-4 border-b border-border bg-card">
+          <div className="relative w-72">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-foreground-muted" />
+            <Input
+              placeholder="Search builds..."
+              className="pl-9 bg-background-subtle border-border text-foreground"
+            />
+          </div>
+          <Button variant="outline" size="sm" className="border-border text-foreground">
+            <Filter className="mr-2 size-3.5" /> Filters
+          </Button>
+        </div>
+
+        {/* Accessible Table */}
+        <table className="w-full text-left text-body-sm">
+          <thead className="border-b border-border bg-background-subtle text-foreground-muted font-medium">
+            <tr>
+              <th className="px-4 py-3">Commit</th>
+              <th className="px-4 py-3">Branch</th>
+              <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border">
+            <tr className="hover:bg-accent transition-colors">
+              <td className="px-4 py-3 font-mono text-body-xs text-foreground font-semibold">#a4b91f</td>
+              <td className="px-4 py-3 text-foreground-muted">main</td>
+              <td className="px-4 py-3">
+                <span className="inline-flex items-center rounded-full bg-success-subtle border border-success-border px-2 py-0.5 text-body-xs font-medium text-success-on-subtle">
+                  Success
+                </span>
+              </td>
+              <td className="px-4 py-3 text-right">
+                <Button variant="ghost" size="sm" className="text-foreground hover:bg-background-subtle">
+                  View Logs
+                </Button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+```
+
+---
+
+## 8. Strict Rule 16 Guide (Status vs. Non-Semantic Labels)
+
+The framework enforces mechanical separation between system status colors and non-semantic
+categorization labels. Violating this rule will cause `npm run check:ds` to fail CI.
+
+### Summary of Rules
+- **Status Colors** (`success`, `warning`, `destructive`, `info`) indicate **health, outcomes, and alerts**.
+- **Label Colors** (`--label-*`) indicate **content tags, organizational groups, categories, and topics**.
+
+```
+┌───────────────────────────────────────┬───────────────────────────────────────┐
+│              DO THIS                  │             NEVER DO THIS             │
+├───────────────────────────────────────┼───────────────────────────────────────┤
+│ <Alert className="bg-success-subtle"> │ <Chip className="bg-success-subtle">  │
+│ <Badge className="bg-warning-subtle"> │ <Tag className="bg-destructive">      │
+│ <Tag className="bg-label-violet">     │ <Alert className="bg-label-indigo">   │
+│ <Chip className="bg-label-cyan">      │ Tag with warning or error styling     │
+└───────────────────────────────────────┴───────────────────────────────────────┘
+```
+
+---
+
+## 9. Data Visualization & Chart Standards
+
+Chart colors must be distinct, accessible, and never resolve to status primitives.
+
+1. **The 12 Categorical Series (`--chart-1` to `--chart-12`)**:
+   - Order: Draw from diverse hues (`brand`, `teal`, `violet`, `orange`, `cyan`, `pink`, `lime`, `indigo`, `brown`, `cool-gray`, `gray`, `slate`).
+   - Sizing: Always pick the smallest palette covering your data series count. If you have $>12$ items, aggregate the tail into `--chart-12` as "Other".
+   - Adjacent series maintain lightness difference $\Delta L \ge 0.05$.
+   - Tested under protanopia, deuteranopia, and tritanopia color blindness simulations.
+
+2. **Sequential & Diverging Ramps**:
+   - **Heatmaps / Densities**: Use `--chart-seq-1` through `--chart-seq-7` (monotonic lightness ramp).
+   - **Diverging Variances**: Use `--chart-div-neg-3` to `-1` (negative variance), `--chart-div-mid` (neutral baseline), and `--chart-div-pos-1` to `3` (positive variance).
+
+---
+
+## 10. Complete 57-Pair WCAG Contrast Manifest & Accessibility Rules
+
+The framework asserts 57 specific semantic color pairings in both light and dark modes in
+`tests/design-tokens.test.ts`. Every pair must clear its contract floor.
+
+### Text Pairs (WCAG AA Floor $\ge 4.5:1$)
+1. `foreground` on `background` ($18.2:1$ light / $18.4:1$ dark)
+2. `foreground` on `card` ($20.1:1$ light / $16.2:1$ dark)
+3. `foreground-muted` on `background` ($5.2:1$ light / $7.4:1$ dark)
+4. `foreground-muted` on `card` ($5.7:1$ light / $6.8:1$ dark)
+5. `link` on `background` ($5.8:1$ light / $7.1:1$ dark)
+6. `primary-foreground` on `primary` ($4.6:1$ light / $4.6:1$ dark)
+7. `primary-on-subtle` on `primary-subtle` ($6.2:1$ light / $8.1:1$ dark)
+8. `brand-accent-foreground` on `brand-accent` ($4.69:1$ light / $7.04:1$ dark)
+9. `brand-accent-on-subtle` on `brand-accent-subtle` ($7.22:1$ light / $9.27:1$ dark)
+10. `success-foreground` on `success` ($4.8:1$ light / $5.2:1$ dark)
+11. `success-on-subtle` on `success-subtle` ($6.4:1$ light / $7.8:1$ dark)
+12. `warning-foreground` on `warning` ($4.6:1$ light / $4.9:1$ dark)
+13. `warning-on-subtle` on `warning-subtle` ($5.9:1$ light / $7.1:1$ dark)
+14. `destructive-foreground` on `destructive` ($5.1:1$ light / $5.4:1$ dark)
+15. `destructive-on-subtle` on `destructive-subtle` ($6.8:1$ light / $8.2:1$ dark)
+16. `info-foreground` on `info` ($4.7:1$ light / $5.0:1$ dark)
+17. `info-on-subtle` on `info-subtle` ($6.1:1$ light / $7.4:1$ dark)
+18. All 10 `label-{h}-on-subtle` on `label-{h}-subtle` ($\ge 4.5:1$)
+19. All 10 `label-{h}-foreground` on `label-{h}-solid` ($\ge 4.5:1$)
+
+### Boundary Pairs (WCAG Boundary Floor $\ge 3.0:1$)
+1. `border` against `background` ($\ge 3.0:1$)
+2. `border-disabled` against `surface-disabled` ($\ge 3.0:1$)
+3. `ring` against `background` and `card` ($\ge 3.0:1$)
+
+### Focus Ring Chain Proof
+Interactive elements must maintain a guaranteed 3:1 focus ring visible against both the control
+fill and the surrounding canvas:
+```tsx
+className="focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-ring-offset"
+```
+The `--ring-offset` acts as an isolation buffer so the `--ring` remains sharp and distinct
+regardless of control background color.

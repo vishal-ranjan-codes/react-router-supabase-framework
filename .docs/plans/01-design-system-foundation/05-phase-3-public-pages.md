@@ -38,7 +38,7 @@ Defaults that encode the language:
   box.
 - `IconTile tone="muted"` → `bg-background-subtle text-foreground`; `tone="brand"` →
   `bg-primary text-primary-foreground`, **at most one per page**.
-- `FeatureCard` hover = `hover:border-primary/40 hover:shadow-card` — border + shadow, never a fill.
+- `FeatureCard` static default card surface (`bg-card border-border shadow-sm`), never a fill.
 
 Rules: recipes compose `ui/` primitives + tokens only (no hex, no alpha surfaces, no `style={{}}`);
 every recipe takes `className` merged with `cn()`; a recipe must appear on ≥2 pages; recipes are

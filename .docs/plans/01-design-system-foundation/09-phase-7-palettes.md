@@ -78,6 +78,9 @@ notation. Keeping hex also means `@theme inline`, `color-mix` and the pair-manif
 
 Mechanics: `scripts/generate-ramps.mjs`, run by hand, output committed — no new runtime dependency,
 no build-time color math. The step list and the `--p-<ramp>-<step>` grammar do not change.
+Gamut mapping algorithm: when transforming `oklch(L, C, H)` into sRGB, use binary-search chroma reduction
+(CSS Color 4 standard method) to reduce `C` until `[r, g, b]` are strictly in `[0, 255]`. This prevents
+channel clipping or NaN color values while strictly preserving target perceived lightness `L` and hue angle `H`.
 
 New test `tests/ramp-uniformity.test.ts`, three assertions:
 
@@ -155,6 +158,8 @@ check fails any element-class pair that mixes the families, and `--label-*` is e
 This is 40 new semantic tokens, which is the single largest addition in the plan. It earns its place
 only because every one is reachable from `/design-system` and printed in `DESIGN.md`; the docs-honesty
 review (`02` §9, `11` risk "token set grows past what anyone uses") is the gate, not the build.
+To guarantee compilation and verification, render all 10 hues × 4 roles in a dedicated `<LabelShowcase />`
+chip grid on `/design-system` (`#labels`), documenting subtle, on-subtle, border, and solid tokens.
 
 ## 4. Rebaseline
 
@@ -188,17 +193,17 @@ promoted by "the enterprise systems have it."
 
 ## Acceptance
 
-- [ ] `tests/ramp-uniformity.test.ts` green on all three assertions: six ramps within 0.02 L of the
+- [x] `tests/ramp-uniformity.test.ts` green on all three assertions: six ramps within 0.02 L of the
       brand-anchored target at every step; neutral adjacent ΔL ≥ 0.03; `--p-brand-600` byte-identical
       to `#1160c9`.
-- [ ] D2 intact in the visible product too — `/design-system`'s brand ramp panel still shows
+- [x] D2 intact in the visible product too — `/design-system`'s brand ramp panel still shows
       `#1160c9` as the solid.
-- [ ] 12 chart series, each ≥ 3:1 on card and page in both themes; first five visually unchanged;
+- [x] 12 chart series, each ≥ 3:1 on card and page in both themes; first five visually unchanged;
       colorblind simulation screenshots attached.
-- [ ] `--p-chart-4-light` / `-dark` deleted; no hex exists outside a documented ramp.
-- [ ] Sequential + diverging sets defined in `02` §4.8 and rendered on `/design-system`.
-- [ ] 10 label hues × 4 roles, all four manifest pairs passing per hue, and rules 15–16 green —
+- [x] `--p-chart-4-light` / `-dark` deleted; no hex exists outside a documented ramp.
+- [x] Sequential + diverging sets defined in `02` §4.8 and rendered on `/design-system`.
+- [x] 10 label hues × 4 roles, all four manifest pairs passing per hue, and rules 15–16 green —
       including a deliberate failing fixture proving they actually catch a mix.
-- [ ] `DESIGN.md` documents "pick the smallest palette that covers your series" and the
+- [x] `DESIGN.md` documents "pick the smallest palette that covers your series" and the
       label-vs-status boundary; `AGENTS.md` unchanged (no new surface rules needed).
-- [ ] Full rebaseline reviewed in three passes (ramps, series, labels), each explained.
+- [x] Full rebaseline reviewed in three passes (ramps, series, labels), each explained.

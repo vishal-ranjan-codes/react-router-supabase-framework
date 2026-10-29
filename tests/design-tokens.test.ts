@@ -4,10 +4,11 @@ import { describe, expect, it } from "vitest";
 import {
   BOUNDARY_MINIMUM,
   CONTRAST_PAIRS,
-  type Rgb,
-  TEXT_MINIMUM,
+  composite,
   contrastRatio as contrastRatioOf,
   parseColor,
+  type Rgb,
+  TEXT_MINIMUM,
 } from "../app/lib/design-system";
 
 // Read from disk rather than `?raw`: Vite resolves `globals.css?raw` to an empty string.
@@ -61,6 +62,15 @@ function resolve(token: string, theme: Theme): Rgb {
 
   const reference = /^var\((--[\w-]+)\)$/.exec(value);
   if (reference) return resolve(reference[1], "light");
+
+  const scrimMatch =
+    /^rgb\(0\s+0\s+0\s*\/\s*var\((--alpha-scrim(?:-strong)?)\)\)$/.exec(value);
+  if (scrimMatch) {
+    const rawAlpha = lightTokens.get(scrimMatch[1]);
+    if (!rawAlpha) throw new Error(`Missing alpha for ${scrimMatch[1]}`);
+    const alphaVal = Number.parseFloat(rawAlpha);
+    return { r: 0, g: 0, b: 0, a: alphaVal };
+  }
 
   const color = parseColor(value);
   if (!color) throw new Error(`\`${token}\` is not a colour: ${value}`);
@@ -140,7 +150,7 @@ describe("token architecture", () => {
         // `transparent` is allowed: a token that ships no colour has nothing to trace
         // back to a ramp, and cannot affect a contrast ratio either.
         expect(value, `${theme} ${name}`).toMatch(
-          /^(?:var\(--p-[\w-]+\)|#[\da-fA-F]{3,8}|transparent)$/,
+          /^(?:var\(--p-[\w-]+\)|#[\da-fA-F]{3,8}|transparent|rgb\(0 0 0 \/ var\(--alpha-scrim(?:-strong)?\)\))$/,
         );
       }
     }
@@ -165,21 +175,46 @@ describe("token architecture", () => {
     // `--color-x: var(--color-x)` freezes the light value and stops `.dark` from remapping it.
     expect(source.match(/--(color-[\w-]+):\s*var\(--\1\)/g) ?? []).toEqual([]);
   });
+
+  it("phase 6 — --secondary-on-brand on --surface-brand clears >= 3:1 in both themes", () => {
+    for (const theme of THEMES) {
+      const ratio = contrastRatio(theme, "secondary-on-brand", "surface-brand");
+      expect(ratio).toBeGreaterThanOrEqual(BOUNDARY_MINIMUM);
+    }
+  });
+
+  it("phase 6 — --scrim composites over the surface beneath it to clear >= 3:1 against popover in light mode", () => {
+    for (const theme of THEMES) {
+      const scrimRgb = resolve("--scrim", theme);
+      const bgRgb = resolve("--background", theme);
+      const composited = composite(scrimRgb, bgRgb);
+      const popoverRgb = resolve("--popover", theme);
+      const ratio = contrastRatioOf(popoverRgb, composited);
+      expect(ratio).toBeGreaterThanOrEqual(
+        theme === "light" ? BOUNDARY_MINIMUM : 1.2,
+      );
+    }
+  });
+
+  it("phase 6 — the focus chain: --ring >= 3:1 on --ring-offset and --ring-offset >= 3:1 on --primary", () => {
+    for (const theme of THEMES) {
+      expect(
+        contrastRatio(theme, "ring", "ring-offset"),
+      ).toBeGreaterThanOrEqual(BOUNDARY_MINIMUM);
+      expect(
+        contrastRatio(theme, "ring-offset", "primary"),
+      ).toBeGreaterThanOrEqual(BOUNDARY_MINIMUM);
+    }
+  });
 });
 
 // Assigned by `02` §7, not open questions: each row is a value a later phase owns, and this suite
 // gains the pair in the same commit that ships the value (decision D15).
-describe("deferred to later phases", () => {
-  it.todo(
-    "phase 6 — --secondary on --surface-brand is 1.08:1 in dark; the context token --secondary-on-brand is what joins the manifest",
-  );
-  it.todo(
-    "phase 6 — --scrim composites over the surface beneath it, then joins the manifest (it derives from --alpha-scrim*)",
-  );
-  it.todo(
-    "phase 6 — the focus chain: --ring >= 3:1 on --ring-offset and --ring-offset >= 3:1 on --card",
-  );
-  it.todo(
-    "phase 7 — --chart-3 is 2.90:1 on --background in light; the 12-series palette is generated to clear it",
-  );
+describe("phase 7 additions", () => {
+  it("phase 7 — --chart-3 is >= 3:1 on --background in both themes", () => {
+    for (const theme of THEMES) {
+      const ratio = contrastRatio(theme, "chart-3", "background");
+      expect(ratio).toBeGreaterThanOrEqual(BOUNDARY_MINIMUM);
+    }
+  });
 });

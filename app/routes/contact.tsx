@@ -1,5 +1,5 @@
 import { CheckCircle2 } from "lucide-react";
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { type ChangeEvent, type FormEvent, useState } from "react";
 import { Link } from "react-router";
 import { PageHeader } from "~/components/patterns/PageHeader";
 import { Section } from "~/components/patterns/Section";

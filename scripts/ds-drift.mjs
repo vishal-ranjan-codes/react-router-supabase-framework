@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Upstream drift report for the vendored components (phase 5, `.docs/plan/07` §4).
+ * Upstream drift report for the vendored components (phase 5, `.docs/plans/01-design-system-foundation/07` §4).
  *
  * Fetches the registry item `shadcn@4.23.0` installed — `r/styles/new-york-v4/<name>.json` —
  * runs it through this repo's own Biome formatter, and compares it to the vendored file.

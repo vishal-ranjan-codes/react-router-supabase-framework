@@ -11,11 +11,14 @@ import {
 import Footer from "~/components/layout/Footer";
 import Header from "~/components/layout/Header";
 import { Toaster } from "~/components/ui/sonner";
+import { ThemeDock } from "~/components/dev/ThemeDock";
+import { siteThemeConfig } from "~/config/theme";
 import { authClaimsContext } from "~/lib/supabase/context";
 import { initTheme } from "~/lib/theme";
 import { supabaseMiddleware } from "~/middleware/supabase";
 import type { Route } from "./+types/root";
 import stylesheet from "./globals.css?url";
+import presetsStylesheet from "./theme-presets.css?url";
 
 export const links: Route.LinksFunction = () => [
   {
@@ -26,6 +29,7 @@ export const links: Route.LinksFunction = () => [
     crossOrigin: "anonymous",
   },
   { rel: "stylesheet", href: stylesheet },
+  { rel: "stylesheet", href: presetsStylesheet },
 ];
 
 // Every render route gets a Supabase client and verified claims, so public pages can show real
@@ -48,12 +52,21 @@ const themeBootstrap = `
     var dark = stored === "dark" ||
       (stored === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
     document.documentElement.classList.toggle("dark", dark);
+    var storedBrand = localStorage.getItem("dev-brand");
+    if (storedBrand) document.documentElement.setAttribute("data-brand", storedBrand);
+    var storedAccent = localStorage.getItem("dev-accent");
+    if (storedAccent) document.documentElement.setAttribute("data-accent", storedAccent);
   } catch {}
 `;
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      data-brand={siteThemeConfig.preset}
+      data-accent={siteThemeConfig.enableAccent ? "true" : "false"}
+      suppressHydrationWarning
+    >
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -94,6 +107,7 @@ export default function App() {
       </main>
       {!isAuthPage && <Footer />}
       <Toaster />
+      {import.meta.env.DEV && <ThemeDock />}
     </>
   );
 }

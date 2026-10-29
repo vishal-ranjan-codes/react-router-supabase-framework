@@ -51,6 +51,10 @@ jobs:
       - name: Format check
         run: ${{ matrix.script }} format:check
 
+      # Ensure local environment bindings exist for worker type generation.
+      - name: Setup local secrets
+        run: cp .dev.vars.example .dev.vars
+
       # Generates worker-configuration.d.ts + route types, then type-checks every project.
       - name: Typecheck
         run: ${{ matrix.script }} typecheck

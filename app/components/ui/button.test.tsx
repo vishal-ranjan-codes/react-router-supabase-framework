@@ -14,6 +14,17 @@ describe("Button", () => {
     expect(button).toHaveClass("bg-destructive");
   });
 
+  it("applies on-dark variant classes", () => {
+    const { rerender } = render(<Button variant="white">White Primary</Button>);
+    expect(screen.getByText("White Primary")).toHaveClass("bg-white", "text-neutral-950");
+
+    rerender(<Button variant="white-secondary">White Secondary</Button>);
+    expect(screen.getByText("White Secondary")).toHaveClass("bg-white/10", "text-white");
+
+    rerender(<Button variant="white-outline">White Outline</Button>);
+    expect(screen.getByText("White Outline")).toHaveClass("border-white/25", "text-white");
+  });
+
   it("handles click events", () => {
     const handleClick = vi.fn();
     render(<Button onClick={handleClick}>Click</Button>);

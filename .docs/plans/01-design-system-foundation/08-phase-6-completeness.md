@@ -79,6 +79,28 @@ at 80% over brand-800 is 7.38:1; b-200 is 7.01:1 — visually identical, and it 
 `CtaBand`/`Section`/`Hero` consume the new tokens through `SECTION_TONES`/`SECTION_MUTED` maps only;
 routes never name them.
 
+### Component-tier delivery mechanism via variable remapping
+Rather than requiring bespoke wrapper components or passing custom class strings to every nested
+control, `SECTION_TONES["brand-deep"]` in `app/components/patterns/Section.tsx` scopes the local
+CSS variables directly:
+```ts
+SECTION_TONES["brand-deep"] =
+  "bg-surface-brand text-primary-deep-foreground " +
+  "[--secondary:var(--secondary-on-brand)] " +
+  "[--secondary-hover:var(--secondary-on-brand-hover)] " +
+  "[--secondary-foreground:var(--secondary-on-brand-foreground)] " +
+  "[--border:var(--border-on-brand)]";
+```
+This guarantees that any standard `<Button variant="secondary">` or `<Button variant="outline">`
+dropped inside a `brand-deep` band (e.g. `home.tsx`'s `CtaBand`) automatically inherits the accessible
+on-brand contextual tokens without altering route JSX or vendored components.
+
+### Layout opacity removals
+- `Hero.tsx`: replace `border-primary-deep-foreground/40` with `border-border-on-brand`, and
+  `text-primary-deep-foreground/80` with `SECTION_MUTED["brand-deep"]` (`text-foreground-on-brand-muted`).
+- `Footer.tsx`: replace `text-foreground-inverse/80` with `text-foreground-on-inverse-muted`, and
+  replace `border-foreground-inverse/20` with `border-border-subtle`.
+
 ## 3. State cross-product
 
 Enterprise systems give every fill × hover/active/selected/disabled. We stop at hover, and there is
@@ -141,13 +163,18 @@ brand as the focus color everywhere else.
 
 Appended to `scripts/check-design-system.mjs` as rules 10–13:
 
-10. **Duplicate step** — no two Tier-2 tokens that are not deliberately aliased may resolve to the
+10. **Duplicate step** — no two Tier-2 tokens in the surface and fill domain (`group: "surface"` plus
+    `--accent`, `--secondary`, `--muted`) that are not deliberately aliased may resolve to the
     same primitive step in the same theme. Allowlist, each with a reason string:
     `muted↔background-subtle` (contract §4.3) and `primary-deep↔surface-brand` (contract §4.3 alias).
-    This is the check that makes defect 1 impossible to reintroduce.
-11. **No unreferenced Tier-2 token** — every semantic token must be consumed by `@theme inline`, by
-    another Tier-2 token, or by app/pattern code. Prints the dead list. (Today it would report
-    `--ring-offset`, `--alpha-hover`, `--alpha-pressed` — all resolved above.)
+    Scoping to surfaces/fills avoids false positives on legitimate shared text steps (e.g. pure white
+    `--primary-foreground` and `--foreground-on-brand` both resolving to `--p-neutral-0`), while making
+    defect 1 impossible to reintroduce.
+11. **No unreferenced Tier-2 token** — every semantic token must be consumed by app/pattern code, by
+    `@layer base`, by another Tier-2 token, or explicitly guaranteed in the `@source inline("…")` manifest.
+    (Simply being declared in `@theme inline` as `--color-<name>` is not considered consumed if the resulting
+    utility is never referenced anywhere). Prints the dead list. (Today it would report `--ring-offset`,
+    `--alpha-hover`, `--alpha-pressed` — all resolved above.)
 12. **`color-scheme` present** in both `:root` and `.dark`.
 13. **Focus chain** — assert `ring↔ring-offset` and `ring-offset↔card` ≥ 3:1 in the pair manifest.
 

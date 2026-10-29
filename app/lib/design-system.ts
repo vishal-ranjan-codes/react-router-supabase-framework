@@ -12,19 +12,23 @@ export type TokenGroup =
   | "surface"
   | "content"
   | "brand"
+  | "brand-accent"
   | "status"
   | "line"
   | "data"
-  | "sidebar";
+  | "sidebar"
+  | "label";
 
 export const TOKEN_GROUP_LABELS: Record<TokenGroup, string> = {
   surface: "Surfaces",
   content: "Content (text and icons)",
   brand: "Brand and interaction",
+  "brand-accent": "Brand accent (60-30-10)",
   status: "Status families",
   line: "Lines, focus and selection",
   data: "Data and loading",
   sidebar: "Sidebar",
+  label: "Non-semantic labels",
 };
 
 export type TokenDoc = {
@@ -48,6 +52,187 @@ export type ContrastPair = {
   minimum: number;
   kind: ContrastKind;
 };
+
+export const LABEL_HUES = [
+  "violet",
+  "indigo",
+  "teal",
+  "cyan",
+  "pink",
+  "lime",
+  "orange",
+  "brown",
+  "cool-gray",
+  "gray",
+] as const;
+
+export type LabelHue = (typeof LABEL_HUES)[number];
+
+function labelFamilies(hues: readonly string[]): TokenDoc[] {
+  return hues.flatMap((hue) => [
+    {
+      token: `label-${hue}-subtle`,
+      group: "label" as TokenGroup,
+      utility: `bg-label-${hue}-subtle`,
+      use: `Tinted background for ${hue} tag or chip`,
+      never: "a status indicator (decision D14)",
+    },
+    {
+      token: `label-${hue}-on-subtle`,
+      group: "label" as TokenGroup,
+      utility: `text-label-${hue}-on-subtle`,
+      use: `Text and icon on --label-${hue}-subtle`,
+      never: "a status indicator (decision D14)",
+    },
+    {
+      token: `label-${hue}-border`,
+      group: "label" as TokenGroup,
+      utility: `border-label-${hue}-border`,
+      use: `Boundary for ${hue} tag or chip`,
+      never: "a status indicator (decision D14)",
+    },
+    {
+      token: `label-${hue}-solid`,
+      group: "label" as TokenGroup,
+      utility: `bg-label-${hue}-solid`,
+      use: `Solid ${hue} fill for high-emphasis tag or chip`,
+      never: "a status indicator (decision D14)",
+    },
+    {
+      token: `label-${hue}-foreground`,
+      group: "label" as TokenGroup,
+      utility: `text-label-${hue}-foreground`,
+      use: `Text on solid --label-${hue}-solid`,
+      never: "a status indicator (decision D14)",
+    },
+  ]);
+}
+
+function sequentialChartSeries(): TokenDoc[] {
+  return Array.from({ length: 7 }, (_, i) => ({
+    token: `chart-seq-${i + 1}`,
+    group: "data" as TokenGroup,
+    utility: `bg-chart-seq-${i + 1}`,
+    use: `Sequential data ramp step ${i + 1} of 7 (low to high density)`,
+    never: "categorical series",
+  }));
+}
+
+function divergingChartSeries(): TokenDoc[] {
+  return [
+    {
+      token: "chart-div-neg-3",
+      group: "data" as TokenGroup,
+      utility: "bg-chart-div-neg-3",
+      use: "Diverging ramp negative 3 (strongest negative)",
+    },
+    {
+      token: "chart-div-neg-2",
+      group: "data" as TokenGroup,
+      utility: "bg-chart-div-neg-2",
+      use: "Diverging ramp negative 2 (medium negative)",
+    },
+    {
+      token: "chart-div-neg-1",
+      group: "data" as TokenGroup,
+      utility: "bg-chart-div-neg-1",
+      use: "Diverging ramp negative 1 (light negative)",
+    },
+    {
+      token: "chart-div-mid",
+      group: "data" as TokenGroup,
+      utility: "bg-chart-div-mid",
+      use: "Diverging ramp neutral midpoint",
+    },
+    {
+      token: "chart-div-pos-1",
+      group: "data" as TokenGroup,
+      utility: "bg-chart-div-pos-1",
+      use: "Diverging ramp positive 1 (light positive)",
+    },
+    {
+      token: "chart-div-pos-2",
+      group: "data" as TokenGroup,
+      utility: "bg-chart-div-pos-2",
+      use: "Diverging ramp positive 2 (medium positive)",
+    },
+    {
+      token: "chart-div-pos-3",
+      group: "data" as TokenGroup,
+      utility: "bg-chart-div-pos-3",
+      use: "Diverging ramp positive 3 (strongest positive)",
+    },
+  ];
+}
+
+/** 12 series (contract §4.8). */
+function chartSeries(hues: string[]): TokenDoc[] {
+  return hues.map((hue, index) => ({
+    token: `chart-${index + 1}`,
+    group: "data" as TokenGroup,
+    utility: `bg-chart-${index + 1}`,
+    use: `Data series ${index + 1} (${hue})`,
+    never: "a status meaning — series are identity, decision D14",
+  }));
+}
+
+/**
+ * The five roles every status family ships (`02` §2), so a new family cannot
+ * quietly arrive with three. `destructive` is the one family with a sixth role,
+ * because upstream's button and alert-dialog reference a hover fill for it.
+ */
+function statusFamily(
+  name: string,
+  use: string,
+  hoverRole?: string,
+): TokenDoc[] {
+  return [
+    {
+      token: name,
+      group: "status",
+      utility: `bg-${name}`,
+      use: `${use} — solid fill`,
+      never: "a tinted surface; the subtle role is that",
+    },
+    {
+      token: `${name}-foreground`,
+      group: "status",
+      utility: `text-${name}-foreground`,
+      use: `Text on solid --${name}`,
+    },
+    ...(hoverRole
+      ? [
+          {
+            token: hoverRole,
+            group: "status" as TokenGroup,
+            utility: `hover:bg-${hoverRole}`,
+            use: `Hover of a --${name} fill`,
+          },
+        ]
+      : []),
+    {
+      token: `${name}-subtle`,
+      group: "status",
+      utility: `bg-${name}-subtle`,
+      use: `Tinted ${name} surface (alert, badge)`,
+      never:
+        "a brand or page surface, and never a status meaning made from a label hue",
+    },
+    {
+      token: `${name}-on-subtle`,
+      group: "status",
+      utility: `text-${name}-on-subtle`,
+      use: `Text and icon on --${name}-subtle`,
+    },
+    {
+      token: `${name}-border`,
+      group: "status",
+      utility: `border-${name}-border`,
+      use: `Outline of a --${name}-subtle panel`,
+      never: "a boundary that must be found; the tinted pairs are decorative",
+    },
+  ];
+}
 
 export const TOKENS: readonly TokenDoc[] = [
   // ---- surfaces (contract §4.1) ----
@@ -101,6 +286,12 @@ export const TOKENS: readonly TokenDoc[] = [
     use: "One full-bleed brand band per page",
     never: "cards, tiles, hover",
   },
+  {
+    token: "surface-disabled",
+    group: "surface",
+    utility: "bg-surface-disabled",
+    use: "Solid disabled control surface",
+  },
 
   // ---- content (contract §4.2) ----
   {
@@ -138,10 +329,22 @@ export const TOKENS: readonly TokenDoc[] = [
     use: "Text on --surface-inverse",
   },
   {
+    token: "foreground-on-inverse-muted",
+    group: "content",
+    utility: "text-foreground-on-inverse-muted",
+    use: "Secondary text on --surface-inverse",
+  },
+  {
     token: "foreground-on-brand",
     group: "content",
     utility: "text-foreground-on-brand",
     use: "Text and icons on a solid brand fill or the brand band",
+  },
+  {
+    token: "foreground-on-brand-muted",
+    group: "content",
+    utility: "text-foreground-on-brand-muted",
+    use: "Secondary text on the brand band",
   },
   {
     token: "link",
@@ -254,10 +457,85 @@ export const TOKENS: readonly TokenDoc[] = [
       "an accent colour: it is a surface, and decision D11 keeps it that way",
   },
   {
+    token: "accent-selected",
+    group: "brand",
+    utility: "bg-accent-selected",
+    use: "Selected or active row fill",
+  },
+  {
     token: "accent-foreground",
     group: "brand",
     utility: "text-accent-foreground",
     use: "Text on --accent",
+  },
+  {
+    token: "primary-selected",
+    group: "brand",
+    utility: "bg-primary-selected",
+    use: "Brand-relevant selection (active nav, selected tab)",
+  },
+  {
+    token: "secondary-on-brand",
+    group: "brand",
+    utility: "bg-secondary-on-brand",
+    use: "Secondary button fill on brand band",
+  },
+  {
+    token: "secondary-on-brand-hover",
+    group: "brand",
+    utility: "hover:bg-secondary-on-brand-hover",
+    use: "Secondary hover on brand band",
+  },
+  {
+    token: "secondary-on-brand-foreground",
+    group: "brand",
+    utility: "text-secondary-on-brand-foreground",
+    use: "Text on secondary button on brand band",
+  },
+
+  // ---- brand accent (60-30-10 multi-color branding) ----
+  {
+    token: "brand-accent",
+    group: "brand-accent",
+    utility: "bg-brand-accent",
+    use: "Chromatic accent fill (10% emphasis): high-contrast badges, tags, secondary CTAs",
+    never: "large section surfaces or unconstrained background floods",
+  },
+  {
+    token: "brand-accent-hover",
+    group: "brand-accent",
+    utility: "hover:bg-brand-accent-hover",
+    use: "Brand accent hover state",
+  },
+  {
+    token: "brand-accent-active",
+    group: "brand-accent",
+    utility: "active:bg-brand-accent-active",
+    use: "Brand accent active / pressed state",
+  },
+  {
+    token: "brand-accent-foreground",
+    group: "brand-accent",
+    utility: "text-brand-accent-foreground",
+    use: "Text / icon ink on solid --brand-accent (onAccent in 60-30-10 systems)",
+  },
+  {
+    token: "brand-accent-subtle",
+    group: "brand-accent",
+    utility: "bg-brand-accent-subtle",
+    use: "Soft tint of brand accent: pill background, callout box, badge fill",
+  },
+  {
+    token: "brand-accent-on-subtle",
+    group: "brand-accent",
+    utility: "text-brand-accent-on-subtle",
+    use: "Readable text / ink on --brand-accent-subtle",
+  },
+  {
+    token: "brand-accent-border",
+    group: "brand-accent",
+    utility: "border-brand-accent-border",
+    use: "Boundary stroke for brand accent elements",
   },
 
   // ---- status families (contract §4.4) ----
@@ -287,6 +565,18 @@ export const TOKENS: readonly TokenDoc[] = [
     use: "Borders that identify a non-input control",
   },
   {
+    token: "border-disabled",
+    group: "line",
+    utility: "border-border-disabled",
+    use: "Solid disabled control border",
+  },
+  {
+    token: "border-on-brand",
+    group: "line",
+    utility: "border-border-on-brand",
+    use: "Outlines for ghost/outline controls on brand band",
+  },
+  {
     token: "input",
     group: "line",
     utility: "border-input",
@@ -308,7 +598,7 @@ export const TOKENS: readonly TokenDoc[] = [
   {
     token: "ring-offset",
     group: "line",
-    utility: "consumed by the focus chain, phase 6",
+    utility: "focus-visible:ring-offset-ring-offset",
     use: "Gap colour of the focus ring",
   },
   {
@@ -324,8 +614,23 @@ export const TOKENS: readonly TokenDoc[] = [
     use: "::selection text",
   },
 
-  // ---- data and loading (contract §4.5) ----
-  ...chartSeries(["brand", "success", "warning", "violet", "danger"]),
+  // ---- data and loading (contract §4.5, §4.8) ----
+  ...chartSeries([
+    "brand",
+    "teal",
+    "orange",
+    "violet",
+    "pink",
+    "cyan",
+    "lime",
+    "indigo",
+    "brown",
+    "cool-gray",
+    "indigo-alt",
+    "gray",
+  ]),
+  ...sequentialChartSeries(),
+  ...divergingChartSeries(),
   {
     token: "chart-grid",
     group: "data",
@@ -345,6 +650,9 @@ export const TOKENS: readonly TokenDoc[] = [
     utility: "bg-skeleton",
     use: "Loading placeholder",
   },
+
+  // ---- non-semantic labels (contract §4.8) ----
+  ...labelFamilies(LABEL_HUES),
 
   // ---- sidebar (contract §4.5) ----
   {
@@ -398,75 +706,6 @@ export const TOKENS: readonly TokenDoc[] = [
 ];
 
 /**
- * The five roles every status family ships (`02` §2), so a new family cannot
- * quietly arrive with three. `destructive` is the one family with a sixth role,
- * because upstream's button and alert-dialog reference a hover fill for it.
- */
-function statusFamily(
-  name: string,
-  use: string,
-  hoverRole?: string,
-): TokenDoc[] {
-  return [
-    {
-      token: name,
-      group: "status",
-      utility: `bg-${name}`,
-      use: `${use} — solid fill`,
-      never: "a tinted surface; the subtle role is that",
-    },
-    {
-      token: `${name}-foreground`,
-      group: "status",
-      utility: `text-${name}-foreground`,
-      use: `Text on solid --${name}`,
-    },
-    ...(hoverRole
-      ? [
-          {
-            token: hoverRole,
-            group: "status" as TokenGroup,
-            utility: `hover:bg-${hoverRole}`,
-            use: `Hover of a --${name} fill`,
-          },
-        ]
-      : []),
-    {
-      token: `${name}-subtle`,
-      group: "status",
-      utility: `bg-${name}-subtle`,
-      use: `Tinted ${name} surface (alert, badge)`,
-      never:
-        "a brand or page surface, and never a status meaning made from a label hue",
-    },
-    {
-      token: `${name}-on-subtle`,
-      group: "status",
-      utility: `text-${name}-on-subtle`,
-      use: `Text and icon on --${name}-subtle`,
-    },
-    {
-      token: `${name}-border`,
-      group: "status",
-      utility: `border-${name}-border`,
-      use: `Outline of a --${name}-subtle panel`,
-      never: "a boundary that must be found; the tinted pairs are decorative",
-    },
-  ];
-}
-
-/** Five series today; phase 7 expands the family to twelve (`02` §4.8). */
-function chartSeries(hues: string[]): TokenDoc[] {
-  return hues.map((hue, index) => ({
-    token: `chart-${index + 1}`,
-    group: "data" as TokenGroup,
-    utility: `bg-chart-${index + 1}`,
-    use: `Data series ${index + 1} (${hue})`,
-    never: "a status meaning — series are identity, decision D14",
-  }));
-}
-
-/**
  * The pair manifest `tests/design-tokens.test.ts` asserts and the style guide
  * prints. Every row is measured in both themes; a row that does not clear its
  * floor fails the suite with the pair name and the actual ratio.
@@ -475,10 +714,16 @@ export const CONTRAST_PAIRS: readonly ContrastPair[] = [
   // surfaces carry their default ink
   ...textOnSurface(["background", "background-subtle", "card", "popover"]),
   pair("foreground-inverse", "surface-inverse", "text"),
+  pair("foreground-on-inverse-muted", "surface-inverse", "text"),
   pair("primary-deep-foreground", "surface-brand", "text"),
   pair("primary-deep-foreground", "primary-deep", "text"),
   pair("foreground-on-brand", "surface-brand", "text"),
   pair("foreground-on-brand", "primary", "text"),
+  pair("foreground-on-brand-muted", "surface-brand", "text"),
+
+  // context tokens sitting on brand band
+  pair("secondary-on-brand-foreground", "secondary-on-brand", "text"),
+  pair("secondary-on-brand", "surface-brand", "boundary"),
 
   // content levels, on every surface they are documented to sit on
   ...inksOn("foreground-muted", ["background", "card", "background-subtle"]),
@@ -499,6 +744,10 @@ export const CONTRAST_PAIRS: readonly ContrastPair[] = [
   pair("muted-foreground", "background-subtle", "text"),
   pair("accent-foreground", "accent", "text"),
 
+  // brand accent (multi-brand 60-30-10 identity)
+  pair("brand-accent-foreground", "brand-accent", "text"),
+  pair("brand-accent-on-subtle", "brand-accent-subtle", "text"),
+
   // status families: solid + subtle
   pair("success-foreground", "success", "text"),
   pair("success-on-subtle", "success-subtle", "text"),
@@ -516,11 +765,24 @@ export const CONTRAST_PAIRS: readonly ContrastPair[] = [
   pair("input", "background-subtle", "boundary"),
   pair("border-strong", "background", "boundary"),
   pair("ring", "background", "boundary"),
+  pair("ring", "ring-offset", "boundary"),
+  pair("ring-offset", "primary", "boundary"),
   pair("selection-foreground", "selection", "text"),
 
-  // data, on the surface charts are drawn on
+  // data: 12 series on card and background (contract §4.8)
   ...inksOn("chart-label", ["card"]),
-  ...[1, 2, 3, 4, 5].map((n) => pair(`chart-${n}`, "card", "series")),
+  ...Array.from({ length: 12 }, (_, i) => i + 1).flatMap((n) => [
+    pair(`chart-${n}`, "card", "series"),
+    pair(`chart-${n}`, "background", "series"),
+  ]),
+
+  // non-semantic labels: 4 roles per hue (contract §4.8)
+  ...LABEL_HUES.flatMap((hue) => [
+    pair(`label-${hue}-on-subtle`, `label-${hue}-subtle`, "text"),
+    pair(`label-${hue}-foreground`, `label-${hue}-solid`, "text"),
+    pair(`label-${hue}-solid`, "card", "series"),
+    pair(`label-${hue}-on-subtle`, "card", "text"),
+  ]),
 
   // sidebar
   pair("sidebar-foreground", "sidebar", "text"),
@@ -592,6 +854,17 @@ export function parseColor(value: string): Rgb | null {
   return { r, g, b, a: alpha };
 }
 
+/** Composites a foreground RGBA colour over a solid background RGB colour. */
+export function composite(foreground: Rgb, background: Rgb): Rgb {
+  const a = foreground.a;
+  return {
+    r: Math.round(foreground.r * a + background.r * (1 - a)),
+    g: Math.round(foreground.g * a + background.g * (1 - a)),
+    b: Math.round(foreground.b * a + background.b * (1 - a)),
+    a: 1,
+  };
+}
+
 /** WCAG 2.2 §1.4.3 relative luminance. */
 export function relativeLuminance({ r, g, b }: Rgb): number {
   const linear = (channel: number) => {
@@ -631,15 +904,15 @@ export const SURFACE_LADDER: readonly {
   },
   {
     token: "background",
-    light: "n-100",
+    light: "n-50",
     dark: "n-950",
     use: "Page canvas",
     never: "cards",
   },
   {
     token: "background-subtle",
-    light: "n-150",
-    dark: "n-900",
+    light: "n-100",
+    dark: "n-850",
     use: "Sunken wells, icon tiles, alt rows",
     never: "hover",
   },
@@ -696,7 +969,8 @@ export const SURFACE_QUESTIONS: readonly {
   },
   {
     question: "Is it a response to the pointer or the keyboard?",
-    answer: "bg-accent + text-accent-foreground. Neutral, never brand.",
+    answer:
+      "bg-accent (hover) or bg-accent-selected (selected row) + text-accent-foreground. Neutral, never brand.",
   },
   {
     question: "Does it float over the page until it is dismissed?",
@@ -704,7 +978,8 @@ export const SURFACE_QUESTIONS: readonly {
   },
   {
     question: "Is it the one full-bleed emphasis band?",
-    answer: 'Section tone="brand-deep" — once per page.',
+    answer:
+      'Section tone="brand-deep" — once per page. Nested controls inherit --secondary-on-brand and --border-on-brand automatically.',
   },
   {
     question: "Do you want a tinted brand surface?",
@@ -719,7 +994,12 @@ export const SURFACE_QUESTIONS: readonly {
   {
     question: "Does something sit on a brand or inverse band?",
     answer:
-      "text-primary-deep-foreground / text-foreground-inverse today; the context tokens (--secondary-on-brand, …) arrive with phase 6.",
+      "On brand-deep: text-foreground-on-brand-muted and --secondary-on-brand controls. On inverse: text-foreground-on-inverse-muted.",
+  },
+  {
+    question: "Is a solid control disabled?",
+    answer:
+      "bg-surface-disabled + border-border-disabled for inactive controls that must maintain boundary separation.",
   },
 ];
 
@@ -934,6 +1214,7 @@ export const PATTERNS: readonly {
     file: "Section.tsx",
     props: [
       'tone?: "page" | "raised" | "sunken" | "inverse" | "brand-deep"',
+      'theme?: "dark" | "light"',
       'size?: "sm" | "md" | "lg"',
       "as?",
       "id?",
@@ -968,6 +1249,8 @@ export const PATTERNS: readonly {
       "artifact? (slot)",
       "trust? (slot)",
       'tone?: "page" | "brand-deep"',
+      'theme?: "dark" | "light"',
+      "className?",
     ],
     useWhen:
       "The first screen of a marketing page. Two columns on lg, and no decorative layer.",
@@ -987,6 +1270,7 @@ export const PATTERNS: readonly {
       "description?",
       "actions",
       'tone?: "brand-deep" | "inverse"',
+      'theme?: "dark" | "light"',
       "className?",
     ],
     useWhen:
@@ -996,8 +1280,7 @@ export const PATTERNS: readonly {
     name: "FeatureCard",
     file: "FeatureCard.tsx",
     props: ["icon?", "title", "description", "href?", "className?"],
-    useWhen:
-      "A grid item that explains one capability. Hover is border + shadow, not a fill.",
+    useWhen: "A grid item that explains one capability.",
   },
   {
     name: "IconTile",
@@ -1042,8 +1325,8 @@ export const STATES: readonly {
   {
     name: "Focus-visible",
     classes:
-      "bg-primary text-primary-foreground border-ring outline-none ring-[3px] ring-ring/50",
-    note: "border-ring + ring-ring/50, exactly as upstream ships it",
+      "bg-primary text-primary-foreground border-ring outline-none ring-[3px] ring-ring/50 ring-offset-2 ring-offset-ring-offset",
+    note: "two-tone focus chain: ring-offset-2 separates ring from solid fill",
   },
   {
     name: "Active",
@@ -1051,9 +1334,15 @@ export const STATES: readonly {
     note: "brand-800 under the finger",
   },
   {
+    name: "Selected",
+    classes: "bg-accent-selected text-accent-foreground",
+    note: "active or selected row fill, distinct from hover",
+  },
+  {
     name: "Disabled",
-    classes: "bg-secondary text-foreground-disabled",
-    note: "exempt from 1.4.3; the solid disabled fill is phase 6",
+    classes:
+      "bg-surface-disabled border border-border-disabled text-foreground-disabled",
+    note: "solid disabled fill and border clearing >= 3:1 boundary",
   },
   {
     name: "Loading",

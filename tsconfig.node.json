@@ -6,6 +6,7 @@
     "react-router.config.ts",
     "e2e/**/*.ts",
     "tests/**/*.test.ts",
+    "tests/**/*.d.ts",
     "app/lib/design-system.ts"
   ],
   "compilerOptions": {

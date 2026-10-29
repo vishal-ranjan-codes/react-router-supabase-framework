@@ -4,7 +4,7 @@
  *
  * Mechanical only — one input class, one output class, no judgement. Surfaces
  * that need a decision (brand tints, blur blobs, sidebar tokens) are listed in
- * `.docs/plan/04-phase-2-migrate-app.md` §2 and are handled by hand.
+ * `.docs/plans/01-design-system-foundation/04-phase-2-migrate-app.md` §2 and are handled by hand.
  *
  *   node scripts/migrate-theme-utilities.mjs --dry-run
  *   node scripts/migrate-theme-utilities.mjs

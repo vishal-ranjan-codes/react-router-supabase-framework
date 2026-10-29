@@ -31,6 +31,10 @@ declare global {
     GOOGLE_CLIENT_SECRET: string;
   }
 
+  namespace Cloudflare {
+    interface Env extends globalThis.Env {}
+  }
+
   /**
    * Browser-side vars, statically inlined by Vite from `.env` at build time. Only `VITE_`-prefixed
    * values reach the bundle, which is why `app/lib/supabase/client.ts` reads these instead of the

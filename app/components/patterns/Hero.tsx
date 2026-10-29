@@ -1,6 +1,11 @@
 import type { ReactNode } from "react";
 import { cn } from "~/lib/utils";
-import { SECTION_SIZES, SECTION_TONES } from "./Section";
+import {
+  SECTION_MUTED,
+  SECTION_SIZES,
+  SECTION_TONES,
+  type SectionTheme,
+} from "./Section";
 
 type HeroProps = {
   eyebrow?: string;
@@ -11,6 +16,7 @@ type HeroProps = {
   artifact?: ReactNode;
   trust?: ReactNode;
   tone?: "page" | "brand-deep";
+  theme?: SectionTheme;
   className?: string;
 };
 
@@ -27,14 +33,19 @@ export function Hero({
   artifact,
   trust,
   tone = "page",
+  theme,
   className,
 }: HeroProps) {
   const onBrand = tone === "brand-deep";
+  const themeClass =
+    theme === "dark" ? "dark" : theme === "light" ? "light" : undefined;
+
   return (
     <section
       className={cn(
         SECTION_TONES[tone],
         SECTION_SIZES.lg,
+        themeClass,
         "relative overflow-hidden",
         className,
       )}
@@ -51,7 +62,7 @@ export function Hero({
                 className={cn(
                   "inline-block rounded-full border px-3 py-1 text-eyebrow uppercase",
                   onBrand
-                    ? "border-primary-deep-foreground/40 text-primary-deep-foreground"
+                    ? "border-border-on-brand text-primary-deep-foreground"
                     : "border-border bg-card text-foreground-muted",
                 )}
               >
@@ -66,7 +77,7 @@ export function Hero({
                 className={cn(
                   "mt-6 max-w-xl text-body-lg",
                   onBrand
-                    ? "text-primary-deep-foreground/80"
+                    ? SECTION_MUTED["brand-deep"]
                     : "text-foreground-muted",
                 )}
               >
