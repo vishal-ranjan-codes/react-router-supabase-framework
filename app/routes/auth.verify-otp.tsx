@@ -89,8 +89,8 @@ export default function VerifyOtp() {
       : false;
 
   const footer = (
-    <p className="text-center text-sm theme-fc-light">
-      <Link to="/sign-in" className="text-primary hover:underline">
+    <p className="text-center text-sm text-muted-foreground">
+      <Link to="/sign-in" className="text-link hover:underline">
         &larr; Back to sign in
       </Link>
     </p>

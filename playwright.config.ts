@@ -19,20 +19,46 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   // `open: "never"` keeps CI (and headless runs) from blocking on the report server.
   reporter: [["list"], ["html", { open: "never" }]],
+  // Baselines are platform-scoped on purpose: the committed set was rendered on
+  // `windows-latest`, and any other platform must fail with "snapshot missing"
+  // rather than silently diffing against a different OS's font rasterisation.
+  snapshotPathTemplate:
+    "{testDir}/__screenshots__/{platform}/{testFilePath}/{arg}{ext}",
   use: {
     baseURL: "http://localhost:5173",
     trace: "on-first-retry",
     screenshot: "only-on-failure",
   },
-  // CI only downloads chromium, so asking for the other engines there would fail
-  // on a missing browser binary rather than on real behaviour.
-  projects: process.env.CI
-    ? [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }]
-    : [
-        { name: "chromium", use: { ...devices["Desktop Chrome"] } },
-        { name: "firefox", use: { ...devices["Desktop Firefox"] } },
-        { name: "webkit", use: { ...devices["Desktop Safari"] } },
-      ],
+  // The visual project is chromium-only, so the functional projects ignore it and
+  // never download another engine's baselines.
+  projects: [
+    {
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
+      testIgnore: /visual\.spec\.ts/,
+    },
+    // CI only downloads chromium, so asking for the other engines there would fail
+    // on a missing browser binary rather than on real behaviour.
+    ...(process.env.CI
+      ? []
+      : [
+          {
+            name: "firefox",
+            use: { ...devices["Desktop Firefox"] },
+            testIgnore: /visual\.spec\.ts/,
+          },
+          {
+            name: "webkit",
+            use: { ...devices["Desktop Safari"] },
+            testIgnore: /visual\.spec\.ts/,
+          },
+        ]),
+    {
+      name: "visual",
+      use: { ...devices["Desktop Chrome"] },
+      testMatch: /visual\.spec\.ts/,
+    },
+  ],
   webServer: {
     command: devCommand(),
     url: "http://localhost:5173",

@@ -65,8 +65,8 @@ export default function ResetPassword() {
     actionData && "success" in actionData ? Boolean(actionData.success) : false;
 
   const footer = (
-    <p className="text-center text-sm theme-fc-light">
-      <Link to="/sign-in" className="text-primary hover:underline">
+    <p className="text-center text-sm text-muted-foreground">
+      <Link to="/sign-in" className="text-link hover:underline">
         &larr; Back to sign in
       </Link>
     </p>
@@ -80,7 +80,7 @@ export default function ResetPassword() {
     >
       {done ? (
         <div className="space-y-4">
-          <div className="rounded-md theme-bg-success p-4 text-sm theme-text-success text-center">
+          <div className="rounded-md bg-success-subtle p-4 text-sm text-success text-center">
             Password updated.
           </div>
           <Button className="w-full" asChild>

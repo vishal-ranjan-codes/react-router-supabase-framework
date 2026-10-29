@@ -34,13 +34,13 @@ export function PasswordForm({
       <input type="hidden" name="method" value="email-password" />
 
       {requiresConfirmation && (
-        <div className="rounded-md theme-bg-success p-4 text-sm theme-text-success text-center">
+        <div className="rounded-md bg-success-subtle p-4 text-sm text-success text-center">
           Check your email to confirm your account.
         </div>
       )}
 
       {emailSent && (
-        <div className="rounded-md theme-bg-success p-4 text-sm theme-text-success text-center">
+        <div className="rounded-md bg-success-subtle p-4 text-sm text-success text-center">
           Check your email for a password reset link.
         </div>
       )}
@@ -66,7 +66,7 @@ export function PasswordForm({
               name="intent"
               value="reset"
               formNoValidate
-              className="text-xs text-primary hover:underline"
+              className="text-xs text-link hover:underline"
             >
               Forgot password?
             </button>
@@ -80,17 +80,19 @@ export function PasswordForm({
             required
             placeholder="Enter your password"
             minLength={mode === "sign-up" ? minLength : undefined}
+            className="pr-10"
           />
           <button
             type="button"
-            tabIndex={-1}
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 theme-fc-light hover:theme-fc-heading"
+            aria-label={showPassword ? "Hide password" : "Show password"}
+            aria-pressed={showPassword}
+            className="absolute right-1 top-1/2 grid size-control-sm -translate-y-1/2 place-items-center rounded-md text-muted-foreground outline-none transition-colors duration-base ease-standard hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50"
           >
             {showPassword ? (
-              <EyeOff className="h-4 w-4" />
+              <EyeOff className="size-icon-md" />
             ) : (
-              <Eye className="h-4 w-4" />
+              <Eye className="size-icon-md" />
             )}
           </button>
         </div>

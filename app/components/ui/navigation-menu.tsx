@@ -57,8 +57,12 @@ function NavigationMenuItem({
   );
 }
 
+// Deviation (PATCHES.md): upstream ships a filled pill (`bg-background px-4 py-2 h-9
+// text-sm font-medium hover:bg-accent …`) that assumes the bar sits on `--background`.
+// Here `--background` is the page canvas, so the pill reads as a grey box next to the
+// plain header links; reuse `nav-menu-item` so triggers and links share one look.
 const navigationMenuTriggerStyle = cva(
-  "group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-[color,box-shadow] outline-none hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 data-[state=open]:bg-accent/50 data-[state=open]:text-accent-foreground data-[state=open]:hover:bg-accent data-[state=open]:focus:bg-accent",
+  "nav-menu-item inline-flex items-center justify-center gap-1 cursor-pointer rounded-md outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 data-[state=open]:text-primary",
 );
 
 function NavigationMenuTrigger({
@@ -74,7 +78,7 @@ function NavigationMenuTrigger({
     >
       {children}{" "}
       <ChevronDownIcon
-        className="relative top-[1px] ml-1 size-3 transition duration-300 group-data-[state=open]:rotate-180"
+        className="size-3 transition duration-300 group-data-[state=open]:rotate-180"
         aria-hidden="true"
       />
     </NavigationMenuPrimitive.Trigger>

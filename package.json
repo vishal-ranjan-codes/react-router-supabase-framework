@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.18.0"
   },
   "allowScripts": {
     "esbuild@0.28.2": true,
@@ -28,7 +28,10 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "check:ds": "node scripts/check-design-system.mjs",
+    "ds:drift": "node scripts/ds-drift.mjs",
+    "ds:add": "npx shadcn@4.23.0 add --overwrite --yes"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1111.0",
@@ -55,6 +58,7 @@
     "zod": "^3"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
     "@biomejs/biome": "^2.6.3",
     "@cloudflare/vite-plugin": "^1.52.1",
     "@playwright/test": "^1.62.1",

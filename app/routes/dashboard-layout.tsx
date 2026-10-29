@@ -42,10 +42,12 @@ export default function DashboardLayout({ loaderData }: Route.ComponentProps) {
   const sidebarNav = (
     <>
       <div className="mb-6">
-        <h2 className="theme-h4">Dashboard</h2>
+        <h2 className="text-h4">Dashboard</h2>
         <div className="flex items-center gap-2 mt-2">
-          <User className="h-4 w-4 theme-fc-light" />
-          <p className="text-sm theme-fc-light truncate">{user?.email}</p>
+          <User className="h-4 w-4 text-muted-foreground" />
+          <p className="text-sm text-muted-foreground truncate">
+            {user?.email}
+          </p>
         </div>
       </div>
 
@@ -57,8 +59,8 @@ export default function DashboardLayout({ loaderData }: Route.ComponentProps) {
             onClick={() => setSidebarOpen(false)}
             className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors ${
               location.pathname === to
-                ? "theme-bg-shade-10 theme-fc-heading font-medium"
-                : "theme-fc-base hover:theme-bg-shade-5"
+                ? "bg-background-subtle text-foreground font-medium"
+                : "text-foreground hover:bg-background-subtle"
             }`}
           >
             <Icon className="h-4 w-4" />
@@ -67,7 +69,7 @@ export default function DashboardLayout({ loaderData }: Route.ComponentProps) {
         ))}
       </nav>
 
-      <div className="border-t theme-border-color pt-4 mt-4">
+      <div className="border-t border-border pt-4 mt-4">
         <Form
           method="post"
           action="/sign-out"
@@ -75,7 +77,7 @@ export default function DashboardLayout({ loaderData }: Route.ComponentProps) {
         >
           <button
             type="submit"
-            className="flex items-center gap-3 rounded-md px-3 py-2 text-sm theme-fc-light hover:theme-bg-shade-5 transition-colors"
+            className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-background-subtle transition-colors"
           >
             <LogOut className="h-4 w-4" />
             Sign Out
@@ -86,18 +88,18 @@ export default function DashboardLayout({ loaderData }: Route.ComponentProps) {
   );
 
   return (
-    <div className="flex min-h-screen theme-bg-color">
+    <div className="flex min-h-screen bg-background">
       {/* Mobile sidebar trigger */}
       <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
         <SheetTrigger asChild className="lg:hidden fixed top-4 left-4 z-50">
-          <Button variant="ghost" size="icon" className="w-9 h-9">
-            <Menu className="h-5 w-5" />
+          <Button variant="ghost" size="icon" className="size-touch-min">
+            <Menu className="size-icon-md" />
             <span className="sr-only">Toggle sidebar</span>
           </Button>
         </SheetTrigger>
         <SheetContent
           side="left"
-          className="w-[260px] theme-fg-color p-4 flex flex-col"
+          className="w-[260px] bg-sidebar text-sidebar-foreground p-4 flex flex-col"
         >
           <SheetHeader className="p-0">
             <SheetTitle className="sr-only">Dashboard Navigation</SheetTitle>
@@ -107,7 +109,7 @@ export default function DashboardLayout({ loaderData }: Route.ComponentProps) {
       </Sheet>
 
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex w-64 theme-border-color border-r theme-fg-color p-4 flex-col">
+      <aside className="hidden lg:flex w-64 border-border border-r bg-sidebar text-sidebar-foreground p-4 flex-col">
         {sidebarNav}
       </aside>
 

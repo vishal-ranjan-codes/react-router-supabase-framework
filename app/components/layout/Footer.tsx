@@ -1,126 +1,90 @@
 import { Link } from "react-router";
+import { Section } from "~/components/patterns/Section";
+
+const REPO =
+  "https://github.com/vishal-ranjan-codes/react-router-supabase-framework";
+
+const COLUMNS: {
+  heading: string;
+  links: { label: string; to?: string; href?: string }[];
+}[] = [
+  {
+    heading: "Product",
+    links: [
+      { label: "Design system", to: "/design-system" },
+      { label: "About", to: "/about" },
+      { label: "Contact", to: "/contact" },
+    ],
+  },
+  {
+    heading: "Resources",
+    links: [
+      { label: "Components", to: "/design-system#components" },
+      { label: "Colors", to: "/design-system#colors" },
+      { label: "Typography", to: "/design-system#typography" },
+    ],
+  },
+  {
+    heading: "Project",
+    links: [
+      { label: "GitHub repository", href: REPO },
+      { label: "Issues", href: `${REPO}/issues` },
+    ],
+  },
+];
+
+const LINK_CLASS =
+  "text-body-sm text-foreground-inverse/80 hover:text-foreground-inverse transition-colors no-underline";
 
 export default function Footer() {
   return (
-    <footer className="theme-bg-color-dark theme-border-color border-t mt-20">
-      <div className="container-page py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Brand */}
-          <div className="col-span-1">
-            <h3 className="theme-h5 mb-4">React Router + Supabase</h3>
-            <p className="theme-fc-light text-sm">
-              A comprehensive framework starter for building modern web
-              applications on Cloudflare Workers.
-            </p>
-          </div>
-
-          {/* Links */}
-          <div>
-            <h4 className="theme-fc-heading font-semibold mb-4">
-              Getting Started
-            </h4>
-            <ul className="space-y-2">
-              <li>
-                <Link
-                  to="/"
-                  className="theme-fc-light hover:text-primary text-sm transition-colors"
-                >
-                  Introduction
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/design-system"
-                  className="theme-fc-light hover:text-primary text-sm transition-colors"
-                >
-                  Design System
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/"
-                  className="theme-fc-light hover:text-primary text-sm transition-colors"
-                >
-                  Installation
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="theme-fc-heading font-semibold mb-4">Resources</h4>
-            <ul className="space-y-2">
-              <li>
-                <Link
-                  to="/design-system"
-                  className="theme-fc-light hover:text-primary text-sm transition-colors"
-                >
-                  Components
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/about"
-                  className="theme-fc-light hover:text-primary text-sm transition-colors"
-                >
-                  About
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/contact"
-                  className="theme-fc-light hover:text-primary text-sm transition-colors"
-                >
-                  Contact
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="theme-fc-heading font-semibold mb-4">Community</h4>
-            <ul className="space-y-2">
-              <li>
-                <a
-                  href="https://github.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="theme-fc-light hover:text-primary text-sm transition-colors"
-                >
-                  GitHub
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://twitter.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="theme-fc-light hover:text-primary text-sm transition-colors"
-                >
-                  Twitter
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://discord.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="theme-fc-light hover:text-primary text-sm transition-colors"
-                >
-                  Discord
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="theme-border-color border-t mt-8 pt-8">
-          <p className="theme-fc-light text-sm text-center">
-            © <span suppressHydrationWarning>{new Date().getFullYear()}</span>{" "}
-            React Router + Supabase Framework. Built with ❤️ for developers.
+    <Section as="footer" tone="inverse" size="sm">
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
+        <div className="col-span-1">
+          <h3 className="text-inherit text-h5 font-semibold mb-4">
+            React Router + Supabase
+          </h3>
+          <p className="text-body-sm text-foreground-inverse/80">
+            A production-shaped starter for modern web applications on
+            Cloudflare Workers.
           </p>
         </div>
+
+        {COLUMNS.map((column) => (
+          <div key={column.heading}>
+            <h4 className="text-inherit font-semibold mb-4">
+              {column.heading}
+            </h4>
+            <ul className="space-y-2">
+              {column.links.map((link) => (
+                <li key={link.label}>
+                  {link.to ? (
+                    <Link to={link.to} className={LINK_CLASS}>
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={LINK_CLASS}
+                    >
+                      {link.label}
+                    </a>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
       </div>
-    </footer>
+
+      <div className="border-foreground-inverse/20 border-t mt-8 pt-8">
+        <p className="text-body-sm text-foreground-inverse/80 text-center">
+          © <span suppressHydrationWarning>{new Date().getFullYear()}</span>{" "}
+          React Router + Supabase Framework.
+        </p>
+      </div>
+    </Section>
   );
 }

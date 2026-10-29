@@ -23,14 +23,8 @@ export default function ThemeToggle() {
   // live is visibly inert instead of silently swallowed (Playwright also waits it out).
   if (!mounted) {
     return (
-      <Button
-        variant="ghost"
-        size="icon"
-        aria-label="Toggle theme"
-        disabled
-        className="w-9 h-9"
-      >
-        <Sun className="h-4 w-4" />
+      <Button variant="ghost" size="icon" aria-label="Toggle theme" disabled>
+        <Sun className="size-icon-sm" />
       </Button>
     );
   }
@@ -41,12 +35,11 @@ export default function ThemeToggle() {
       size="icon"
       onClick={toggleTheme}
       aria-label="Toggle theme"
-      className="w-9 h-9"
     >
       {theme === "dark" ? (
-        <Sun className="h-4 w-4" />
+        <Sun className="size-icon-sm" />
       ) : (
-        <Moon className="h-4 w-4" />
+        <Moon className="size-icon-sm" />
       )}
     </Button>
   );

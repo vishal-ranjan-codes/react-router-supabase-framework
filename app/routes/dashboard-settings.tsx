@@ -54,7 +54,7 @@ export default function DashboardSettings({
 
   return (
     <div className="space-y-6">
-      <h1 className="theme-h1">Settings</h1>
+      <h1 className="text-h1">Settings</h1>
 
       <Card>
         <CardHeader>
@@ -71,7 +71,9 @@ export default function DashboardSettings({
                 defaultValue={user?.email ?? ""}
                 disabled
               />
-              <p className="text-xs theme-fc-light">Email cannot be changed</p>
+              <p className="text-xs text-muted-foreground">
+                Email cannot be changed
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -88,7 +90,7 @@ export default function DashboardSettings({
               <p className="text-sm text-destructive">{errorMessage}</p>
             )}
             {isSuccess && (
-              <p className="text-sm theme-text-success">Settings saved!</p>
+              <p className="text-sm text-success">Settings saved!</p>
             )}
 
             <Button type="submit" disabled={isLoading}>

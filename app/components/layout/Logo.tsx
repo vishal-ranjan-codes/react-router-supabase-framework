@@ -3,7 +3,8 @@ import { Link } from "react-router";
 export default function Logo() {
   return (
     <Link to="/" className="flex items-center justify-center">
-      <div className="bg-primary theme-rounded w-10 h-10 flex items-center justify-center">
+      <span className="sr-only">Home</span>
+      <div className="bg-primary rounded-lg w-10 h-10 flex items-center justify-center">
         <svg
           aria-hidden="true"
           viewBox="0 0 24 24"

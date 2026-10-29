@@ -27,26 +27,26 @@ export default function DashboardHome({ loaderData }: Route.ComponentProps) {
 
   return (
     <div className="space-y-6">
-      <h1 className="theme-h1">Welcome back</h1>
+      <h1 className="text-h1">Welcome back</h1>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Email</CardTitle>
-            <User className="h-4 w-4 theme-fc-light" />
+            <User className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <p className="theme-fc-base text-lg">{user?.email}</p>
+            <p className="text-foreground text-lg">{user?.email}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Role</CardTitle>
-            <Shield className="h-4 w-4 theme-fc-light" />
+            <Shield className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <p className="theme-fc-base text-lg capitalize">
+            <p className="text-foreground text-lg capitalize">
               {profile?.role || "user"}
             </p>
           </CardContent>
@@ -55,10 +55,10 @@ export default function DashboardHome({ loaderData }: Route.ComponentProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Member Since</CardTitle>
-            <Calendar className="h-4 w-4 theme-fc-light" />
+            <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <p className="theme-fc-base text-lg">
+            <p className="text-foreground text-lg">
               {profile?.created_at
                 ? new Date(profile.created_at).toLocaleDateString()
                 : "N/A"}

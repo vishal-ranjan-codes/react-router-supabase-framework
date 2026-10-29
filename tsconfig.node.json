@@ -5,12 +5,14 @@
     "playwright.config.ts",
     "react-router.config.ts",
     "e2e/**/*.ts",
-    "tests/**/*.test.ts"
+    "tests/**/*.test.ts",
+    "app/lib/design-system.ts"
   ],
   "compilerOptions": {
     "composite": true,
     "noEmit": true,
-    "lib": ["ES2023"],
+    // `DOM` because `page.evaluate` callbacks run in the browser, not in Node.
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "types": ["node"],
     "target": "ES2023",
     "module": "ESNext",

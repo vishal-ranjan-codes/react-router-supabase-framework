@@ -1,6 +1,14 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import {
+  BOUNDARY_MINIMUM,
+  CONTRAST_PAIRS,
+  type Rgb,
+  TEXT_MINIMUM,
+  contrastRatio as contrastRatioOf,
+  parseColor,
+} from "../app/lib/design-system";
 
 // Read from disk rather than `?raw`: Vite resolves `globals.css?raw` to an empty string.
 const stylesheet = readFileSync(
@@ -8,62 +16,8 @@ const stylesheet = readFileSync(
   "utf8",
 );
 
-// Contract §7: text pairs clear 4.5:1 and UI boundaries 3:1 in both themes. The manifest
-// below is the part verified in phase 1; the pairs still open are listed as todos at the end.
-const TEXT_MINIMUM = 4.5;
-const BOUNDARY_MINIMUM = 3;
-
-const TEXT_PAIRS = [
-  ["foreground", "background"],
-  ["foreground", "card"],
-  ["foreground", "popover"],
-  ["foreground-muted", "background"],
-  ["foreground-muted", "card"],
-  ["foreground-inverse", "surface-inverse"],
-  ["foreground-on-brand", "primary"],
-  ["primary-foreground", "primary"],
-  ["primary-deep-foreground", "primary-deep"],
-  ["primary-on-subtle", "primary-subtle"],
-  ["secondary-foreground", "secondary"],
-  ["accent-foreground", "accent"],
-  ["muted-foreground", "muted"],
-  ["link", "background"],
-  ["link", "card"],
-  ["placeholder", "card"],
-  ["selection-foreground", "selection"],
-  ["sidebar-foreground", "sidebar"],
-  ["sidebar-primary-foreground", "sidebar-primary"],
-  ["sidebar-accent-foreground", "sidebar-accent"],
-  ["success-foreground", "success"],
-  ["success-on-subtle", "success-subtle"],
-  ["warning-foreground", "warning"],
-  ["warning-on-subtle", "warning-subtle"],
-  ["destructive-foreground", "destructive"],
-  ["destructive-on-subtle", "destructive-subtle"],
-  ["info-foreground", "info"],
-  ["info-on-subtle", "info-subtle"],
-  ["chart-label", "card"],
-] as const;
-
-const BOUNDARY_PAIRS = [
-  ["input", "card"],
-  ["input", "background"],
-  ["input-hover", "card"],
-  ["ring", "card"],
-  ["ring", "background"],
-  ["border-strong", "card"],
-  ["border-strong", "background"],
-] as const;
-
-// Charts are drawn on card surfaces, so that is the adjacent colour WCAG 1.4.11 measures against.
-const CHART_SERIES = [
-  "chart-1",
-  "chart-2",
-  "chart-3",
-  "chart-4",
-  "chart-5",
-] as const;
-
+// The pair manifest is imported, not restated here, so the style guide and this suite can never
+// drift apart: `app/lib/design-system.ts` is the one description both of them read.
 const THEMES = ["light", "dark"] as const;
 
 type Theme = (typeof THEMES)[number];
@@ -72,7 +26,10 @@ const source = stylesheet.replace(/\/\*[\s\S]*?\*\//g, "");
 
 function readBlock(selector: string) {
   const escaped = selector.replace(/[$()*+.?[\\\]^{-}]/g, "\\$&");
-  const block = new RegExp(`^${escaped} \\{([\\s\\S]*?)^}`, "m").exec(source);
+  // `[^{]*?` so a selector list still matches: the light block is `:root, .light {`.
+  const block = new RegExp(`^${escaped}[^{]*?\\{([\\s\\S]*?)^}`, "m").exec(
+    source,
+  );
   if (!block)
     throw new Error(`globals.css has no top-level \`${selector}\` block`);
   return { body: block[1], raw: block[0] };
@@ -95,9 +52,7 @@ const darkTokens = readDeclarations(dark.body);
 const isSemantic = (token: string) =>
   !token.startsWith("--p-") && !token.startsWith("--alpha-");
 
-type Color = { r: number; g: number; b: number; a: number };
-
-function resolve(token: string, theme: Theme): Color {
+function resolve(token: string, theme: Theme): Rgb {
   const value =
     (theme === "dark" ? darkTokens.get(token) : undefined) ??
     lightTokens.get(token);
@@ -107,27 +62,13 @@ function resolve(token: string, theme: Theme): Color {
   const reference = /^var\((--[\w-]+)\)$/.exec(value);
   if (reference) return resolve(reference[1], "light");
 
-  const hex = value.slice(1);
-  const digits =
-    hex.length <= 4 ? [...hex].map((digit) => digit + digit).join("") : hex;
-  const channel = (offset: number) =>
-    Number.parseInt(digits.slice(offset, offset + 2), 16);
-  return {
-    r: channel(0),
-    g: channel(2),
-    b: channel(4),
-    a: digits.length === 8 ? channel(6) / 255 : 1,
-  };
+  const color = parseColor(value);
+  if (!color) throw new Error(`\`${token}\` is not a colour: ${value}`);
+  return color;
 }
 
-function luminance({ r, g, b }: Color) {
-  const linear = (channel: number) => {
-    const value = channel / 255;
-    return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
-  };
-  return 0.2126 * linear(r) + 0.7152 * linear(g) + 0.0722 * linear(b);
-}
-
+// The WCAG maths lives in the module the style guide renders from, so the page and this suite
+// cannot report two different numbers for one pair.
 function contrastRatio(theme: Theme, foreground: string, background: string) {
   const pair = [
     resolve(`--${foreground}`, theme),
@@ -141,33 +82,45 @@ function contrastRatio(theme: Theme, foreground: string, background: string) {
       );
     }
   }
-  const [brighter, dimmer] = pair.map(luminance).sort((a, b) => b - a);
-  return (brighter + 0.05) / (dimmer + 0.05);
+  return contrastRatioOf(pair[0], pair[1]);
 }
+
+describe("contrast pair manifest", () => {
+  it("names only tokens the stylesheet declares", () => {
+    const unknown = CONTRAST_PAIRS.flatMap(({ foreground, background }) =>
+      [foreground, background]
+        .filter((token) => !lightTokens.has(`--${token}`))
+        .map((token) => `--${token}`),
+    );
+    expect([...new Set(unknown)]).toEqual([]);
+  });
+
+  it("states each pair once, in one direction", () => {
+    const keys = CONTRAST_PAIRS.map(
+      ({ foreground, background }) => `${foreground} on ${background}`,
+    );
+    expect(keys.length).toBe(new Set(keys).size);
+  });
+
+  it("uses the floor its kind implies", () => {
+    for (const { kind, minimum } of CONTRAST_PAIRS) {
+      expect(minimum, kind).toBe(
+        kind === "text" ? TEXT_MINIMUM : BOUNDARY_MINIMUM,
+      );
+    }
+  });
+});
 
 for (const theme of THEMES) {
   describe(`${theme} theme`, () => {
-    for (const [foreground, background] of TEXT_PAIRS) {
-      it(`${foreground} on ${background} clears ${TEXT_MINIMUM}:1`, () => {
+    for (const { foreground, background, minimum, kind } of CONTRAST_PAIRS) {
+      it(`${foreground} on ${background} clears ${minimum}:1 (${kind})`, () => {
+        const ratio = contrastRatio(theme, foreground, background);
         expect(
-          contrastRatio(theme, foreground, background),
-        ).toBeGreaterThanOrEqual(TEXT_MINIMUM);
-      });
-    }
-
-    for (const [foreground, background] of BOUNDARY_PAIRS) {
-      it(`${foreground} on ${background} clears ${BOUNDARY_MINIMUM}:1`, () => {
-        expect(
-          contrastRatio(theme, foreground, background),
-        ).toBeGreaterThanOrEqual(BOUNDARY_MINIMUM);
-      });
-    }
-
-    for (const series of CHART_SERIES) {
-      it(`${series} is distinguishable against card at ${BOUNDARY_MINIMUM}:1`, () => {
-        expect(contrastRatio(theme, series, "card")).toBeGreaterThanOrEqual(
-          BOUNDARY_MINIMUM,
-        );
+          ratio,
+          `--${foreground} on --${background} measures ${ratio.toFixed(2)}:1, ` +
+            `below the ${minimum}:1 ${kind} floor`,
+        ).toBeGreaterThanOrEqual(minimum);
       });
     }
   });
@@ -184,11 +137,23 @@ describe("token architecture", () => {
       const tokens = theme === "dark" ? darkTokens : lightTokens;
       for (const [name, value] of tokens) {
         if (!isSemantic(name)) continue;
+        // `transparent` is allowed: a token that ships no colour has nothing to trace
+        // back to a ramp, and cannot affect a contrast ratio either.
         expect(value, `${theme} ${name}`).toMatch(
-          /^(?:var\(--p-[\w-]+\)|#[\da-fA-F]{3,8})$/,
+          /^(?:var\(--p-[\w-]+\)|#[\da-fA-F]{3,8}|transparent)$/,
         );
       }
     }
+  });
+
+  it("references only primitives the ramp declares", () => {
+    const orphans = [...lightTokens, ...darkTokens].flatMap(([name, value]) => {
+      const reference = /^var\((--p-[\w-]+)\)$/.exec(value);
+      return reference && !lightTokens.has(reference[1])
+        ? [`${name} -> ${reference[1]}`]
+        : [];
+    });
+    expect(orphans).toEqual([]);
   });
 
   it("keeps every hex literal inside :root or .dark", () => {
@@ -202,21 +167,19 @@ describe("token architecture", () => {
   });
 });
 
-describe("phase 5 — pairs the manifest does not cover yet", () => {
+// Assigned by `02` §7, not open questions: each row is a value a later phase owns, and this suite
+// gains the pair in the same commit that ships the value (decision D15).
+describe("deferred to later phases", () => {
   it.todo(
-    "foreground-subtle passes as text, or is reclassified (3.82:1 on card in dark)",
+    "phase 6 — --secondary on --surface-brand is 1.08:1 in dark; the context token --secondary-on-brand is what joins the manifest",
   );
   it.todo(
-    "surface-brand gains an on-* token (foreground-on-brand is 1.34:1 on it in dark)",
-  );
-  it.todo("status border tokens clear 3:1 against the surfaces they sit on");
-  it.todo(
-    "chart series clear 3:1 on background too, or charts are documented as card-only",
+    "phase 6 — --scrim composites over the surface beneath it, then joins the manifest (it derives from --alpha-scrim*)",
   );
   it.todo(
-    "scrim is composited over the surface beneath it before its ratio is measured",
+    "phase 6 — the focus chain: --ring >= 3:1 on --ring-offset and --ring-offset >= 3:1 on --card",
   );
   it.todo(
-    "destructive-hover keeps destructive-foreground legible in both themes",
+    "phase 7 — --chart-3 is 2.90:1 on --background in light; the 12-series palette is generated to clear it",
   );
 });

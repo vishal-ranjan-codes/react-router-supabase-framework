@@ -9,19 +9,16 @@
 
 @font-face {
   font-family: "Inter";
-  src: url("/fonts/Inter-Variable.ttf") format("truetype");
+  src: url("/fonts/InterVariable.woff2") format("woff2");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
 
-/* Phase 4 deletes this together with the .ttf above: body already gets Inter
-   from --font-sans in the base layer. */
-.font-inter {
-  @apply font-sans;
-}
-
-:root {
+/* `.light` mirrors `:root` so a subtree can opt out of an ancestor `.dark`;
+   the style guide paints both themes side by side. */
+:root,
+.light {
   /* ---- Tier 1: primitive ramps. Data, never meaning. Theme-invariant. ---- */
   --p-neutral-0: #ffffff;
   --p-neutral-50: #fafafa;
@@ -30,6 +27,7 @@
   --p-neutral-200: #e0e0e0;
   --p-neutral-300: #c4c4c4;
   --p-neutral-400: #9e9e9e;
+  --p-neutral-450: #888888;
   --p-neutral-500: #737373;
   --p-neutral-600: #595959;
   --p-neutral-700: #404040;
@@ -107,6 +105,10 @@
   --alpha-pressed: 0.1;
   --alpha-scrim: 0.5;
   --alpha-scrim-strong: 0.64;
+
+  /* Hero overlay background; ships transparent so heroes stay flat until a
+     consumer themes them. Consumed via var(), not a Tailwind namespace. */
+  --hero-glow: transparent;
 
   /* ---- Tier 2: semantics, light. Dark mode remaps these onto Tier 1. ---- */
 
@@ -210,23 +212,28 @@
   --scrim: #000000a3;
   --surface-inverse: var(--p-neutral-50);
   --surface-brand: var(--p-brand-900);
+  --hero-glow: transparent;
 
   --foreground: var(--p-neutral-50);
   --foreground-muted: var(--p-neutral-400);
-  --foreground-subtle: var(--p-neutral-500);
+  /* n-400 is taken by --foreground-muted, so the third ink level needs its own
+     half-step: n-500 measures 3.82:1 on --card, which is not a text token. */
+  --foreground-subtle: var(--p-neutral-450);
   --foreground-disabled: var(--p-neutral-600);
   --foreground-inverse: var(--p-neutral-950);
-  --foreground-on-brand: var(--p-brand-950);
+  --foreground-on-brand: var(--p-neutral-0);
   --link: var(--p-brand-400);
   --link-hover: var(--p-brand-300);
   --placeholder: var(--p-neutral-400);
 
-  --primary: var(--p-brand-400);
-  --primary-hover: var(--p-brand-300);
-  --primary-active: var(--p-brand-200);
+  /* Filled brand surfaces match light; --link, --ring and --chart-* stay on the
+     bright steps because they are text and strokes sitting on a near-black page. */
+  --primary: var(--p-brand-600);
+  --primary-hover: var(--p-brand-700);
+  --primary-active: var(--p-brand-800);
   --primary-subtle: var(--p-brand-950);
   --primary-on-subtle: var(--p-brand-300);
-  --primary-foreground: var(--p-brand-950);
+  --primary-foreground: var(--p-neutral-0);
   --primary-deep: var(--p-brand-900);
   --primary-deep-foreground: var(--p-brand-100);
   --secondary: var(--p-neutral-800);
@@ -479,9 +486,19 @@
     @apply bg-selection text-selection-foreground;
   }
 
+  /* tw-animate-css ships no reduced-motion block of its own, so the Radix
+     enter/exit animations are neutralised here rather than per component. */
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
     }
   }
 }
@@ -515,7 +532,7 @@
 }
 
 @utility nav-menu-item {
-  @apply text-muted-foreground no-underline p-1.5 text-base md:text-sm transition-all duration-300 hover:text-primary;
+  @apply text-muted-foreground no-underline p-1.5 text-base md:text-sm transition-colors duration-base ease-standard hover:text-link;
 }
 
 @keyframes accordion-down {
@@ -536,153 +553,4 @@
   to {
     height: 0;
   }
-}
-
-/* TEMPORARY — phase 2 deletes this whole block. It maps the retired theme-*
-   vocabulary onto the contract so existing pages keep rendering until the
-   codemod has replaced every call site. */
-@utility theme-bg-color {
-  background-color: var(--background);
-}
-
-@utility theme-bg-color-dark {
-  background-color: var(--muted);
-}
-
-@utility theme-fg-color {
-  background-color: var(--card);
-}
-
-@utility theme-fg-color-dark {
-  background-color: var(--card);
-}
-
-@utility theme-fc-heading {
-  color: var(--foreground);
-}
-
-@utility theme-fc-heading-light {
-  color: var(--foreground);
-}
-
-@utility theme-fc-base {
-  color: var(--foreground);
-}
-
-@utility theme-fc-light {
-  color: var(--muted-foreground);
-}
-
-@utility theme-fc-lighter {
-  color: var(--muted-foreground);
-}
-
-@utility theme-text-muted {
-  color: var(--muted-foreground);
-}
-
-@utility theme-text-secondary {
-  color: var(--secondary-foreground);
-}
-
-@utility theme-text-accent {
-  color: var(--accent-foreground);
-}
-
-@utility theme-bg-accent {
-  background-color: var(--accent);
-}
-
-@utility theme-bg-secondary {
-  background-color: var(--secondary);
-}
-
-@utility theme-bg-muted {
-  background-color: var(--muted);
-}
-
-@utility theme-bg-card {
-  background-color: var(--card);
-}
-
-@utility theme-bg-popover {
-  background-color: var(--popover);
-}
-
-@utility theme-bg-destructive {
-  background-color: var(--destructive);
-}
-
-@utility theme-text-destructive {
-  color: var(--destructive);
-}
-
-@utility theme-bg-success {
-  background-color: var(--success-subtle);
-}
-
-@utility theme-text-success {
-  color: var(--success);
-}
-
-@utility theme-border-color {
-  border-color: var(--border);
-}
-
-@utility theme-border-color-light {
-  border-color: var(--border);
-}
-
-@utility theme-border-input {
-  border-color: var(--input);
-}
-
-@utility theme-ring {
-  --tw-ring-color: var(--ring);
-}
-
-@utility theme-rounded {
-  @apply rounded-lg;
-}
-
-@utility theme-rounded-sm {
-  @apply rounded-sm;
-}
-
-@utility theme-bg-shade-5 {
-  background-color: rgb(0 0 0 / 5%);
-}
-
-@utility theme-bg-shade-10 {
-  background-color: rgb(0 0 0 / 10%);
-}
-
-@utility button-hover-darker {
-  &:hover {
-    background-color: var(--primary-hover);
-  }
-}
-
-@utility theme-h1 {
-  @apply text-h1;
-}
-
-@utility theme-h2 {
-  @apply text-h2;
-}
-
-@utility theme-h3 {
-  @apply text-h3;
-}
-
-@utility theme-h4 {
-  @apply text-h4;
-}
-
-@utility theme-h5 {
-  @apply text-h5;
-}
-
-@utility theme-h6 {
-  @apply text-h6;
 }

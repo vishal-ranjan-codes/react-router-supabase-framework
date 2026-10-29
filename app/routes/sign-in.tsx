@@ -153,9 +153,9 @@ export default function SignIn() {
     actionData && "email" in actionData ? actionData.email : undefined;
 
   const footer = (
-    <p className="text-center text-sm theme-fc-light">
+    <p className="text-center text-sm text-muted-foreground">
       Don&apos;t have an account?{" "}
-      <Link to="/sign-up" className="text-primary hover:underline">
+      <Link to="/sign-up" className="text-link underline underline-offset-4">
         Sign up
       </Link>
     </p>
@@ -202,7 +202,7 @@ export default function SignIn() {
         )}
 
         {methods.length === 0 && (
-          <p className="rounded-md border theme-border-color p-4 text-center text-sm theme-fc-light">
+          <p className="rounded-md border border-border p-4 text-center text-sm text-muted-foreground">
             No authentication methods are enabled. Turn some on in{" "}
             <code className="text-xs">app/lib/auth/config.ts</code>.
           </p>

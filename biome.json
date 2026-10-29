@@ -10,6 +10,9 @@
     "includes": [
       "**",
       "!package-lock.json",
+      "!pnpm-lock.yaml",
+      "!.docs",
+      "!.visual-harness",
       "!app/types/database.types.ts",
       "!app/globals.css",
       "!.react-router",

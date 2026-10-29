@@ -155,9 +155,9 @@ export default function SignUp() {
       : false;
 
   const footer = (
-    <p className="text-center text-sm theme-fc-light">
+    <p className="text-center text-sm text-muted-foreground">
       Already have an account?{" "}
-      <Link to="/sign-in" className="text-primary hover:underline">
+      <Link to="/sign-in" className="text-link underline underline-offset-4">
         Sign in
       </Link>
     </p>
@@ -203,7 +203,7 @@ export default function SignUp() {
         )}
 
         {methods.length === 0 && (
-          <p className="rounded-md border theme-border-color p-4 text-center text-sm theme-fc-light">
+          <p className="rounded-md border border-border p-4 text-center text-sm text-muted-foreground">
             No authentication methods are enabled. Turn some on in{" "}
             <code className="text-xs">app/lib/auth/config.ts</code>.
           </p>

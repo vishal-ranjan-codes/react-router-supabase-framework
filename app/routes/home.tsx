@@ -1,5 +1,26 @@
+import {
+  Blocks,
+  CheckCircle2,
+  Cloud,
+  Database,
+  Palette,
+  ShieldCheck,
+  Zap,
+  type LucideIcon,
+} from "lucide-react";
 import { Link } from "react-router";
+import { CodeBlock } from "~/components/patterns/CodeBlock";
+import { CtaBand } from "~/components/patterns/CtaBand";
+import { FeatureCard } from "~/components/patterns/FeatureCard";
+import { Hero } from "~/components/patterns/Hero";
+import { LogoStrip } from "~/components/patterns/LogoStrip";
+import { Section } from "~/components/patterns/Section";
+import { SectionHeading } from "~/components/patterns/SectionHeading";
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
+import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
 
 export function meta() {
   return [
@@ -7,210 +28,224 @@ export function meta() {
     {
       name: "description",
       content:
-        "A comprehensive starter framework with a complete design system, shadcn/ui components, and best practices for building modern web applications.",
+        "A production-shaped starter: SSR on Cloudflare Workers, Supabase auth and storage, and a three-tier design system.",
     },
   ];
 }
 
-export default function HomePage() {
-  return (
-    <div className="theme-bg-color">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden py-24 md:py-32">
-        <div className="container-page">
-          <div className="mx-auto max-w-3xl text-center">
-            <h1 className="theme-h1 mb-6 text-4xl md:text-5xl lg:text-6xl">
-              React Router + Supabase Framework
-            </h1>
-            <p className="theme-fc-light text-lg md:text-xl mb-8 max-w-2xl mx-auto">
-              A comprehensive starter framework with a complete design system,
-              shadcn/ui components, and best practices for building modern web
-              applications on Cloudflare Workers.
-            </p>
-            <div className="flex flex-wrap gap-4 justify-center">
-              <Button size="lg" asChild>
-                <Link to="/design-system">View Design System</Link>
-              </Button>
-              <Button variant="outline" size="lg" asChild>
-                <Link to="/about">Learn More</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
+const QUICKSTART = `git clone https://github.com/vishal-ranjan-codes/react-router-supabase-framework
+cd react-router-supabase-framework
+npm install && npm run dev`;
 
-        {/* Gradient Background */}
-        <div className="absolute inset-0 -z-10 overflow-hidden">
-          <div className="absolute left-1/2 top-0 -translate-x-1/2 bg-primary/5 blur-3xl w-[800px] h-[600px] rounded-full" />
-        </div>
-      </section>
+const MIDDLEWARE = `// app/middleware/chains.ts
+export const requireAuth: MiddlewareFunction<Response>[] = [
+  supabaseMiddleware, // SSR session from http-only cookies
+  authMiddleware, // redirect to /sign-in, no session
+];
 
-      {/* Features Section */}
-      <section className="py-16 md:py-24 theme-bg-color-dark">
-        <div className="container-page">
-          <h2 className="theme-h2 text-center mb-12">What&apos;s Included</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature) => (
-              <div key={feature.title} className="box p-6">
-                <div className="bg-primary/12 theme-rounded w-12 h-12 flex items-center justify-center mb-4">
-                  <feature.icon className="w-6 h-6 text-primary" />
-                </div>
-                <h3 className="theme-h4 mb-3">{feature.title}</h3>
-                <p className="theme-fc-light">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+// a protected route opts in with one line
+export const middleware = requireAuth;`;
 
-      {/* CTA Section */}
-      <section className="py-16 md:py-24">
-        <div className="container-page">
-          <div className="box p-12 text-center max-w-3xl mx-auto bg-primary/5 theme-border-color">
-            <h2 className="theme-h2 mb-4">Ready to Get Started?</h2>
-            <p className="theme-fc-light text-lg mb-8">
-              Clone this repository and start building your next great
-              application.
-            </p>
-            <div className="flex flex-wrap gap-4 justify-center">
-              <Button size="lg" asChild>
-                <Link to="/design-system">Explore Design System</Link>
-              </Button>
-              <Button variant="outline" size="lg" asChild>
-                <Link to="/contact">Contact Us</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
-  );
-}
-
-const features = [
+const FEATURES: {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  href?: string;
+}[] = [
   {
-    title: "Modern Stack",
+    icon: Zap,
+    title: "Edge SSR by default",
     description:
-      "Built with React Router 8, React 19, and Tailwind CSS v4 for peak performance on Cloudflare Workers.",
-    icon: ({ className }: { className?: string }) => (
-      <svg
-        aria-hidden="true"
-        className={className}
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M13 10V3L4 14h7v7l9-11h-7z"
-        />
-      </svg>
-    ),
+      "React Router 8 loaders and actions run in a Cloudflare Worker near the user, streaming HTML from the edge.",
   },
   {
-    title: "Design System",
+    icon: Database,
+    title: "Supabase already wired",
     description:
-      "Comprehensive design tokens, color system, and typography scale with light/dark themes.",
-    icon: ({ className }: { className?: string }) => (
-      <svg
-        aria-hidden="true"
-        className={className}
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
-        />
-      </svg>
-    ),
+      "Server and admin clients, cookie-backed sessions, and R2 helpers for capped uploads and signed downloads.",
   },
   {
-    title: "Supabase Ready",
+    icon: Palette,
+    title: "Token-driven theming",
     description:
-      "Pre-configured Supabase integration with SSR middleware pattern and best practices.",
-    icon: ({ className }: { className?: string }) => (
-      <svg
-        aria-hidden="true"
-        className={className}
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"
-        />
-      </svg>
-    ),
+      "Three tiers of design tokens; light and dark are remaps of one semantic layer, so a rebrand edits a single ramp.",
+    href: "/design-system",
   },
   {
-    title: "shadcn/ui Components",
+    icon: Blocks,
+    title: "40+ shadcn/ui components",
     description:
-      "45 accessible, customizable UI components built with Radix UI primitives.",
-    icon: ({ className }: { className?: string }) => (
-      <svg
-        aria-hidden="true"
-        className={className}
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"
-        />
-      </svg>
-    ),
+      "Re-vendored from upstream 4.23.0 and kept pristine, so upgrades are a no-op and deviations stay documented.",
   },
   {
-    title: "TypeScript",
+    icon: ShieldCheck,
+    title: "Guards as middleware",
     description:
-      "Fully typed with TypeScript for better DX and fewer runtime errors.",
-    icon: ({ className }: { className?: string }) => (
-      <svg
-        aria-hidden="true"
-        className={className}
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
-        />
-      </svg>
-    ),
+      "requireAuth and requireAdmin compose from small pieces and run before loaders, on pages and API routes alike.",
   },
   {
-    title: "Cloudflare Workers",
+    icon: Cloud,
+    title: "Workers-native deploy",
     description:
-      "Deploy to the edge with Cloudflare Workers for global low-latency performance.",
-    icon: ({ className }: { className?: string }) => (
-      <svg
-        aria-hidden="true"
-        className={className}
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"
-        />
-      </svg>
-    ),
+      "wrangler deploy ships the build with cron triggers, secrets and R2 bindings already typed end to end.",
   },
 ];
+
+const PIPELINE = [
+  "supabaseMiddleware hydrates an SSR session from http-only cookies on every request.",
+  "requireAuth and requireAdmin are precomposed chains, so protection is one reviewable line per route.",
+  "Uploads stream straight to R2 behind a 5 MB application limit, on top of the platform's own cap.",
+];
+
+export default function HomePage() {
+  return (
+    <>
+      <Hero
+        eyebrow="React Router 8 · Supabase · Cloudflare Workers"
+        title="A full-stack starter that already made the boring decisions"
+        lede="SSR on the edge, auth and storage wired to Supabase, and a design system built from tokens — clone it, rename it, ship it."
+        primary={
+          <Button size="lg" asChild>
+            <Link to="/design-system">Explore the design system</Link>
+          </Button>
+        }
+        secondary={
+          <Button size="lg" variant="outline" asChild>
+            <Link to="/about">Why this exists</Link>
+          </Button>
+        }
+        artifact={<CodeBlock filename="terminal" code={QUICKSTART} />}
+        trust={
+          <LogoStrip
+            items={[
+              { label: "React Router 8" },
+              { label: "Supabase" },
+              { label: "Cloudflare Workers" },
+              { label: "Tailwind CSS v4" },
+            ]}
+          />
+        }
+      />
+
+      <Section size="md">
+        <SectionHeading
+          eyebrow="What's inside"
+          title="Everything a first sprint usually spends itself on"
+          description="Working patterns rather than a todo list with a README — delete what you don't need, keep the spine."
+          aside={
+            <Button variant="ghost" asChild>
+              <Link to="/design-system">Browse the components</Link>
+            </Button>
+          }
+        />
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {FEATURES.map((feature) => (
+            <FeatureCard
+              key={feature.title}
+              icon={<feature.icon />}
+              title={feature.title}
+              description={feature.description}
+              href={feature.href}
+            />
+          ))}
+        </div>
+      </Section>
+
+      <Section tone="sunken" size="md">
+        <div className="grid items-center gap-12 lg:grid-cols-2">
+          <div>
+            <SectionHeading
+              className="mb-6"
+              eyebrow="Architecture"
+              title="One request pipeline, every concern in its own middleware"
+              description="Sessions, guards, CORS and rate limits compose as arrays, so the order a request flows through is readable in one file."
+            />
+            <ul className="space-y-3">
+              {PIPELINE.map((line) => (
+                <li key={line} className="flex gap-3 text-body">
+                  <CheckCircle2
+                    aria-hidden="true"
+                    className="mt-0.5 size-4 shrink-0 text-foreground-muted"
+                  />
+                  <span className="text-foreground-muted">{line}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <CodeBlock filename="app/middleware/chains.ts" code={MIDDLEWARE} />
+        </div>
+      </Section>
+
+      <Section size="md">
+        <SectionHeading
+          eyebrow="Design system"
+          title="Three tiers of tokens, one utility vocabulary"
+          description="Primitives hold the hexes, semantics hold the intent, and the theme layer exposes exactly the classes components consume."
+        />
+        <div className="grid gap-6 md:grid-cols-3">
+          <div className="box p-6">
+            <p className="mb-4 text-eyebrow uppercase text-foreground-muted">
+              Buttons
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm">Default</Button>
+              <Button size="sm" variant="secondary">
+                Secondary
+              </Button>
+              <Button size="sm" variant="outline">
+                Outline
+              </Button>
+              <Button size="sm" variant="ghost">
+                Ghost
+              </Button>
+            </div>
+          </div>
+          <div className="box p-6">
+            <p className="mb-4 text-eyebrow uppercase text-foreground-muted">
+              Form controls
+            </p>
+            <div className="space-y-2">
+              <Label htmlFor="specimen-email">Work email</Label>
+              <Input id="specimen-email" placeholder="you@example.com" />
+              <div className="flex gap-2 pt-1">
+                <Badge>token</Badge>
+                <Badge variant="secondary">remap</Badge>
+                <Badge variant="outline">contrast</Badge>
+              </div>
+            </div>
+          </div>
+          <div className="box p-6">
+            <p className="mb-4 text-eyebrow uppercase text-foreground-muted">
+              Status
+            </p>
+            <Alert className="border-success-border bg-success-subtle text-success-on-subtle">
+              <CheckCircle2 />
+              <AlertTitle>Upload complete</AlertTitle>
+              <AlertDescription>
+                avatar.png is stored in R2 and signed for download.
+              </AlertDescription>
+            </Alert>
+          </div>
+        </div>
+      </Section>
+
+      <CtaBand
+        tone="brand-deep"
+        title="Clone it, rename it, deploy it before the coffee cools"
+        description="One command to a running dev server; one more to the edge once .dev.vars points at your Supabase project."
+        actions={
+          <>
+            <Button size="lg" variant="secondary" asChild>
+              <Link to="/sign-up">Create an account</Link>
+            </Button>
+            <CodeBlock
+              className="w-full lg:w-auto"
+              filename="terminal"
+              code="git clone https://github.com/vishal-ranjan-codes/react-router-supabase-framework.git"
+            />
+          </>
+        }
+      />
+    </>
+  );
+}

@@ -22,16 +22,16 @@ export default function AdminHome({ loaderData }: Route.ComponentProps) {
 
   return (
     <div className="space-y-6">
-      <h1 className="theme-h1">Admin Dashboard</h1>
+      <h1 className="text-h1">Admin Dashboard</h1>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-            <Users className="h-4 w-4 theme-fc-light" />
+            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold theme-fc-heading">
+            <p className="text-3xl font-bold text-foreground">
               {userCount ?? 0}
             </p>
           </CardContent>
@@ -40,20 +40,20 @@ export default function AdminHome({ loaderData }: Route.ComponentProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">System Status</CardTitle>
-            <Activity className="h-4 w-4 theme-fc-light" />
+            <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <p className="text-lg font-medium theme-text-success">Healthy</p>
+            <p className="text-lg font-medium text-success">Healthy</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Database</CardTitle>
-            <Database className="h-4 w-4 theme-fc-light" />
+            <Database className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <p className="text-lg font-medium theme-fc-heading">Supabase</p>
+            <p className="text-lg font-medium text-foreground">Supabase</p>
           </CardContent>
         </Card>
       </div>

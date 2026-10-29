@@ -33,7 +33,7 @@ export function EmailOtpForm({
 
         <div className="space-y-2 text-center">
           <Label>Enter the 6-digit code sent to</Label>
-          <p className="text-sm font-medium theme-fc-heading">{email}</p>
+          <p className="text-sm font-medium text-foreground">{email}</p>
         </div>
 
         <div className="flex justify-center">
@@ -53,7 +53,7 @@ export function EmailOtpForm({
           <p className="text-sm text-destructive text-center">{error}</p>
         )}
         {resent && (
-          <p className="text-sm theme-text-success text-center">
+          <p className="text-sm text-success text-center">
             A new code is on its way.
           </p>
         )}

@@ -31,21 +31,21 @@ export default function AdminUsers({ loaderData }: Route.ComponentProps) {
 
   return (
     <div className="space-y-6">
-      <h1 className="theme-h1">Users</h1>
+      <h1 className="text-h1">Users</h1>
 
-      <div className="rounded-lg border theme-border-color theme-fg-color">
+      <div className="rounded-lg border border-border bg-card">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="theme-fc-light">Email</TableHead>
-              <TableHead className="theme-fc-light">Role</TableHead>
-              <TableHead className="theme-fc-light">Created</TableHead>
+              <TableHead className="text-muted-foreground">Email</TableHead>
+              <TableHead className="text-muted-foreground">Role</TableHead>
+              <TableHead className="text-muted-foreground">Created</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {users.map((user) => (
               <TableRow key={user.id}>
-                <TableCell className="theme-fc-heading">{user.email}</TableCell>
+                <TableCell className="text-foreground">{user.email}</TableCell>
                 <TableCell>
                   <Badge
                     variant={user.role === "admin" ? "default" : "secondary"}
@@ -53,7 +53,7 @@ export default function AdminUsers({ loaderData }: Route.ComponentProps) {
                     {user.role}
                   </Badge>
                 </TableCell>
-                <TableCell className="theme-fc-light">
+                <TableCell className="text-muted-foreground">
                   {new Date(user.created_at).toLocaleDateString()}
                 </TableCell>
               </TableRow>

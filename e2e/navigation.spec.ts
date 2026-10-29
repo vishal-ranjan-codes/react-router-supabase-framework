@@ -12,21 +12,30 @@ test.describe("Navigation", () => {
   test("about page loads", async ({ page }) => {
     await page.goto("/about");
     await expect(
-      page.getByRole("heading", { level: 1, name: /about/i }),
+      page.getByRole("heading", {
+        level: 1,
+        name: "A starter that stays maintainable after the demo",
+      }),
     ).toBeVisible();
   });
 
   test("contact page loads", async ({ page }) => {
     await page.goto("/contact");
     await expect(
-      page.getByRole("heading", { level: 1, name: "Get in Touch" }),
+      page.getByRole("heading", {
+        level: 1,
+        name: "Talk to the people who maintain it",
+      }),
     ).toBeVisible();
   });
 
   test("design system page loads", async ({ page }) => {
     await page.goto("/design-system");
     await expect(
-      page.getByRole("heading", { level: 1, name: "Design System" }),
+      page.getByRole("heading", {
+        level: 1,
+        name: "One vocabulary, measured in your browser",
+      }),
     ).toBeVisible();
   });
 
@@ -35,7 +44,10 @@ test.describe("Navigation", () => {
     await page.getByRole("link", { name: /about/i }).first().click();
     await expect(page).toHaveURL(/\/about$/);
     await expect(
-      page.getByRole("heading", { level: 1, name: /about/i }),
+      page.getByRole("heading", {
+        level: 1,
+        name: "A starter that stays maintainable after the demo",
+      }),
     ).toBeVisible();
   });
 });

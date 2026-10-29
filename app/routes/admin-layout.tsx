@@ -43,10 +43,10 @@ export default function AdminLayout({ loaderData }: Route.ComponentProps) {
     <>
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-2">
-          <Shield className="h-5 w-5 text-primary" />
-          <h2 className="text-lg font-bold theme-fc-heading">Admin Panel</h2>
+          <Shield className="h-5 w-5 text-link" />
+          <h2 className="text-lg font-bold text-foreground">Admin Panel</h2>
         </div>
-        <p className="text-sm theme-fc-light truncate">{user?.email}</p>
+        <p className="text-sm text-muted-foreground truncate">{user?.email}</p>
       </div>
 
       <nav className="flex-1 space-y-1">
@@ -57,8 +57,8 @@ export default function AdminLayout({ loaderData }: Route.ComponentProps) {
             onClick={() => setSidebarOpen(false)}
             className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors ${
               location.pathname === to
-                ? "theme-bg-shade-10 theme-fc-heading font-medium"
-                : "theme-fc-light hover:theme-bg-shade-5 hover:theme-fc-heading"
+                ? "bg-background-subtle text-foreground font-medium"
+                : "text-muted-foreground hover:bg-background-subtle hover:text-foreground"
             }`}
           >
             <Icon className="h-4 w-4" />
@@ -67,11 +67,11 @@ export default function AdminLayout({ loaderData }: Route.ComponentProps) {
         ))}
       </nav>
 
-      <div className="border-t theme-border-color pt-4 mt-4">
+      <div className="border-t border-border pt-4 mt-4">
         <Link
           to="/dashboard"
           onClick={() => setSidebarOpen(false)}
-          className="flex items-center gap-3 rounded-md px-3 py-2 text-sm theme-fc-light hover:theme-bg-shade-5 hover:theme-fc-heading transition-colors"
+          className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-background-subtle hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to App
@@ -81,18 +81,18 @@ export default function AdminLayout({ loaderData }: Route.ComponentProps) {
   );
 
   return (
-    <div className="flex min-h-screen theme-bg-color theme-fc-heading">
+    <div className="flex min-h-screen bg-background text-foreground">
       {/* Mobile sidebar trigger */}
       <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
         <SheetTrigger asChild className="lg:hidden fixed top-4 left-4 z-50">
-          <Button variant="ghost" size="icon" className="w-9 h-9">
-            <Menu className="h-5 w-5" />
+          <Button variant="ghost" size="icon" className="size-touch-min">
+            <Menu className="size-icon-md" />
             <span className="sr-only">Toggle sidebar</span>
           </Button>
         </SheetTrigger>
         <SheetContent
           side="left"
-          className="w-[260px] theme-fg-color p-4 flex flex-col"
+          className="w-[260px] bg-sidebar text-sidebar-foreground p-4 flex flex-col"
         >
           <SheetHeader className="p-0">
             <SheetTitle className="sr-only">Admin Navigation</SheetTitle>
@@ -102,12 +102,12 @@ export default function AdminLayout({ loaderData }: Route.ComponentProps) {
       </Sheet>
 
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex w-64 border-r theme-border-color theme-fg-color p-4 flex-col">
+      <aside className="hidden lg:flex w-64 border-r border-border bg-sidebar text-sidebar-foreground p-4 flex-col">
         {sidebarNav}
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-6 overflow-auto theme-bg-color">
+      <main className="flex-1 p-6 overflow-auto bg-background">
         <div className="lg:hidden h-10" />
         <Outlet />
       </main>

@@ -18,6 +18,13 @@ import type { Route } from "./+types/root";
 import stylesheet from "./globals.css?url";
 
 export const links: Route.LinksFunction = () => [
+  {
+    rel: "preload",
+    href: "/fonts/InterVariable.woff2",
+    as: "font",
+    type: "font/woff2",
+    crossOrigin: "anonymous",
+  },
   { rel: "stylesheet", href: stylesheet },
 ];
 
@@ -55,7 +62,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body className="theme-bg-color theme-fc-base font-inter antialiased min-h-screen flex flex-col">
+      <body className="bg-background text-foreground antialiased min-h-screen flex flex-col">
         {children}
         <ScrollRestoration />
         <Scripts />

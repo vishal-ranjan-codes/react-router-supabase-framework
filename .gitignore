@@ -21,5 +21,8 @@ worker-configuration.d.ts
 /playwright-report/
 /test-results/
 
+# Local screenshot harness (scratch renders, not baselines)
+/.visual-harness/
+
 # Plans
 /plans/

@@ -16,7 +16,7 @@ export function MagicLinkForm({
 }: MagicLinkFormProps) {
   if (success) {
     return (
-      <div className="rounded-md theme-bg-success p-4 text-sm theme-text-success text-center">
+      <div className="rounded-md bg-success-subtle p-4 text-sm text-success text-center">
         Check your email for the magic link!
       </div>
     );

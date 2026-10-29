@@ -19,10 +19,10 @@ export function AuthDivider({ label }: { label: string }) {
   return (
     <div className="relative">
       <div className="absolute inset-0 flex items-center">
-        <span className="w-full border-t theme-border-color" />
+        <span className="w-full border-t border-border" />
       </div>
       <div className="relative flex justify-center text-xs uppercase">
-        <span className="theme-bg-color px-2 theme-fc-light">{label}</span>
+        <span className="bg-card px-2 text-muted-foreground">{label}</span>
       </div>
     </div>
   );
@@ -35,7 +35,7 @@ export function AuthLayout({
   footer,
 }: AuthLayoutProps) {
   return (
-    <div className="flex min-h-screen items-center justify-center theme-bg-color px-4">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Logo />
@@ -43,7 +43,7 @@ export function AuthLayout({
 
         <Card className="border-0 shadow-lg">
           <CardHeader className="text-center pb-2">
-            <CardTitle className="theme-h2">{title}</CardTitle>
+            <CardTitle className="text-h2">{title}</CardTitle>
             <CardDescription>{description}</CardDescription>
           </CardHeader>
           <CardContent>
@@ -52,8 +52,8 @@ export function AuthLayout({
           </CardContent>
         </Card>
 
-        <p className="mt-6 text-center text-sm theme-fc-light">
-          <Link to="/" className="text-primary hover:underline">
+        <p className="mt-6 text-center text-sm text-muted-foreground">
+          <Link to="/" className="text-link hover:underline">
             &larr; Back to home
           </Link>
         </p>
