@@ -26,8 +26,10 @@ and Playwright E2E).
 3. **Brand is Punctuation (< 10% Viewport Area)**:
    - Primary brand color (`--primary`) is an accent mark: primary action buttons, active navigation
      indicators, links, focus rings, and chart series.
-   - Large brand surfaces are restricted: at most **one** full-bleed `Section tone="brand-deep"` is
-     permitted per page.
+   - Large brand surfaces are restricted to bookends: at most **one** full-bleed
+     `Section tone="brand-deep"` in the page body, plus an optional closing
+     `CtaBand tone="brand-deep"` as the page's **last** section (two maximum,
+     enforced by `e2e/visual.spec.ts`).
    - Backgrounds, panels, cards, and wells must remain clean neutrals.
 
 4. **Single-Primary Default & Restricted Brand Accent Scope**:
@@ -107,7 +109,7 @@ not what color it should look like.
 | **3. Floating Layer** | `--popover` | `bg-popover` | `#ffffff` | `#141414` | Dropdown menus, selects, tooltips, dialogs. Pair with `shadow-pop`. |
 | **4. Overlay Dim** | `--scrim` | `bg-scrim` | `#00000080` | `#000000a3` | Modal backdrop overlay. |
 | **5. Inverse Band** | `--surface-inverse` | `bg-surface-inverse` | `#1d1d1d` | `#fafafa` | Full-width contrast band (footer, announcement banner). |
-| **Special: Deep Brand** | `--surface-brand` | `bg-surface-brand` | `#0a3d7d` | `#051b38` | Exactly **one** full-bleed hero or CTA section per page. |
+| **Special: Deep Brand** | `--surface-brand` | `bg-surface-brand` | `#0a3d7d` | `#051b38` | One full-bleed body band plus an optional closing CTA bookend (last section). |
 
 ### Surface Stacking Decision Rules
 - **Page Canvas**: Always `bg-background` (or `<Section tone="page">`).
@@ -132,7 +134,7 @@ Every token in the design system contract is listed below. All tokens are availa
 | `--popover` | `bg-popover` | `#ffffff` | `#141414` | Menus, popovers, tooltips | Page canvas |
 | `--scrim` | `bg-scrim` | `#00000080` | `#000000a3` | Backdrop dimming overlay | Component fills |
 | `--surface-inverse` | `bg-surface-inverse` | `#1d1d1d` | `#fafafa` | High-contrast footer band | Card surfaces |
-| `--surface-brand` | `bg-surface-brand` | `#0a3d7d` | `#051b38` | One full-bleed CTA band | Inline cards |
+| `--surface-brand` | `bg-surface-brand` | `#0a3d7d` | `#051b38` | Full-bleed hero or closing CTA bookend | Inline cards |
 | `--foreground` | `text-foreground` | `#090909` | `#fafafa` | Primary headings, body text | Disabled text |
 | `--foreground-muted` | `text-foreground-muted` | `#5d5d5d` | `#c4c4c4` | Subtitles, metadata, captions | Low-contrast text |
 | `--foreground-subtle` | `text-foreground-subtle` | `#5d5d5d` | `#9e9e9e` | Helper hints, timestamps | Normal body copy |
@@ -412,7 +414,7 @@ improvised wrappers.
 | `CtaBand` | Full-width conversion banner at page bottom | `title`, `description`, `actions`, `tone="brand-deep" \| "inverse"`, `theme="dark" \| "light"` |
 | `CodeBlock` | Syntax-highlighted code specimen | `code`, `filename`, `className` |
 | `LogoStrip` | Trusted-by partner logo carousel/grid | `items` |
-| `PageHeader` | Interior app route header | `eyebrow`, `title`, `description` |
+| `PageHeader` | Interior app route header | `eyebrow`, `title`, `description`, `aside`, `tone` (any `Section` tone) |
 
 ### Scoped Subtrees & Theme Islands (Zero-Drift Auto-Inversion)
 

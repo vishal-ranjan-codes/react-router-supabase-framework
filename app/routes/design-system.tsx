@@ -1,4 +1,5 @@
 import {
+  Activity,
   ArrowRight,
   Check,
   CircleCheck,
@@ -116,10 +117,6 @@ export function meta() {
     },
   ];
 }
-
-const CLONE_COMMAND = `git clone https://github.com/vishal-ranjan-codes/react-router-supabase-framework
-cd react-router-supabase-framework
-npm install && npm run dev`;
 
 const BANNED_SURFACE_FILL = "bg-primary/5"; // ds-allow: the Don't list has to print a banned class to document it
 
@@ -2055,6 +2052,117 @@ const TOKEN_SNIPPET = `/* app/globals.css — Tier 2 never writes a hex */
 --primary: var(--p-brand-600);
 --foreground-subtle: var(--p-neutral-450);`;
 
+const SPARKLINE_POINTS = "0,26 16,22 32,24 48,16 64,18 80,10 96,13 112,5";
+
+function HeroDashboardVisual() {
+  return (
+    <div className="rounded-xl border border-border-on-brand bg-card p-4 shadow-2xl">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div aria-hidden="true" className="flex gap-1.5">
+            <span className="size-2.5 rounded-full bg-label-pink-solid" />
+            <span className="size-2.5 rounded-full bg-label-orange-solid" />
+            <span className="size-2.5 rounded-full bg-label-lime-solid" />
+          </div>
+          <span className="rounded-full border border-border-on-brand px-2.5 py-0.5 font-mono text-body-xs text-primary-deep-foreground">
+            framework.dev/overview
+          </span>
+        </div>
+        <span className="inline-flex items-center gap-1 rounded-full border border-success-border bg-success-subtle px-2 py-0.5 text-body-xs font-semibold text-success-on-subtle">
+          <Activity aria-hidden="true" className="size-3" />
+          Edge SSR · 12ms
+        </span>
+      </div>
+
+      <div className="mt-4 grid grid-cols-3 gap-2">
+        <div className="rounded-lg border border-border-subtle bg-background-subtle p-3">
+          <p className="text-body-xs text-foreground-muted">Active Sessions</p>
+          <p className="mt-1 text-h4 font-semibold tabular-nums text-foreground">
+            18,420
+          </p>
+          <span className="mt-1 inline-block rounded-full border border-success-border bg-success-subtle px-1.5 py-0.5 text-body-xs font-semibold text-success-on-subtle">
+            +14.2%
+          </span>
+        </div>
+        <div className="rounded-lg border border-border-subtle bg-background-subtle p-3">
+          <p className="text-body-xs text-foreground-muted">R2 Bandwidth</p>
+          <p className="mt-1 text-h4 font-semibold tabular-nums text-foreground">
+            1.2 TB
+          </p>
+          <p className="mt-1 text-body-xs text-foreground-muted">
+            5 MB cap per upload
+          </p>
+        </div>
+        <div className="rounded-lg border border-border-subtle bg-background-subtle p-3">
+          <p className="text-body-xs text-foreground-muted">TTFB</p>
+          <p className="mt-1 text-h4 font-semibold tabular-nums text-foreground">
+            14ms
+          </p>
+          <p className="mt-1 text-body-xs text-foreground-muted">
+            p50 · global edge
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-3 rounded-lg border border-border-subtle bg-background-subtle p-3">
+        <div className="flex items-center justify-between">
+          <p className="text-body-xs font-medium text-foreground-muted">
+            Requests · last hour
+          </p>
+          <p className="font-mono text-body-xs tabular-nums text-foreground">
+            2.4M
+          </p>
+        </div>
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 112 30"
+          className="mt-2 h-12 w-full"
+          fill="none"
+          preserveAspectRatio="none"
+        >
+          <polyline
+            points={SPARKLINE_POINTS}
+            className="stroke-chart-1"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
+
+      <div className="mt-3 space-y-2 rounded-lg border border-border-subtle bg-background-subtle p-3">
+        <p className="text-body-xs font-medium text-foreground-muted">
+          Live activity
+        </p>
+        <div className="flex items-center justify-between gap-2">
+          <p className="min-w-0 truncate font-mono text-body-xs text-foreground">
+            session.hydrate · user@company.com
+          </p>
+          <span className="shrink-0 rounded-full border border-label-indigo-border bg-label-indigo-subtle px-2 py-0.5 text-body-xs font-medium text-label-indigo-on-subtle">
+            Admin
+          </span>
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          <p className="min-w-0 truncate font-mono text-body-xs text-foreground">
+            r2.download · avatar-2026.webp
+          </p>
+          <span className="shrink-0 rounded-full border border-border-subtle bg-card px-2 py-0.5 text-body-xs text-foreground-muted">
+            Signed 60s
+          </span>
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          <p className="min-w-0 truncate font-mono text-body-xs text-foreground">
+            loader · /api/metrics
+          </p>
+          <span className="shrink-0 font-mono text-body-xs font-semibold text-success-on-subtle">
+            200 OK
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const SPECIMENS: Record<string, ReactNode> = {
   Section: (
     <div>
@@ -2118,21 +2226,32 @@ const SPECIMENS: Record<string, ReactNode> = {
   ),
   Hero: (
     <Hero
-      eyebrow="Hero"
-      title="Ship the framework, not the scaffold"
-      lede="The first screen of a marketing page: copy left, artifact right, and no decorative layer behind either."
+      tone="brand-deep"
+      eyebrow="React Router 8 · Supabase · Cloudflare Workers"
+      title="The edge-first full-stack starter built for scale"
+      lede="SSR on Cloudflare Workers, auth and storage wired to Supabase, and a three-tier design system — clone it, rename it, ship it."
       primary={
-        <Button size="lg">
-          Get started
-          <ArrowRight aria-hidden="true" />
+        <Button size="lg" variant="white" asChild>
+          <Link to="/design-system">
+            Explore the design system
+            <ArrowRight aria-hidden="true" className="size-4" />
+          </Link>
         </Button>
       }
       secondary={
-        <Button size="lg" variant="outline">
-          Read the docs
+        <Button size="lg" variant="white-outline" asChild>
+          <Link to="/about">Why this exists</Link>
         </Button>
       }
-      artifact={<CodeBlock filename="terminal" code={CLONE_COMMAND} />}
+      artifact={
+        <div className="relative">
+          <HeroDashboardVisual />
+          <div className="absolute -bottom-5 left-6 inline-flex items-center gap-1.5 rounded-full border border-success-border bg-success-subtle px-3 py-1 text-body-xs font-semibold text-success-on-subtle shadow-pop">
+            <Check aria-hidden="true" className="size-3.5" />
+            Supabase Auth Hydrated
+          </div>
+        </div>
+      }
       trust={<LogoStrip items={STACK_LOGOS} />}
     />
   ),

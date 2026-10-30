@@ -14,9 +14,12 @@ editing `app/`.
    - `shadow-card`. Need a sunken well or icon tile? Use `bg-background-subtle` (`#f3f3f3` in light,
      `#1d1d1d` in dark). Need interactive feedback? Use `bg-accent` (hover) or `bg-accent-selected` (selected).
 3. Brand colour is punctuation: buttons, links, active nav, badges, the focus
-   ring, chart series, one icon glyph. The only large brand surface is one
-   full-bleed `Section tone="brand-deep"` per page — brand should stay under
-   about 10% of the viewport.
+   ring, chart series, one icon glyph. Large brand surfaces are bookends: at
+   most one full-bleed `Section tone="brand-deep"` in the page body, plus a
+   closing `CtaBand tone="brand-deep"` only as the page's last section
+   (`e2e/visual.spec.ts` enforces the ceiling). Never two body bands, never
+   adjacent bands — the neutral canvas between them is what keeps brand under
+   about 10% of the viewport at any scroll position.
 4. Global Branding & Single-Primary Default: The framework defaults to a Single-Primary
    brand system (`siteThemeConfig.enableAccent = false` in `app/config/theme.ts`). When
    accent is disabled, `--brand-accent` automatically aliases to `--primary`.

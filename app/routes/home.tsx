@@ -503,12 +503,12 @@ export default function HomePage() {
       </Section>
 
       <CtaBand
-        tone="inverse"
+        tone="brand-deep"
         title="Clone it, rename it, deploy it before the coffee cools"
         description="One command to a running edge dev server; one more to production once .dev.vars points at your Supabase project."
         actions={
           <>
-            <Button size="lg" variant="secondary" asChild>
+            <Button size="lg" variant="white" asChild>
               <Link to="/sign-up">Create an account</Link>
             </Button>
             <CodeBlock

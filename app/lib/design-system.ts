@@ -1258,7 +1258,14 @@ export const PATTERNS: readonly {
   {
     name: "PageHeader",
     file: "PageHeader.tsx",
-    props: ["eyebrow?", "title", "description?", "className?"],
+    props: [
+      "eyebrow?",
+      "title",
+      "description?",
+      "aside? (slot)",
+      "tone?: SectionTone",
+      "className?",
+    ],
     useWhen:
       "The title block of an app or info page — replaces the centred heading in a box.",
   },

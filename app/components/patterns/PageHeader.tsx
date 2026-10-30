@@ -1,10 +1,13 @@
 import type { ReactNode } from "react";
-import { Section } from "./Section";
+import { Section, type SectionTone } from "./Section";
 
 type PageHeaderProps = {
   eyebrow?: string;
   title: string;
   description?: ReactNode;
+  /** Extra content under the lede — a status pill, a breadcrumb, an action. */
+  aside?: ReactNode;
+  tone?: SectionTone;
   className?: string;
 };
 
@@ -12,10 +15,12 @@ export function PageHeader({
   eyebrow,
   title,
   description,
+  aside,
+  tone = "page",
   className,
 }: PageHeaderProps) {
   return (
-    <Section size="sm" className={className}>
+    <Section tone={tone} size="sm" className={className}>
       <div className="max-w-3xl">
         {eyebrow ? (
           <p className="text-eyebrow uppercase text-foreground-muted">
@@ -30,6 +35,7 @@ export function PageHeader({
             {description}
           </p>
         ) : null}
+        {aside ? <div className="mt-6">{aside}</div> : null}
       </div>
     </Section>
   );

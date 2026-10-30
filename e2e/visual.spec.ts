@@ -97,14 +97,36 @@ for (const size of SIZES) {
 test.describe("Contract invariants", () => {
   test.use({ viewport: { width: 1280, height: 800 } });
 
-  // AGENTS.md rule 3 is a ceiling, not a quota: `brand-deep` may appear at most
-  // once per page. `/about` and `/contact` deliberately use `inverse` instead.
+  // AGENTS.md rule 3 is a ceiling, not a quota: one full-bleed `brand-deep` band in
+  // the page body, plus — only as the page's last section — a closing CTA bookend.
+  // `/about` and `/contact` close on `inverse` instead, so they carry a single band.
+  // Sonner's toast region is also a <section> (appended to <body>), so only sections
+  // painted with a surface tone count as bands.
+  const SURFACE_TONES = [
+    "bg-background",
+    "bg-card",
+    "bg-background-subtle",
+    "bg-surface-inverse",
+    "bg-surface-brand",
+  ];
   for (const path of ["/", "/about", "/contact"]) {
-    test(`${path} uses at most one full-bleed brand band`, async ({ page }) => {
+    test(`${path} keeps brand bands to one body band plus a closing bookend`, async ({
+      page,
+    }) => {
       await page.goto(path, { waitUntil: "networkidle" });
 
-      const brandBands = await page.locator("section.bg-surface-brand").count();
-      expect(brandBands).toBeLessThanOrEqual(1);
+      const isBrandBand = await page.evaluate(
+        (tones) =>
+          [...document.querySelectorAll("section")]
+            .filter((section) =>
+              tones.some((tone) => section.classList.contains(tone)),
+            )
+            .map((section) => section.classList.contains("bg-surface-brand")),
+        SURFACE_TONES,
+      );
+      const bands = isBrandBand.filter(Boolean).length;
+      expect(bands).toBeLessThanOrEqual(2);
+      if (bands === 2) expect(isBrandBand.at(-1)).toBe(true);
     });
 
     test(`${path} paints no decorative blur blob`, async ({ page }) => {

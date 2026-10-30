@@ -1,6 +1,6 @@
 # Public Pages Redesign Plan (Home, About, Contact & Hero Sync)
 
-**Status:** Ready for Implementation (Aligned with `DESIGN.md` & `AGENTS.md`)  
+**Status:** Completed (Phases 1–4 fully implemented and verified against all quality gates)  
 **Target Files:**
 - `app/routes/home.tsx` (Phase 1)
 - `app/routes/about.tsx` (Phase 2)
@@ -24,8 +24,8 @@ The current public pages (`home.tsx`, `about.tsx`, `contact.tsx`) suffer from se
 
 ### The Solution
 Completely revamp all three public pages using design intelligence from top-tier developer platforms and SaaS leaders (such as **Linear**, **Supabase**, **Stripe**, **Raycast**, and **Vercel**), built entirely with our semantic tokens and upstream shadcn UI primitives:
-1. **Dynamic Tone Cadence & Surface Ladder**: Alternate intentionally across `brand-deep` (hero), `raised` (telemetry/benchmarks), `page` (spacious bento grid), `sunken` (recessed architecture pipeline), and `inverse` (closing CTA band).
-2. **Hero Sections on `brand-deep`**: Anchor both Home and About pages with a high-impact, full-bleed `Section tone="brand-deep"` hero (the single allowed large brand surface per page under `AGENTS.md` Rule 3).
+1. **Dynamic Tone Cadence & Surface Ladder**: Alternate intentionally across `brand-deep` (hero), `raised` (telemetry/benchmarks), `page` (spacious bento grid), `sunken` (recessed architecture pipeline), and `inverse` (closing CTA band on About/Contact; Home instead closes on a `brand-deep` bookend).
+2. **Hero Sections on `brand-deep`**: Anchor both Home and About pages with a high-impact, full-bleed `Section tone="brand-deep"` hero (the body's single large brand surface under `AGENTS.md` Rule 3; Home's closing CTA bookend is the rule's only exception).
 3. **Pure Code UI Visuals (HTML/JSX)**: In place of external bitmap assets (preserving zero-bloat and edge streaming speed), build high-fidelity UI visual components directly in JSX/CSS tokens:
    - macOS-style edge dashboard window mockup with traffic lights, real-time latency badges, and telemetry cards.
    - Interactive request pipeline architecture flowcharts.
@@ -80,7 +80,7 @@ Following the recent major update to `DESIGN.md`, this plan incorporates the fol
 | | 4. Request Pipeline | `sunken` | `Section` | Visual flowchart of `chains.ts` middleware pipeline + interactive code specimen |
 | | 5. UI Playground | `raised` | `Section` | Multi-preset interactive component showcase with real badges, buttons, form controls, alerts |
 | | 6. Developer FAQ | `page` | `Section` | Accessible Radix Accordion answering core technical & architectural questions |
-| | 7. Closing CTA | `inverse` | `CtaBand` | Full-bleed inverse dark band with terminal one-liner copy command and sign-up CTA |
+| | 7. Closing CTA | `brand-deep` | `CtaBand` | Full-bleed brand-deep closing bookend with terminal one-liner copy command and `variant="white"` sign-up CTA |
 | **About** | 1. Hero | `brand-deep` | `Hero` | Split hero: Philosophy eyebrow, headline, dual CTAs + Framework Anatomy Blueprint visual |
 | | 2. Health Bar | `raised` | `Section` | 4 quality indicators (0 upstream drift, 100% TS strict, 462 tests, 100% axe clean) |
 | | 3. Three Principles | `page` | `Section` | 3 rich cards with visual before/after code diagrams & patch audit guarantees |
@@ -101,7 +101,7 @@ flowchart TD
         H3 --> H4["4. Request Pipeline Flow (sunken)<br/>Middleware Lifecycle Diagram"]
         H4 --> H5["5. Live UI Component Showcase (raised)<br/>Brand Presets & Primitives"]
         H5 --> H6["6. Developer FAQ Accordion (page)"]
-        H6 --> H7["7. Conversion CTA Band (inverse)"]
+        H6 --> H7["7. Conversion CTA Band (brand-deep bookend)"]
     end
 
     subgraph P2["Phase 2: About Page Redesign"]
@@ -192,11 +192,12 @@ flowchart TD
   4. *How are database migrations and Supabase schemas synchronized?*
   5. *What makes this different from generic SaaS boilerplates?*
 
-### 4.7 Closing CTA Band (`tone="inverse"`)
+### 4.7 Closing CTA Band (`tone="brand-deep"` bookend)
 - Headline: *"Clone it, rename it, deploy it before the coffee cools"*.
 - Lede: *"One command to a running edge dev server; one more to production once .dev.vars points at your Supabase project."*
+- Tone decision (2026-10-29): owner replaced `inverse` with a `brand-deep` closing bookend; AGENTS.md Rule 3, DESIGN.md §3 and the `e2e/visual.spec.ts` invariant now encode "one body band + closing bookend" as the ceiling.
 - Actions:
-  - `<Button size="lg" asChild><Link to="/sign-up">Create an account</Link></Button>`
+  - `<Button size="lg" variant="white" asChild><Link to="/sign-up">Create an account</Link></Button>` (on-dark variant per AGENTS.md §6)
   - `<CodeBlock filename="terminal" code="git clone https://github.com/vishal-ranjan-codes/react-router-supabase-framework.git" />`
 
 ---
