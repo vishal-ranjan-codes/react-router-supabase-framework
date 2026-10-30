@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { vi } from "vitest";
+import { type Mock, vi } from "vitest";
 import { supabaseContext } from "~/lib/supabase/context";
 import type { Database } from "~/types/database.types";
 
@@ -89,7 +89,21 @@ export async function captureRedirect(
   };
 }
 
-export function createSupabaseDouble() {
+export interface SupabaseDouble {
+  auth: {
+    getClaims: Mock;
+    signInWithPassword: Mock;
+    signUp: Mock;
+    signInWithOtp: Mock;
+    verifyOtp: Mock;
+    resetPasswordForEmail: Mock;
+    updateUser: Mock;
+    signOut: Mock;
+    signInWithOAuth: Mock;
+  };
+}
+
+export function createSupabaseDouble(): SupabaseDouble {
   return {
     auth: {
       getClaims: vi.fn().mockResolvedValue({ data: null, error: null }),
@@ -112,7 +126,7 @@ export function createSupabaseDouble() {
 
 /** The same double, handed over with the `SupabaseClient` type the provider helpers expect. */
 export function createAuthClient(): {
-  double: ReturnType<typeof createSupabaseDouble>;
+  double: SupabaseDouble;
   client: Supabase;
 } {
   const double = createSupabaseDouble();

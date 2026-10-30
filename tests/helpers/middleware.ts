@@ -1,5 +1,5 @@
 import type { MiddlewareFunction } from "react-router";
-import { vi } from "vitest";
+import { type Mock, vi } from "vitest";
 
 type MiddlewareArgs = Parameters<MiddlewareFunction<Response>>[0];
 
@@ -15,7 +15,7 @@ export function middlewareArgsFor(request: Request): MiddlewareArgs {
 }
 
 /** The downstream handler: records the call and resolves with a plain 200. */
-export function okNext() {
+export function okNext(): Mock<() => Promise<Response>> {
   return vi.fn().mockResolvedValue(new Response("OK", { status: 200 }));
 }
 
